@@ -1,2 +1,2 @@
 # FortTrace
-A product buit by Team Arise
+A product built by Team Arise
