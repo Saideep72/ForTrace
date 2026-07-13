@@ -1,0 +1,59 @@
+# ====================================================================
+# FortTrace — Main Git Ignore Rules
+# ====================================================================
+
+# 1. Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 2. Local Environments & Secret Keys
+.env
+*.env
+.venv
+venv
+env
+ENV
+env.bak/
+venv.bak/
+.python-version
+
+# 3. Large Machine Learning Models (Do not push 1GB+ models to Git)
+**/model_bge_large/
+model_bge_large/
+
+# 4. Dependency Managers & Bundlers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+
+# 5. IDEs and Editors settings
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# 6. Temporary Test Assets and Scratch Files
+**/ner_test_error.txt
+**/ner_test_output.txt
+**/smoke_test_err.txt
+**/smoke_test_out.txt
+**/test_audio.wav
+**/test_photo.jpg
+**/test_manual.pdf
+**/test_walkthrough.mp4
+**/scratch_*.py
+**/*_test_output.txt
+**/*.log
+
+# 7. OS Metadata
+Thumbs.db
+.DS_Store
+Ehthumbs.db
