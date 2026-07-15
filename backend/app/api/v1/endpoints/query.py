@@ -91,6 +91,7 @@ class QueryRequest(BaseModel):
     query: str
     session_id: Optional[str] = "default_session"
     query_language: Optional[str] = "en"
+    tee_shield: Optional[bool] = False
 
 
 class QueryResponse(BaseModel):
@@ -99,8 +100,6 @@ class QueryResponse(BaseModel):
     confidence: float = 1.0
     agent_used: str
     spoken_summary: Optional[str] = None
-
-
 @router.post("/ask", response_model=QueryResponse)
 async def ask_query(
     payload: QueryRequest,
@@ -110,6 +109,7 @@ async def ask_query(
     """
     Main query routing endpoint. Calls Anushka's LangGraph orchestrator.
     Handles conversation history session mapping and auto-translation.
+    Supports TEE Anonymization Shield processing when enabled.
     """
     query = payload.query
     session_id = payload.session_id or "default_session"
@@ -126,6 +126,27 @@ async def ask_query(
         translated_query = translate_hi_to_en(query)
         logger.info(f"Translated query to English: {translated_query}")
         pref_lang = "hi"
+
+    # TEE Shield Logic
+    tee = None
+    tee_metadata = None
+    if payload.tee_shield:
+        try:
+            from app.services.tee_simulator import TEESimulator
+            tee = TEESimulator()
+            attestation = tee.get_attestation_report()
+            translated_query, anon_logs = tee.anonymize_text(translated_query)
+            tee_metadata = {
+                "enclave_id": attestation["enclave_id"],
+                "attestation_status": attestation["attestation_status"],
+                "measurement": attestation["measurement"],
+                "signature": attestation["signature"],
+                "anonymization_logs": anon_logs,
+                "deanonymization_logs": []
+            }
+            logger.info(f"TEE Shield active: Query anonymized to: {translated_query}")
+        except Exception as tee_init_err:
+            logger.warning(f"Failed to initialize TEE enclave: {tee_init_err}")
         
     try:
         # Load conversation history for this session
@@ -158,6 +179,11 @@ async def ask_query(
                         sources.append(item)
                 elif isinstance(v, dict):
                     sources.append(v)
+ 
+        # TEE Shield De-anonymize Answer
+        if tee:
+            answer, deanon_logs = tee.deanonymize_text(answer)
+            tee_metadata["deanonymization_logs"] = deanon_logs
 
         # Update in-memory session history
         add_session_message(session_id, HumanMessage(content=translated_query))
@@ -176,7 +202,7 @@ async def ask_query(
             answer = translate_en_to_hi(answer)
             
         latency_ms = int((time.time() - start_time) * 1000)
-
+ 
         # Log to query_audit_log
         try:
             db.table("query_audit_log").insert({
@@ -190,7 +216,7 @@ async def ask_query(
                 "agent_used": current_agent,
                 "response_json": {"answer": answer},
                 "sources_cited": [s.get("title", "source") for s in sources[:3]],
-                "model_used": "FortTrace-Llama3",
+                "model_used": "FortTrace-Llama3-TEE" if tee else "FortTrace-Llama3",
                 "model_version": "v1.2",
                 "tokens_input": 0,
                 "tokens_output": 0,
@@ -202,18 +228,25 @@ async def ask_query(
             }).execute()
         except Exception as audit_err:
             logger.warning(f"Failed to log query audit trace: {audit_err}")
-
+ 
         return {
             "answer": answer,
             "sources": sources,
             "confidence": confidence,
             "agent_used": current_agent,
-            "spoken_summary": short_summary_hi if pref_lang == "hi" else short_summary_en
+            "spoken_summary": short_summary_hi if pref_lang == "hi" else short_summary_en,
+            "tee_metadata": tee_metadata
         }
     except Exception as exc:
         logger.warning(f"Failed to execute real LangGraph agent flow: {exc}")
         
         fallback_ans = f"Fallback Mock: Answer to query '{query}' (Real Agent failed to execute: {str(exc)})"
+        
+        # TEE Shield De-anonymize Fallback Answer
+        if tee:
+            fallback_ans, deanon_logs = tee.deanonymize_text(fallback_ans)
+            tee_metadata["deanonymization_logs"] = deanon_logs
+
         short_summary_en = f"Real agent execution error. {str(exc)}"
         short_summary_hi = "असली एजेंट चलाने में त्रुटि हुई।"
         
@@ -225,7 +258,8 @@ async def ask_query(
             "sources": [{"source": "mock_fallback", "result": "Failed to run LangGraph"}],
             "confidence": 0.50,
             "agent_used": "FallbackMockAgent",
-            "spoken_summary": short_summary_hi if pref_lang == "hi" else short_summary_en
+            "spoken_summary": short_summary_hi if pref_lang == "hi" else short_summary_en,
+            "tee_metadata": tee_metadata
         }
 
 

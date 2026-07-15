@@ -141,10 +141,13 @@ def search_vector(query: str) -> List[Dict[str, Any]]:
 
         # Try the pgvector RPC function first (requires embeddings to be populated)
         try:
+            from app.services.embedding_service import get_embedding
+            query_embedding = get_embedding(query)
+
             rpc_res = db.rpc(
                 "match_embeddings",
                 {
-                    "query_text": query,
+                    "query_embedding": query_embedding,
                     "match_threshold": 0.0,
                     "match_count": 5
                 }

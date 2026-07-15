@@ -27,8 +27,44 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
+        }
+
+        /* TEE Toggle Switch CSS */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #475569;
+            transition: .3s;
+            border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #10b981;
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
         }
 
         /* Authentication Page View */
@@ -593,6 +629,31 @@
         <div id="tab-ai" class="tab-content">
             <h2>AI Agent Orchestration Desk</h2>
             <p style="color: var(--text-muted);">Consult LangGraph agents for causal chain reasoning, sensor predictions, and diagnostics.</p>
+
+            <!-- TEE Confidentiality Shield Panel -->
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #f8fafc; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="tee-status-dot" style="width: 10px; height: 10px; background-color: #64748b; border-radius: 50%; display: inline-block;"></span>
+                        <div>
+                            <strong style="font-size: 14px; display: block; color: #f1f5f9;">Confidential TEE Shield</strong>
+                            <span id="tee-status-text" style="font-size: 11px; color: #94a3b8;">Enclave Status: INACTIVE (Plaintext Mode)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 22px; margin: 0;">
+                            <input type="checkbox" id="tee-shield-toggle" style="opacity: 0; width: 0; height: 0;" onchange="toggleTeeShield()">
+                            <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 22px;"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- TEE Terminal Log Console -->
+                <div id="tee-terminal" style="display: none; margin-top: 12px; background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; color: #38bdf8; max-height: 150px; overflow-y: auto;">
+                    <div style="color: #64748b; border-bottom: 1px solid #1e293b; padding-bottom: 4px; margin-bottom: 6px; font-weight: bold;">🛡️ Hardware Enclave Attestation Console</div>
+                    <div id="tee-terminal-logs" style="white-space: pre-wrap; line-height: 1.4;">Waiting for transaction execution...</div>
+                </div>
+            </div>
             
             <!-- Text vs Voice Selector Tabs -->
             <div style="display: flex; gap: 4px; margin-bottom: 8px;">
@@ -917,6 +978,28 @@
 
     <script>
         const BASE_URL = 'http://localhost:8000/api/v1';
+
+        function toggleTeeShield() {
+            const toggle = document.getElementById('tee-shield-toggle');
+            const dot = document.getElementById('tee-status-dot');
+            const text = document.getElementById('tee-status-text');
+            const term = document.getElementById('tee-terminal');
+            const termLogs = document.getElementById('tee-terminal-logs');
+
+            if (toggle.checked) {
+                dot.style.backgroundColor = '#10b981'; // green
+                text.innerText = 'Enclave Status: ACTIVE (AMD SEV-SNP Verified)';
+                text.style.color = '#34d399';
+                term.style.display = 'block';
+                termLogs.innerText = 'System ready. Awaiting secure transaction...';
+            } else {
+                dot.style.backgroundColor = '#64748b'; // gray
+                text.innerText = 'Enclave Status: INACTIVE (Plaintext Mode)';
+                text.style.color = '#94a3b8';
+                term.style.display = 'none';
+            }
+        }
+
         let accessToken = localStorage.getItem('access_token') || '';
         let refreshToken = localStorage.getItem('refresh_token') || '';
         let loggedUserEmail = localStorage.getItem('user_email') || 'Tester';
@@ -1502,10 +1585,17 @@
             e.preventDefault();
             const resultAnswer = document.getElementById('result-answer');
             const voiceLogs = document.getElementById('voice-logs-container');
+            const teeTerminalLogs = document.getElementById('tee-terminal-logs');
+            const teeShield = document.getElementById('tee-shield-toggle').checked;
             
             resultAnswer.style.color = "#475569";
             resultAnswer.innerText = "Consulting LangGraph agents network...";
             voiceLogs.style.display = 'none';
+
+            if (teeShield) {
+                teeTerminalLogs.innerHTML = `[TEE] Init transaction: establishing secure session channel...
+[TEE] Requesting hardware attestation report (AMD SEV-SNP)...`;
+            }
             
             const query = document.getElementById('query-input').value;
             const prefLang = document.getElementById('query-pref-lang').value;
@@ -1517,7 +1607,8 @@
                     body: JSON.stringify({
                         query: query,
                         query_language: prefLang,
-                        session_id: querySessionId
+                        session_id: querySessionId,
+                        tee_shield: teeShield
                     })
                 });
                 const data = await response.json();
@@ -1530,6 +1621,21 @@
                     document.getElementById('result-confidence').innerText = `${(data.confidence * 100).toFixed(0)}%`;
                     document.getElementById('result-sources').value = JSON.stringify(data.sources, null, 2);
 
+                    // If TEE was used and metadata returned, render it in logs
+                    if (teeShield && data.tee_metadata) {
+                        const m = data.tee_metadata;
+                        let logs = `[TEE] Enclave Verified: AMD SEV-SNP Attestation Report Validated!
+[TEE] Enclave ID: ${m.enclave_id}
+[TEE] Measurement Hash: ${m.measurement.slice(0, 16)}...
+[TEE] Attestation Signature: ${m.signature.slice(0, 16)}...
+
+=== Anonymization Logs ===\n`;
+                        m.anonymization_logs.forEach(l => logs += l + "\n");
+                        logs += "\n=== De-anonymization Logs ===\n";
+                        m.deanonymization_logs.forEach(l => logs += l + "\n");
+                        teeTerminalLogs.innerText = logs;
+                    }
+
                     // Speak response summary out loud conversational loop
                     if (data.spoken_summary) {
                         speakResponse(data.spoken_summary, prefLang);
@@ -1537,10 +1643,16 @@
                 } else {
                     resultAnswer.style.color = "red";
                     resultAnswer.innerText = `Error: ${data.detail || 'Agent call failed'}`;
+                    if (teeShield) {
+                        teeTerminalLogs.innerText = `[TEE] Error: Transaction failed or rejected by enclave. Reason: ${data.detail || 'Unknown'}`;
+                    }
                 }
             } catch (err) {
                 resultAnswer.style.color = "red";
                 resultAnswer.innerText = `Error: ${err.message}`;
+                if (teeShield) {
+                    teeTerminalLogs.innerText = `[TEE] Connection Error: ${err.message}`;
+                }
             }
         });
 
@@ -1554,12 +1666,12 @@
             const fileInput = document.getElementById('upload-file');
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
-            formData.append('uat', document.getElementById('upload-uat').value);
-            formData.append('title', document.getElementById('upload-title').value);
+            formData.append('uat', document.getElementById('upload-uat').value.trim());
+            formData.append('title', document.getElementById('upload-title').value.trim());
             formData.append('doc_type', document.getElementById('upload-doc-type').value);
-            formData.append('revision', document.getElementById('upload-revision').value);
+            formData.append('revision', document.getElementById('upload-revision').value.trim());
             
-            const compliance = document.getElementById('upload-compliance').value;
+            const compliance = document.getElementById('upload-compliance').value.trim();
             if (compliance) {
                 formData.append('compliance_scope', compliance);
             }

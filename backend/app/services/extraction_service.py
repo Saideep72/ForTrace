@@ -144,3 +144,67 @@ def chunk_text(text: str, chunk_size: int = 512, overlap: int = 64) -> List[str]
         chunks.append(" ".join(current_chunk))
         
     return chunks
+
+
+def extract_text_from_docx(file_bytes: bytes) -> str:
+    """
+    Directly parses word/document.xml inside docx bytes to extract plain text
+    without external python-docx dependencies.
+    """
+    import zipfile
+    import xml.etree.ElementTree as ET
+    try:
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+            xml_content = z.read("word/document.xml")
+            root = ET.fromstring(xml_content)
+            
+            texts = []
+            for elem in root.iter():
+                # w:t represents text nodes in docx XML namespaces
+                if elem.tag.endswith("}t"):
+                    if elem.text:
+                        texts.append(elem.text)
+            
+            return "\n\n".join(texts).strip()
+    except Exception as e:
+        logger.error(f"Error parsing Word DOCX document: {e}")
+        raise RuntimeError(f"DOCX extraction failed: {str(e)}")
+
+
+def extract_text_from_zip(file_bytes: bytes) -> str:
+    """
+    Extracts and compiles text from supported files (txt, pdf, docx, csv, json, md)
+    inside a ZIP archive in-memory.
+    """
+    import zipfile
+    try:
+        extracted_sections = []
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+            for filename in sorted(z.namelist()):
+                if filename.startswith("__MACOSX/") or filename.endswith(".DS_Store"):
+                    continue
+                if filename.endswith("/"):
+                    continue
+                
+                ext = os.path.splitext(filename.lower())[1]
+                content = z.read(filename)
+                
+                if ext in [".txt", ".json", ".csv", ".md"]:
+                    file_text = content.decode("utf-8", errors="ignore").strip()
+                    if file_text:
+                        extracted_sections.append(f"--- File: {filename} ---\n{file_text}")
+                elif ext == ".pdf":
+                    file_text = extract_text_from_pdf(content)
+                    if file_text:
+                        extracted_sections.append(f"--- File: {filename} ---\n{file_text}")
+                elif ext == ".docx":
+                    file_text = extract_text_from_docx(content)
+                    if file_text:
+                        extracted_sections.append(f"--- File: {filename} ---\n{file_text}")
+                        
+        return "\n\n".join(extracted_sections).strip()
+    except Exception as e:
+        logger.error(f"Error parsing ZIP archive: {e}")
+        raise RuntimeError(f"ZIP archive extraction failed: {str(e)}")
+
+

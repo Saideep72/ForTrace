@@ -1,7 +1,7 @@
 import hashlib
 import logging
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form, BackgroundTasks
 from supabase import Client
 
 from app.core.database import get_db
@@ -22,6 +22,7 @@ async def upload_document(
     doc_type: DocType = Form(...),
     revision: str = Form("1.0"),
     compliance_scope: Optional[str] = Form(None),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
     current_user: dict = Depends(get_current_user),
     db: Client = Depends(get_db)
 ):
@@ -32,6 +33,10 @@ async def upload_document(
     - Uploads file to Supabase Storage bucket 'indra-assets'
     - Saves metadata record in PostgreSQL
     """
+    uat = uat.strip()
+    title = title.strip()
+    revision = revision.strip()
+
     # 1. Enforce RBAC (only Plant_Manager, Maintenance_Engineer, Admin can upload)
     allowed_roles = ["Plant_Manager", "Maintenance_Engineer", "Admin"]
     if current_user["role"] not in allowed_roles:
@@ -134,17 +139,18 @@ async def upload_document(
             )
         
         inserted_doc = doc_res.data[0]
-        # Automatically trigger text extraction and chunking synchronously on upload
+        # Automatically trigger text extraction and chunking in the background on upload
         try:
             from app.api.v1.endpoints.extraction import process_document
-            await process_document(
+            background_tasks.add_task(
+                process_document,
                 doc_id=inserted_doc["doc_id"],
                 current_user=current_user,
                 db=db
             )
-            logger.info(f"Auto-processed text extraction for document {inserted_doc['doc_id']} on upload.")
+            logger.info(f"Scheduled auto-processing background task for document {inserted_doc['doc_id']} on upload.")
         except Exception as proc_err:
-            logger.warning(f"Auto-processing document extraction failed: {proc_err}")
+            logger.warning(f"Failed to schedule background document extraction: {proc_err}")
 
         return inserted_doc
     except Exception as e:

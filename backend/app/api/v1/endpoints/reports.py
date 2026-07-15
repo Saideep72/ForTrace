@@ -233,9 +233,9 @@ async def generate_rca_report(
             ]]
             for a in recent_alarms:
                 alarm_data.append([
-                    Paragraph(a.get("tag_name", "N/A"), meta_val_style),
-                    Paragraph(a.get("alarm_type", "N/A"), meta_val_style),
-                    Paragraph(a.get("alarm_priority", "N/A"), meta_val_style),
+                    Paragraph(str(a.get("tag_name", "N/A")), meta_val_style),
+                    Paragraph(str(a.get("alarm_type", "N/A")), meta_val_style),
+                    Paragraph(str(a.get("alarm_priority", "N/A")), meta_val_style),
                     Paragraph(str(a.get("triggered_at", "N/A")), meta_val_style)
                 ])
             alarm_table = Table(alarm_data, colWidths=[130, 130, 100, 180])

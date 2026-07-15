@@ -10,7 +10,9 @@ from app.services.extraction_service import (
     extract_text_from_pdf,
     extract_text_from_image,
     transcribe_audio,
-    chunk_text
+    chunk_text,
+    extract_text_from_docx,
+    extract_text_from_zip
 )
 from app.services import ner_service
 
@@ -83,6 +85,12 @@ async def process_document(
         elif file_ext in [".txt", ".json", ".csv"]:
             extracted_text = file_bytes.decode("utf-8", errors="ignore")
             method_used = "text_decode"
+        elif file_ext == ".docx":
+            extracted_text = extract_text_from_docx(file_bytes)
+            method_used = "docx_xml_extract"
+        elif file_ext == ".zip":
+            extracted_text = extract_text_from_zip(file_bytes)
+            method_used = "zip_inmemory_extract"
         else:
             # Fallback to text decoding
             extracted_text = file_bytes.decode("utf-8", errors="ignore")
