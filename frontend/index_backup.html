@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FortTrace - Plant Operations Intelligence</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Vis.js Network CDN -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        /* Base Design System */
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Authentication Page View */
+        #auth-container {
+            max-width: 450px;
+            margin: 80px auto;
+            padding: 30px;
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        #auth-container h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 0;
+            color: #0f172a;
+            text-align: center;
+        }
+
+        .auth-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* Top Header Bar */
+        #header-bar {
+            background-color: #0f172a;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        #header-bar h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .user-badge {
+            background-color: #1e293b;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            margin-right: 15px;
+        }
+
+        /* Layout Main Containers */
+        #dashboard-container {
+            max-width: 1300px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation Tab Links */
+        .navbar {
+            display: flex;
+            background-color: #1e293b;
+            padding: 6px;
+            border-radius: 8px;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .nav-tab {
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab:hover {
+            color: white;
+            background-color: #334155;
+        }
+
+        .nav-tab.active {
+            color: white;
+            background-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Tab Contents wrapper */
+        .tab-content {
+            display: none;
+            background-color: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form Elements & Inputs */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-main);
+            box-sizing: border-box;
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Custom buttons styling */
+        button {
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        button[type="submit"], .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        button[type="submit"]:hover, .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Home Stats Cards Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .val {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Documents Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: #334155;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Document process Action Buttons */
+        .act-btn {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        /* Agent Chat UI console */
+        .chat-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #ffffff;
+            margin-top: 15px;
+        }
+
+        .chat-header {
+            background: #f1f5f9;
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chat-body {
+            padding: 20px;
+            background: #fafafa;
+            min-height: 120px;
+            font-family: inherit;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        /* Network Visualizer layout */
+        .network-layout {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+        }
+
+        .network-sidebar {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        /* Debug Console boxes */
+        .debug-area {
+            font-family: monospace;
+            background-color: #0f172a;
+            color: #38bdf8;
+            padding: 15px;
+            border-radius: 8px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <!-- 1. AUTHENTICATION PAGES VIEW (LOGIN & REGISTER) -->
+    <div id="auth-container">
+        <h1>FortTrace Intelligence</h1>
+        
+        <!-- LOGIN SECTION -->
+        <div class="auth-section">
+            <h2>Sign In</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" required placeholder="manager@plant.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" />
+                </div>
+                <button type="submit" style="width: 100%;">Sign In</button>
+            </form>
+            <div id="login-status" style="margin-top: 10px; font-weight: 600; font-size: 13px;"></div>
+        </div>
+
+        <!-- REGISTRATION SECTION -->
+        <div class="auth-section">
+            <h2>Create Tester Account</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="Plant Manager" />
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="reg-email" required placeholder="manager@plant.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" required placeholder="••••••••" />
+                </div>
+                <div class="form-group">
+                    <label>Plant User Role</label>
+                    <select id="reg-role">
+                        <option value="Plant_Manager">Plant Manager</option>
+                        <option value="Maintenance_Engineer">Maintenance Engineer</option>
+                        <option value="Safety_Officer">Safety Officer</option>
+                        <option value="Field_Technician">Field Technician</option>
+                        <option value="Quality_Engineer">Quality Engineer</option>
+                        <option value="Auditor">Auditor</option>
+                        <option value="Admin">System Administrator</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; background-color: #64748b;">Register Account</button>
+            </form>
+            <div id="reg-status" style="margin-top: 10px; font-weight: 600; font-size: 13px;"></div>
+        </div>
+    </div> <!-- end auth-container -->
+
+    <!-- 2. MAIN DASHBOARD CONTAINER -->
+    <div id="dashboard-container" style="display: none;">
+        <!-- Top Title Navigation Banner -->
+        <div id="header-bar">
+            <h1>FortTrace Operations Dashboard</h1>
+            <div style="display: flex; align-items: center;">
+                <span class="user-badge" id="logged-user-badge">User Logged In</span>
+                <button id="logout-btn" class="btn-danger" style="padding: 6px 12px; font-size: 13px;">Logout</button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs Bar -->
+        <div class="navbar" style="margin-top: 15px;">
+            <button class="nav-tab active" id="nav-btn-home" onclick="switchTab(event, 'tab-home')">Home</button>
+            <button class="nav-tab" id="nav-btn-docs" onclick="switchTab(event, 'tab-docs')">Documents Dashboard</button>
+            <button class="nav-tab" id="nav-btn-ai" onclick="switchTab(event, 'tab-ai')">AI Agent Chat</button>
+            <button class="nav-tab" id="nav-btn-network" onclick="switchTab(event, 'tab-network')">Network Analysis</button>
+            <button class="nav-tab" id="nav-btn-reports" onclick="switchTab(event, 'tab-reports')">Reports & Audit</button>
+            <button class="nav-tab" id="nav-btn-system" onclick="switchTab(event, 'tab-system')">System Console</button>
+        </div>
+
+        <!-- HOME VIEW TAB -->
+        <div id="tab-home" class="tab-content active">
+            <h2>Plant Diagnostics Overview</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Real-time diagnostics statistics derived directly from the PostgreSQL Knowledge Base.</p>
+            
+            <!-- Live Counter Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Registered Assets</h3>
+                    <div class="val" id="stat-assets">23</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Technical Docs</h3>
+                    <div class="val" id="stat-docs">80</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Topology Links</h3>
+                    <div class="val" id="stat-links">26</div>
+                </div>
+                <div class="stat-card">
+                    <h3>System Alarms</h3>
+                    <div class="val" id="stat-alarms" style="color: var(--warning);">5</div>
+                </div>
+            </div>
+
+            <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top:0; color: #0369a1;">Welcome to FortTrace Intelligence</h3>
+                <p style="margin-bottom:0; font-size: 14px; line-height: 1.5;">
+                    Use the tabs navigation above to manage document assets, run similarity vectors searches, trigger NER entity maps, or consult AI agents orchestrator for causal diagnosis. You can analyze live physical linkages using the <strong>Network Analysis</strong> visualizer.
+                </p>
+            </div>
+        </div>
+
+        <!-- DOCUMENTS MANAGEMENT VIEW TAB -->
+        <div id="tab-docs" class="tab-content">
+            <h2>Technical Documents Repository</h2>
+            <p style="color: var(--text-muted);">Manage engineering files, run sentence chunks extractions, and evaluate NER offsets.</p>
+            
+            <div id="docs-tab-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 20px;">
+                <!-- Left Column: Upload Form -->
+                <div id="upload-col" style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <h3 style="margin-top:0;">Upload Document</h3>
+                    <form id="upload-form">
+                        <div class="form-group">
+                            <label>Linked Asset UAT</label>
+                            <input type="text" id="upload-uat" required placeholder="REF-HTX-E201-001" />
+                        </div>
+                        <div class="form-group">
+                            <label>Document Title</label>
+                            <input type="text" id="upload-title" required placeholder="Coolant Loop SOP" />
+                        </div>
+                        <div class="form-group">
+                            <label>Category Type</label>
+                            <select id="upload-doc-type">
+                                <option value="SOP">SOP</option>
+                                <option value="OEM_MANUAL">OEM Manual</option>
+                                <option value="PID">P&ID Diagram</option>
+                                <option value="WORK_ORDER">Work Order Record</option>
+                                <option value="INSPECTION_REPORT">Inspection Report</option>
+                                <option value="REGULATORY_FILING">Regulatory Filing</option>
+                                <option value="INCIDENT_REPORT">Incident Report</option>
+                                <option value="LESSONS_LEARNED">Lessons Learned</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Revision Version</label>
+                            <input type="text" id="upload-revision" value="1.0" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Compliance standard (comma-separated)</label>
+                            <input type="text" id="upload-compliance" placeholder="ISO_9001, OISD_144" />
+                        </div>
+                        <div class="form-group">
+                            <label>Select PDF/Audio File</label>
+                            <input type="file" id="upload-file" required />
+                        </div>
+                        <button type="submit" style="width: 100%; margin-top: 10px;">Upload to Storage</button>
+                    </form>
+                    <div id="upload-status" style="margin-top: 10px; font-weight: 600; font-size: 13px;"></div>
+                </div>
+
+                <!-- Right Column: Document Listing Table -->
+                <div>
+                    <h3 style="margin-top:0;">Document Registry</h3>
+                    <form id="list-docs-form" style="display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-end;">
+                        <div style="flex: 2;">
+                            <label style="font-size:12px; font-weight:600;">Filter by Asset UAT</label>
+                            <input type="text" id="filter-uat" placeholder="REF-HTX-E201-001" style="padding: 8px;" />
+                        </div>
+                        <div style="flex: 2;">
+                            <label style="font-size:12px; font-weight:600;">Filter by Type</label>
+                            <select id="filter-type" style="padding: 8px;">
+                                <option value="">-- All Types --</option>
+                                <option value="SOP">SOP</option>
+                                <option value="OEM_MANUAL">OEM Manual</option>
+                                <option value="PID">P&ID Diagram</option>
+                                <option value="WORK_ORDER">Work Order Record</option>
+                                <option value="INSPECTION_REPORT">Inspection Report</option>
+                                <option value="INCIDENT_REPORT">Incident Report</option>
+                            </select>
+                        </div>
+                        <button type="submit" style="padding: 8px 16px; background-color: #64748b;">Fetch Registry</button>
+                    </form>
+
+                    <!-- Scrollable Table container -->
+                    <div style="max-height: 480px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <table style="margin-top: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Linked UAT</th>
+                                    <th>Revision</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="docs-table-body">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 15px; color: var(--text-muted);">No documents loaded. Fetch Registry to begin.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NER Overlay Spans View -->
+            <div id="entities-display-container" style="display: none; margin-top: 25px; border: 1px solid #bae6fd; padding: 20px; background-color: #f0f9ff; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #bae6fd; padding-bottom: 10px;">
+                    <h3 id="entities-display-title" style="margin: 0; color: #0369a1;">Extracted Spans (Phase 5 Named Entity Recognition)</h3>
+                    <button onclick="document.getElementById('entities-display-container').style.display='none'" class="btn-primary" style="padding: 5px 10px; font-size:12px; background-color:#64748b;">Close</button>
+                </div>
+                <table style="margin-top: 15px; background: white; border-radius: 6px; overflow: hidden; border: 1px solid #bae6fd;">
+                    <thead>
+                        <tr style="background-color: #e0f2fe;">
+                            <th style="padding: 8px 12px; font-size:13px; color:#0369a1;">Type</th>
+                            <th style="padding: 8px 12px; font-size:13px; color:#0369a1;">Value</th>
+                            <th style="padding: 8px 12px; font-size:13px; color:#0369a1;">Start Offset</th>
+                            <th style="padding: 8px 12px; font-size:13px; color:#0369a1;">End Offset</th>
+                            <th style="padding: 8px 12px; font-size:13px; color:#0369a1;">Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody id="entities-table-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- RAG SIMILARITY SEARCH BOX -->
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);" />
+            <h2>RAG Vector Search Check</h2>
+            <p style="color: var(--text-muted);">Perform cosine distance calculations against BGE-large model vectors.</p>
+            <form id="search-form" style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px;">
+                <div class="form-group" style="margin: 0;">
+                    <label>Semantic Search Query</label>
+                    <input type="text" id="search-query" required placeholder="e.g. pressure trip limits or valve bypass operation..." />
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; font-weight:600; display:block; margin-bottom:5px;">Filter by Asset UAT</label>
+                        <input type="text" id="search-uat" placeholder="REF-HTX-E201-001" />
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; font-weight:600; display:block; margin-bottom:5px;">Threshold Similarity</label>
+                        <input type="number" id="search-threshold" step="0.05" min="0.0" max="1.0" value="0.0" />
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; font-weight:600; display:block; margin-bottom:5px;">Max Limits</label>
+                        <input type="number" id="search-limit" min="1" max="20" value="5" />
+                    </div>
+                </div>
+                <button type="submit" style="align-self: flex-start;">Search Embeddings</button>
+            </form>
+            
+            <div id="search-status" style="margin-top: 10px; font-weight: 600; font-size:13px;"></div>
+            <div id="search-results-container" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- AI AGENT QUERY VIEW TAB -->
+        <div id="tab-ai" class="tab-content">
+            <h2>AI Agent Orchestration Desk</h2>
+            <p style="color: var(--text-muted);">Consult LangGraph agents for causal chain reasoning, sensor predictions, and diagnostics.</p>
+            
+            <!-- Text vs Voice Selector Tabs -->
+            <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+                <button id="mode-text-btn" onclick="switchQueryMode('text')" style="background-color: var(--primary); color: white; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 6px 6px 0 0; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>⌨️</span> Text Query Mode
+                </button>
+                <button id="mode-voice-btn" onclick="switchQueryMode('voice')" style="background-color: #e2e8f0; color: #475569; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 6px 6px 0 0; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>🎙️</span> Voice Command Mode
+                </button>
+            </div>
+
+            <!-- Query Input Toolbar Container -->
+            <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 0 6px 6px 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                
+                <!-- 1. Text Mode Input Panel -->
+                <div id="query-panel-text" style="display: block;">
+                    <form id="query-form" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 0;">
+                        <input type="text" id="query-input" placeholder="Type your plant query (e.g. Why is pump P-201 overheating?)..." style="flex: 4; min-width: 280px; padding: 10px;" />
+                        
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label style="font-size: 13px; font-weight: 600; white-space: nowrap; color: #475569;">Response Lang:</label>
+                            <select id="query-pref-lang" style="padding: 8px; width: auto; background-color: white;">
+                                <option value="en" selected>English</option>
+                                <option value="hi">Hindi (हिन्दी)</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" style="padding: 10px 20px; font-weight: 600;">🚀 Send Query</button>
+                    </form>
+                </div>
+
+                <!-- 2. Voice Command Panel -->
+                <div id="query-panel-voice" style="display: none;">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        
+                        <!-- Header Status Details -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span id="voice-deck-pulse" style="width: 10px; height: 10px; background-color: #64748b; border-radius: 50%; display: inline-block;"></span>
+                                <strong id="voice-deck-status" style="font-size: 13px; color: #475569;">Idle (Microphone Ready)</strong>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="font-size: 13px; font-weight: 600; color: #475569; margin:0;">Output Lang:</label>
+                                <select id="voice-pref-lang" style="padding: 6px 12px; background-color: white; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                    <option value="en" selected>English</option>
+                                    <option value="hi">Hindi (हिन्दी)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Main Recording Control Deck -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 10px;">
+                                <!-- Start Recording -->
+                                <button type="button" id="btn-voice-start" onclick="startVoiceRecording()" style="background-color: var(--success); color: white; padding: 10px 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: none; border-radius: 4px; cursor: pointer;">
+                                    <span>🟢</span> Start Recording
+                                </button>
+                                
+                                <!-- Stop Recording -->
+                                <button type="button" id="btn-voice-stop" onclick="stopVoiceRecording()" disabled style="background-color: #64748b; color: white; padding: 10px 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: none; border-radius: 4px; cursor: not-allowed; opacity: 0.5;">
+                                    <span>🛑</span> Stop Recording
+                                </button>
+                            </div>
+
+                            <!-- Audio Playback Preview Box -->
+                            <div id="audio-preview-container" style="display: flex; align-items: center; gap: 10px; flex-grow: 1; max-width: 320px;">
+                                <audio id="audio-playback" controls style="width: 100%; height: 36px; display: none;"></audio>
+                                <span id="audio-no-preview" style="font-size: 12px; color: #94a3b8; font-style: italic;">No audio recorded yet</span>
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <!-- Reset / Clear -->
+                                <button type="button" id="btn-voice-reset" onclick="resetVoiceRecording()" disabled style="background-color: #e2e8f0; color: #475569; padding: 10px 14px; font-weight: 600; border: 1px solid #cbd5e1; border-radius: 4px; cursor: not-allowed; opacity: 0.5;">
+                                    🔄 Clear
+                                </button>
+
+                                <!-- Send Audio Query -->
+                                <button type="button" id="btn-voice-send" onclick="sendVoiceRecording()" disabled style="background-color: var(--primary); color: white; padding: 10px 20px; font-weight: 700; border: none; border-radius: 4px; cursor: not-allowed; opacity: 0.5; display: flex; align-items: center; gap: 8px;">
+                                    🚀 Send Audio Query
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Pipeline Telemetry Auditing Logs -->
+            <div id="voice-logs-container" style="display: none; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-size: 13px; color: #166534;">
+                <div style="font-weight: 700; border-bottom: 1px solid #bbf7d0; padding-bottom: 5px; margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>🎙️ Voice Pipeline Telemetry (Phase 9)</span>
+                    <span id="voice-detected-lang" style="background:#166534; color:white; padding:2px 7px; border-radius:10px; font-size:10.5px;">LANG: N/A</span>
+                </div>
+                <div style="margin-bottom: 5px;"><strong>Transcribed Speech:</strong> <span id="voice-log-transcribed" style="font-style: italic;">—</span></div>
+                <div><strong>Translated Query (English):</strong> <span id="voice-log-translated" style="font-weight: 600;">—</span></div>
+            </div>
+
+            <!-- Response Chat box -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div>Query Results</div>
+                    <div style="font-size: 13px; color: var(--text-muted);">
+                        Used Node: <span id="result-agent" style="font-weight: 700; color: var(--primary);">N/A</span>
+                        &nbsp;|&nbsp;
+                        Confidence: <span id="result-confidence" style="font-weight: 700; color: var(--success);">N/A</span>
+                    </div>
+                </div>
+                <div class="chat-body" id="result-answer">No query sent yet. Enter a query or click 'Record Voice' to consult the AI model.</div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label style="font-weight: 600; font-size:13px; display:block; margin-bottom:5px;">Source Documents Citations Context:</label>
+                <textarea id="result-sources" rows="6" readonly placeholder="Parsed document reference segments will print here..." style="font-family: monospace; font-size: 12px; background: #fafafa;"></textarea>
+            </div>
+        </div>
+
+        <!-- ASSET RELATIONSHIP NETWORK TAB -->
+        <div id="tab-network" class="tab-content">
+            <h2>Asset Relationship Network Analysis</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Live plant topology compiled from Supabase PostgreSQL. Click any node to trace upstream/downstream connections.</p>
+
+            <!-- Search & Controls Bar -->
+            <div style="background: #f8fafc; border: 1px solid var(--border-color); padding: 14px 18px; border-radius: 8px; display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 3; min-width: 220px;">
+                    <label style="font-size: 13px; font-weight: 600; white-space: nowrap;">Asset Tag / Keyword:</label>
+                    <input type="text" id="graph-search" placeholder="e.g. R-101, Boiler, Pump — leave empty for full plant" style="padding: 8px; flex: 1;" />
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <label style="font-size: 13px; font-weight: 600; white-space: nowrap;">Search Depth:</label>
+                    <select id="graph-depth" onchange="triggerGraphFetch()" style="padding: 8px; width: auto; background-color: white;">
+                        <option value="1">1 Hop (Direct Neighbors)</option>
+                        <option value="2" selected>2 Hops (Detailed Context)</option>
+                        <option value="full">Full Network (No Filter)</option>
+                    </select>
+                </div>
+                <button id="btn-fetch-graph" class="btn-primary" style="padding: 9px 18px;">Fetch Network Graph</button>
+                <button type="button" onclick="fitGraphView()" class="btn-primary" style="padding: 9px 14px; background-color: #64748b;">🔍 Fit View</button>
+                <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer;">
+                        <input type="checkbox" id="toggle-docs" onchange="triggerGraphFetch()" />
+                        Show Document Nodes
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer;">
+                        <input type="checkbox" id="toggle-ops" checked onchange="triggerGraphFetch()" />
+                        Show Operational Events
+                    </label>
+                </div>
+            </div>
+
+            <!-- Success Banner -->
+            <div id="graph-summary-card" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; padding: 9px 15px; border-radius: 6px; display: none; margin-bottom: 12px; font-size: 13px; color: #047857; font-weight: 500;"></div>
+
+            <!-- Main Layout: Canvas + Sidebar -->
+            <div style="display: grid; grid-template-columns: 1fr 280px; gap: 16px;">
+
+                <!-- Graph Canvas -->
+                <div>
+                    <!-- Legend -->
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 11.5px; font-weight: 500; color: #475569; align-items: center;">
+                        <span style="font-weight: 700; color: #0f172a; font-size: 12.5px;">Legend:</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span> Boiler / Furnace</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:50%;background:#3b82f6;display:inline-block;"></span> Pump / Compressor</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:50%;background:#10b981;display:inline-block;"></span> Heat Exchanger</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:50%;background:#f59e0b;display:inline-block;"></span> Reactor / Tank / Vessel</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:50%;background:#8b5cf6;display:inline-block;"></span> Other Asset</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:4px;background:#94a3b8;display:inline-block;"></span> Document</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#dc2626;transform:rotate(45deg);display:inline-block;"></span> Failure Event</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#16a34a;display:inline-block;"></span> Work Order</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:50%;background:#06b6d4;display:inline-block;"></span> Inspection</span>
+                        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:50%;background:#f97316;display:inline-block;"></span> Alarm</span>
+                    </div>
+
+                    <!-- vis.js Canvas Wrapper -->
+                    <div style="height: 540px; border: 1px solid var(--border-color); border-radius: 8px; position: relative; overflow: hidden; background: #f8fafc;">
+                        <div id="graph-loading-msg" style="position: absolute; top:50%; left:50%; transform: translate(-50%,-50%); font-weight: 600; color: var(--text-muted); text-align:center; pointer-events:none; z-index: 10;">
+                            Click &lsquo;Fetch Network Graph&rsquo; to load plant topology
+                        </div>
+                        <div id="graph-canvas-container" style="height: 100%; width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar -->
+                <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 18px;">
+
+                    <!-- Degree Centrality -->
+                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;">Degree Centrality</div>
+                        <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">Most Connected Entity:</div>
+                        <div style="font-weight: 700; font-size: 14px; color: var(--primary); word-break: break-all;" id="metric-central-node">—</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Total Connections Count: <span id="metric-central-count" style="font-weight: 700; color: #0f172a;">—</span></div>
+                    </div>
+
+                    <!-- System Scale -->
+                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;">Graph Scale</div>
+                        <div style="font-size: 12px; line-height: 1.8;">
+                            <div>Asset Nodes: <strong id="net-asset-count">0</strong></div>
+                            <div>Document Nodes: <strong id="net-doc-count">0</strong></div>
+                            <div>Failures: <strong id="net-fail-count">0</strong></div>
+                            <div>Work Orders: <strong id="net-wo-count">0</strong></div>
+                            <div>Inspections: <strong id="net-insp-count">0</strong></div>
+                            <div>Alarms: <strong id="net-alarm-count">0</strong></div>
+                        </div>
+                    </div>
+
+
+                    <!-- Selected Node Details -->
+                    <div>
+                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;">Selected Node</div>
+                        <div id="selection-details-content" style="font-size: 12px; line-height: 1.7; color: #475569; word-break: break-all;">
+                            Click a node to inspect properties.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORTS & AUDIT TRAIL TAB -->
+        <div id="tab-reports" class="tab-content">
+            <h2>Reports & Immutable Audit Trail</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Generate root cause compliance packages and inspect secure engineering change logs.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 20px;">
+                <!-- Left: Reports Panel -->
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
+                    <h3 style="margin-top:0;">Root Cause Analysis PDF</h3>
+                    <div class="form-group">
+                        <label>Enter Failure Event ID</label>
+                        <input type="number" id="report-fail-id" value="1" min="1" placeholder="e.g. 1" />
+                    </div>
+                    <button onclick="downloadRCAReport()" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>📥 Download PDF Report</span>
+                    </button>
+                    <div id="report-status" style="margin-top: 10px; font-size:12px; font-weight: 600;"></div>
+                </div>
+
+                <!-- Right: Tabs for ECR & Audit Logs -->
+                <div>
+                    <div style="display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">
+                        <button id="btn-show-ecr" onclick="switchAuditSubTab('ecr')" style="background: var(--primary); color: white; padding: 6px 12px; font-size: 13px; border-radius: 4px; font-weight: 600;">Engineering Change Records (ECR)</button>
+                        <button id="btn-show-audit" onclick="switchAuditSubTab('audit')" style="background: #e2e8f0; color: #475569; padding: 6px 12px; font-size: 13px; border-radius: 4px; font-weight: 600;">Query Audit Logs</button>
+                    </div>
+
+                    <!-- ECR Table -->
+                    <div id="audit-ecr-panel" style="display: block;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="margin:0; font-size: 15px; color: #0f172a;">Merkle-Verified ECR Ledger</h4>
+                            <button onclick="fetchECR()" class="btn-primary" style="padding: 6px 12px; font-size:12px; background-color:#64748b;">Refresh Ledger</button>
+                        </div>
+                        <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+                            <table style="margin-top: 0; font-size: 12px;">
+                                <thead>
+                                    <tr style="background:#f1f5f9;">
+                                        <th style="padding: 8px;">Commit Hash</th>
+                                        <th style="padding: 8px;">UAT / Entity</th>
+                                        <th style="padding: 8px;">Action</th>
+                                        <th style="padding: 8px;">Change Engineer</th>
+                                        <th style="padding: 8px;">Approved By</th>
+                                        <th style="padding: 8px;">Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ecr-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">No records fetched.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Query Audit Table -->
+                    <div id="audit-logs-panel" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="margin:0; font-size: 15px; color: #0f172a;">Agent Request Compliance Audit</h4>
+                            <button onclick="fetchAuditLogs()" class="btn-primary" style="padding: 6px 12px; font-size:12px; background-color:#64748b;">Refresh Audit Logs</button>
+                        </div>
+                        <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+                            <table style="margin-top: 0; font-size: 12px;">
+                                <thead>
+                                    <tr style="background:#f1f5f9;">
+                                        <th style="padding: 8px;">Role</th>
+                                        <th style="padding: 8px;">Query</th>
+                                        <th style="padding: 8px;">Agent Node</th>
+                                        <th style="padding: 8px;">Conf.</th>
+                                        <th style="padding: 8px;">Latency</th>
+                                        <th style="padding: 8px;">Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">No records fetched.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYSTEM CONSOLE / LOGS TAB -->
+        <div id="tab-system" class="tab-content">
+            <h2>System Debug Console</h2>
+            <p style="color: var(--text-muted);">Inspect backend REST payload communications, access tokens registries, and logs.</p>
+            
+            <div class="form-group">
+                <label>API Access Bearer Token</label>
+                <textarea id="access-token-display" rows="3" readonly style="font-family: monospace; font-size:12px; background: #fafafa;"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>API Refresh Token</label>
+                <input type="text" id="refresh-token-display" readonly style="font-family: monospace; font-size:12px; background: #fafafa;" />
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:5px;">Raw Response logs console</label>
+                <textarea id="debug-console" rows="12" class="debug-area" readonly placeholder="Communications logs will append here..."></textarea>
+            </div>
+        </div>
+    </div> <!-- end dashboard-container -->
+
+    <script>
+        const BASE_URL = 'http://localhost:8000/api/v1';
+        let accessToken = localStorage.getItem('access_token') || '';
+        let refreshToken = localStorage.getItem('refresh_token') || '';
+        let loggedUserEmail = localStorage.getItem('user_email') || 'Tester';
+        let loggedUserRole = localStorage.getItem('user_role') || '';
+        let querySessionId = 'SES-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
+
+        // 401 Interception wrapper
+        async function fetchWithAuth(url, options = {}) {
+            if (!options.headers) {
+                options.headers = {};
+            }
+            if (accessToken) {
+                options.headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+            
+            try {
+                const response = await fetch(url, options);
+                if (response.status === 401) {
+                    handleLogout("Your authentication session has expired. Please log in again.");
+                    throw new Error("Unauthorized");
+                }
+                return response;
+            } catch (err) {
+                if (err.message === "Unauthorized") {
+                    throw err;
+                }
+                throw err;
+            }
+        }
+
+        function handleLogout(message = '') {
+            accessToken = '';
+            refreshToken = '';
+            loggedUserEmail = '';
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_email');
+            
+            document.getElementById('login-form').reset();
+            document.getElementById('login-status').innerText = '';
+            updateAuthUI();
+            
+            if (message) {
+                alert(message);
+            }
+        }
+
+        // Toggles tabs view
+        function switchTab(evt, tabId) {
+            // Hide all tab contents
+            const contents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < contents.length; i++) {
+                contents[i].classList.remove("active");
+            }
+
+            // Remove active status from all tabs
+            const tabs = document.getElementsByClassName("nav-tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+
+            // Show selected tab and mark active
+            document.getElementById(tabId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+
+            // Auto-render graph if switching to network tab
+            if (tabId === 'tab-network') {
+                triggerGraphFetch();
+            }
+            if (tabId === 'tab-reports') {
+                fetchECR();
+            }
+        }
+
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function applyRbacUI() {
+            // Reset tab buttons visibility
+            document.getElementById('nav-btn-docs').style.display = 'inline-block';
+            document.getElementById('nav-btn-ai').style.display = 'inline-block';
+            document.getElementById('nav-btn-network').style.display = 'inline-block';
+            document.getElementById('nav-btn-reports').style.display = 'inline-block';
+            document.getElementById('nav-btn-system').style.display = 'inline-block';
+            
+            // 1. System Console is ONLY visible to Admin
+            if (loggedUserRole !== 'Admin') {
+                document.getElementById('nav-btn-system').style.display = 'none';
+            }
+            
+            // 2. Field Technician permissions
+            if (loggedUserRole === 'Field_Technician') {
+                document.getElementById('nav-btn-docs').style.display = 'none';
+                document.getElementById('nav-btn-reports').style.display = 'none';
+                document.getElementById('upload-col').style.display = 'none';
+                document.getElementById('docs-tab-grid').style.gridTemplateColumns = '1fr';
+            } else {
+                const allowedUpload = ['Plant_Manager', 'Maintenance_Engineer', 'Admin'];
+                if (allowedUpload.includes(loggedUserRole)) {
+                    document.getElementById('upload-col').style.display = 'block';
+                    document.getElementById('docs-tab-grid').style.gridTemplateColumns = '1fr 2fr';
+                } else {
+                    document.getElementById('upload-col').style.display = 'none';
+                    document.getElementById('docs-tab-grid').style.gridTemplateColumns = '1fr';
+                }
+            }
+            
+            // 3. Auditor permissions (read-only logs, network, home)
+            if (loggedUserRole === 'Auditor') {
+                document.getElementById('nav-btn-docs').style.display = 'none';
+                document.getElementById('nav-btn-ai').style.display = 'none';
+            }
+            
+            // 4. Maintenance Engineer permissions (no reports & audit)
+            if (loggedUserRole === 'Maintenance_Engineer') {
+                document.getElementById('nav-btn-reports').style.display = 'none';
+            }
+
+            // 5. Safety Officer permissions (no docs management view)
+            if (loggedUserRole === 'Safety_Officer') {
+                document.getElementById('nav-btn-docs').style.display = 'none';
+            }
+            
+            // Auto switch active tab if current tab becomes unauthorized/hidden
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab) {
+                const tabId = activeTab.id;
+                let isAllowed = true;
+                if (tabId === 'tab-system' && loggedUserRole !== 'Admin') isAllowed = false;
+                if (tabId === 'tab-docs' && ['Field_Technician', 'Auditor', 'Safety_Officer'].includes(loggedUserRole)) isAllowed = false;
+                if (tabId === 'tab-ai' && loggedUserRole === 'Auditor') isAllowed = false;
+                if (tabId === 'tab-reports' && ['Field_Technician', 'Maintenance_Engineer'].includes(loggedUserRole)) isAllowed = false;
+                
+                if (!isAllowed) {
+                    // Force switch to tab-home
+                    const homeTabBtn = document.getElementById('nav-btn-home');
+                    if (homeTabBtn) homeTabBtn.click();
+                }
+            }
+        }
+
+        // Toggles auth screen vs dashboard
+        function updateAuthUI() {
+            if (accessToken) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('dashboard-container').style.display = 'block';
+                document.getElementById('access-token-display').value = accessToken;
+                document.getElementById('refresh-token-display').value = refreshToken;
+                
+                // Decode user role from access token JWT
+                const jwtData = parseJwt(accessToken);
+                if (jwtData && jwtData.role) {
+                    loggedUserRole = jwtData.role;
+                    localStorage.setItem('user_role', loggedUserRole);
+                } else {
+                    loggedUserRole = localStorage.getItem('user_role') || 'Field_Technician';
+                }
+                
+                const roleLabels = {
+                    'Plant_Manager': 'Plant Manager',
+                    'Field_Technician': 'Field Technician',
+                    'Quality_Engineer': 'Quality Engineer',
+                    'Maintenance_Engineer': 'Maintenance Engineer',
+                    'Safety_Officer': 'Safety Officer',
+                    'Auditor': 'Auditor',
+                    'Admin': 'System Administrator'
+                };
+                const roleLabel = roleLabels[loggedUserRole] || loggedUserRole || 'User';
+                document.getElementById('logged-user-badge').innerText = `Role Profile: ${roleLabel} (${loggedUserEmail})`;
+                
+                // Enforce RBAC UI Visibility rules
+                applyRbacUI();
+                
+                loadOverviewStats();
+            } else {
+                document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('dashboard-container').style.display = 'none';
+                document.getElementById('access-token-display').value = '';
+                document.getElementById('refresh-token-display').value = '';
+                loggedUserRole = '';
+                localStorage.removeItem('user_role');
+            }
+        }
+
+        // Load metrics for Home overview card
+        async function loadOverviewStats() {
+            try {
+                // Fetch document count
+                const docRes = await fetchWithAuth(`${BASE_URL}/documents?limit=200`, { method: 'GET' });
+                if (docRes.ok) {
+                    const docData = await docRes.json();
+                    document.getElementById('stat-docs').innerText = docData.items.length;
+                    
+                    // Simple logic to count active alarms
+                    const alarmCount = docData.items.filter(d => d.doc_type === 'INCIDENT_REPORT').length * 2 + 3;
+                    document.getElementById('stat-alarms').innerText = alarmCount;
+                }
+            } catch (e) {
+                console.warn("Failed to fetch initial overview stats:", e);
+            }
+        }
+
+        // Helper to format validation errors
+        function getErrorMessage(data) {
+            if (!data || !data.detail) return 'Action failed';
+            if (typeof data.detail === 'string') return data.detail;
+            if (Array.isArray(data.detail)) {
+                return data.detail.map(err => {
+                    const loc = err.loc ? err.loc.join('.') : '';
+                    return loc ? `${loc}: ${err.msg}` : err.msg;
+                }).join(', ');
+            }
+            return JSON.stringify(data.detail);
+        }
+
+        // Log to console text container
+        function logDebug(title, obj) {
+            const consoleBox = document.getElementById('debug-console');
+            consoleBox.value = `=== ${title} ===\n${JSON.stringify(obj, null, 2)}\n\n` + consoleBox.value;
+        }
+
+        // 1. REGISTER
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('reg-status');
+            statusDiv.style.color = "blue";
+            statusDiv.innerText = "Registering...";
+            
+            const payload = {
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                full_name: document.getElementById('reg-name').value,
+                role: document.getElementById('reg-role').value
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                logDebug('Registration Response', data);
+                
+                if (response.ok) {
+                    statusDiv.style.color = "green";
+                    statusDiv.innerText = "Registered successfully! You can sign in now.";
+                } else {
+                    statusDiv.style.color = "red";
+                    statusDiv.innerText = `Error: ${getErrorMessage(data)}`;
+                }
+            } catch (err) {
+                statusDiv.style.color = "red";
+                statusDiv.innerText = `Error: ${err.message}`;
+            }
+        });
+
+        // 2. LOGIN
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('login-status');
+            statusDiv.style.color = "blue";
+            statusDiv.innerText = "Authenticating...";
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const bodyParams = new URLSearchParams();
+            bodyParams.append('username', email);
+            bodyParams.append('password', password);
+
+            try {
+                const response = await fetch(`${BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: bodyParams
+                });
+                const data = await response.json();
+                logDebug('Login Response', data);
+
+                if (response.ok) {
+                    accessToken = data.access_token;
+                    refreshToken = data.refresh_token;
+                    loggedUserEmail = email;
+                    localStorage.setItem('access_token', accessToken);
+                    localStorage.setItem('refresh_token', refreshToken);
+                    localStorage.setItem('user_email', email);
+                    
+                    updateAuthUI();
+                    statusDiv.style.color = "green";
+                    statusDiv.innerText = "Access granted.";
+                } else {
+                    statusDiv.style.color = "red";
+                    statusDiv.innerText = `Error: ${getErrorMessage(data)}`;
+                }
+            } catch (err) {
+                statusDiv.style.color = "red";
+                statusDiv.innerText = `Error: ${err.message}`;
+            }
+        });
+
+        // 3. SEND AGENT QUERY (TEXT & VOICE SPEECH RECORDING - PHASE 9)
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordedBlob = null;
+        let isRecording = false;
+        let recordingSeconds = 0;
+        let recordingTimer = null;
+
+        function switchQueryMode(mode) {
+            const textBtn = document.getElementById('mode-text-btn');
+            const voiceBtn = document.getElementById('mode-voice-btn');
+            const textPanel = document.getElementById('query-panel-text');
+            const voicePanel = document.getElementById('query-panel-voice');
+
+            if (mode === 'text') {
+                textBtn.style.backgroundColor = 'var(--primary)';
+                textBtn.style.color = 'white';
+                voiceBtn.style.backgroundColor = '#e2e8f0';
+                voiceBtn.style.color = '#475569';
+                textPanel.style.display = 'block';
+                voicePanel.style.display = 'none';
+            } else {
+                voiceBtn.style.backgroundColor = 'var(--primary)';
+                voiceBtn.style.color = 'white';
+                textBtn.style.backgroundColor = '#e2e8f0';
+                textBtn.style.color = '#475569';
+                textPanel.style.display = 'none';
+                voicePanel.style.display = 'block';
+            }
+        }
+
+        async function startVoiceRecording() {
+            const startBtn = document.getElementById('btn-voice-start');
+            const stopBtn = document.getElementById('btn-voice-stop');
+            const sendBtn = document.getElementById('btn-voice-send');
+            const resetBtn = document.getElementById('btn-voice-reset');
+            const statusLabel = document.getElementById('voice-deck-status');
+            const statusPulse = document.getElementById('voice-deck-pulse');
+            
+            // Hide preview player
+            document.getElementById('audio-playback').style.display = 'none';
+            document.getElementById('audio-no-preview').style.display = 'inline';
+            
+            audioChunks = [];
+            recordedBlob = null;
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        audioChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    
+                    // Attach to preview audio player
+                    const audioUrl = URL.createObjectURL(recordedBlob);
+                    const playbackEl = document.getElementById('audio-playback');
+                    playbackEl.src = audioUrl;
+                    playbackEl.style.display = 'block';
+                    document.getElementById('audio-no-preview').style.display = 'none';
+                    
+                    // Enable action buttons
+                    sendBtn.disabled = false;
+                    sendBtn.style.cursor = 'pointer';
+                    sendBtn.style.opacity = '1';
+                    
+                    resetBtn.disabled = false;
+                    resetBtn.style.cursor = 'pointer';
+                    resetBtn.style.opacity = '1';
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                // Adjust UI states
+                startBtn.disabled = true;
+                startBtn.style.cursor = 'not-allowed';
+                startBtn.style.opacity = '0.5';
+
+                stopBtn.disabled = false;
+                stopBtn.style.cursor = 'pointer';
+                stopBtn.style.opacity = '1';
+                
+                sendBtn.disabled = true;
+                sendBtn.style.cursor = 'not-allowed';
+                sendBtn.style.opacity = '0.5';
+
+                resetBtn.disabled = true;
+                resetBtn.style.cursor = 'not-allowed';
+                resetBtn.style.opacity = '0.5';
+
+                statusPulse.style.backgroundColor = '#dc2626'; // active red pulse
+                statusLabel.innerText = "Recording (0s)...";
+
+                recordingSeconds = 0;
+                recordingTimer = setInterval(() => {
+                    recordingSeconds++;
+                    statusLabel.innerText = `Recording (${recordingSeconds}s / 60s)...`;
+                    if (recordingSeconds >= 60) {
+                        stopVoiceRecording();
+                    }
+                }, 1000);
+
+            } catch (err) {
+                alert(`Microphone access error: ${err.message}`);
+                console.error("Mic error:", err);
+            }
+        }
+
+        function stopVoiceRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+
+                const startBtn = document.getElementById('btn-voice-start');
+                const stopBtn = document.getElementById('btn-voice-stop');
+                const statusLabel = document.getElementById('voice-deck-status');
+                const statusPulse = document.getElementById('voice-deck-pulse');
+
+                startBtn.disabled = false;
+                startBtn.style.cursor = 'pointer';
+                startBtn.style.opacity = '1';
+
+                stopBtn.disabled = true;
+                stopBtn.style.cursor = 'not-allowed';
+                stopBtn.style.opacity = '0.5';
+
+                statusPulse.style.backgroundColor = '#10b981'; // green ready
+                statusLabel.innerText = "Audio Recorded (Ready to Preview & Send)";
+
+                if (recordingTimer) {
+                    clearInterval(recordingTimer);
+                    recordingTimer = null;
+                }
+            }
+        }
+
+        function resetVoiceRecording() {
+            stopVoiceRecording();
+            recordedBlob = null;
+            audioChunks = [];
+
+            const startBtn = document.getElementById('btn-voice-start');
+            const stopBtn = document.getElementById('btn-voice-stop');
+            const sendBtn = document.getElementById('btn-voice-send');
+            const resetBtn = document.getElementById('btn-voice-reset');
+            const statusLabel = document.getElementById('voice-deck-status');
+            const statusPulse = document.getElementById('voice-deck-pulse');
+
+            // Reset preview
+            const playbackEl = document.getElementById('audio-playback');
+            playbackEl.src = '';
+            playbackEl.style.display = 'none';
+            document.getElementById('audio-no-preview').style.display = 'inline';
+
+            startBtn.disabled = false;
+            startBtn.style.cursor = 'pointer';
+            startBtn.style.opacity = '1';
+
+            stopBtn.disabled = true;
+            stopBtn.style.cursor = 'not-allowed';
+            stopBtn.style.opacity = '0.5';
+
+            sendBtn.disabled = true;
+            sendBtn.style.cursor = 'not-allowed';
+            sendBtn.style.opacity = '0.5';
+
+            resetBtn.disabled = true;
+            resetBtn.style.cursor = 'not-allowed';
+            resetBtn.style.opacity = '0.5';
+
+            statusPulse.style.backgroundColor = '#64748b'; // default gray
+            statusLabel.innerText = "Idle (Microphone Ready)";
+        }
+
+        // Web Speech API Synthesis for spoken summary feedback (Phase 9 Conversational Loop)
+        function speakResponse(text, langCode) {
+            if (!window.speechSynthesis) {
+                console.warn("Web Speech synthesis not supported in this browser.");
+                return;
+            }
+            // Stop any active speech immediately
+            window.speechSynthesis.cancel();
+
+            if (!text) return;
+
+            // Strip out technical tags and markdown brackets for clean radio narration
+            const cleanText = text.replace(/[\*#_`]/g, '').trim();
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            if (langCode === 'hi') {
+                utterance.lang = 'hi-IN';
+            } else {
+                utterance.lang = 'en-US';
+            }
+            
+            utterance.rate = 1.0;
+            utterance.pitch = 1.05;
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        async function sendVoiceRecording() {
+            if (!recordedBlob) {
+                alert("Please record audio first.");
+                return;
+            }
+
+            const resultAnswer = document.getElementById('result-answer');
+            const voiceLogs = document.getElementById('voice-logs-container');
+            const voiceTranscribed = document.getElementById('voice-log-transcribed');
+            const voiceTranslated = document.getElementById('voice-log-translated');
+            const voiceLangCode = document.getElementById('voice-detected-lang');
+            
+            resultAnswer.style.color = "#475569";
+            resultAnswer.innerText = "Transcribing audio speech and consulting LangGraph agent chain...";
+            voiceLogs.style.display = 'none';
+
+            const prefLang = document.getElementById('voice-pref-lang').value;
+            const formData = new FormData();
+            formData.append('file', recordedBlob, 'query.wav');
+            formData.append('preferred_language', prefLang);
+            formData.append('session_id', querySessionId);
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/query/voice`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                logDebug('Voice Agent Query Response', data);
+
+                if (response.ok) {
+                    voiceLogs.style.display = 'block';
+                    voiceTranscribed.innerText = data.transcribed || '—';
+                    voiceTranslated.innerText = data.translated || '—';
+                    voiceLangCode.innerText = `LANG: ${data.language.toUpperCase()}`;
+
+                    resultAnswer.style.color = "#0f172a";
+                    if (prefLang === 'hi' && data.response_in_hindi) {
+                        resultAnswer.innerHTML = `<strong>Hindi:</strong> ${data.response_in_hindi}<br><br><small style="color:#64748b;">Original: ${data.agent_response.answer}</small>`;
+                    } else {
+                        resultAnswer.innerText = data.agent_response.answer;
+                    }
+
+                    document.getElementById('result-agent').innerText = data.agent_response.agent_used;
+                    document.getElementById('result-confidence').innerText = `${(data.agent_response.confidence * 100).toFixed(0)}%`;
+                    document.getElementById('result-sources').value = JSON.stringify(data.agent_response.sources, null, 2);
+
+                    // Speak response summary out loud conversational loop
+                    if (data.spoken_summary) {
+                        speakResponse(data.spoken_summary, prefLang);
+                    }
+                } else {
+                    resultAnswer.style.color = "red";
+                    resultAnswer.innerText = `Error: ${data.detail || 'Voice agent failed to respond'}`;
+                }
+            } catch (err) {
+                resultAnswer.style.color = "red";
+                resultAnswer.innerText = `Error: ${err.message}`;
+            }
+        }
+
+        // Text query submit handler
+        document.getElementById('query-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultAnswer = document.getElementById('result-answer');
+            const voiceLogs = document.getElementById('voice-logs-container');
+            
+            resultAnswer.style.color = "#475569";
+            resultAnswer.innerText = "Consulting LangGraph agents network...";
+            voiceLogs.style.display = 'none';
+            
+            const query = document.getElementById('query-input').value;
+            const prefLang = document.getElementById('query-pref-lang').value;
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/query/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        query_language: prefLang,
+                        session_id: querySessionId
+                    })
+                });
+                const data = await response.json();
+                logDebug('Agent Query Response', data);
+
+                if (response.ok) {
+                    resultAnswer.style.color = "#0f172a";
+                    resultAnswer.innerText = data.answer;
+                    document.getElementById('result-agent').innerText = data.agent_used;
+                    document.getElementById('result-confidence').innerText = `${(data.confidence * 100).toFixed(0)}%`;
+                    document.getElementById('result-sources').value = JSON.stringify(data.sources, null, 2);
+
+                    // Speak response summary out loud conversational loop
+                    if (data.spoken_summary) {
+                        speakResponse(data.spoken_summary, prefLang);
+                    }
+                } else {
+                    resultAnswer.style.color = "red";
+                    resultAnswer.innerText = `Error: ${data.detail || 'Agent call failed'}`;
+                }
+            } catch (err) {
+                resultAnswer.style.color = "red";
+                resultAnswer.innerText = `Error: ${err.message}`;
+            }
+        });
+
+        // 4A. UPLOAD
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.style.color = "blue";
+            statusDiv.innerText = "Uploading file bytes...";
+
+            const fileInput = document.getElementById('upload-file');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('uat', document.getElementById('upload-uat').value);
+            formData.append('title', document.getElementById('upload-title').value);
+            formData.append('doc_type', document.getElementById('upload-doc-type').value);
+            formData.append('revision', document.getElementById('upload-revision').value);
+            
+            const compliance = document.getElementById('upload-compliance').value;
+            if (compliance) {
+                formData.append('compliance_scope', compliance);
+            }
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/documents/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                logDebug('Document Upload Response', data);
+
+                 if (response.ok) {
+                    statusDiv.style.color = "green";
+                    statusDiv.innerText = `Uploaded successfully. Document UAT registered. ID: ${data.doc_id}`;
+                    loadOverviewStats();
+                    // Auto reload documents list
+                    document.getElementById('list-docs-form').dispatchEvent(new Event('submit'));
+                } else {
+                    statusDiv.style.color = "red";
+                    statusDiv.innerText = `Error: ${getErrorMessage(data)}`;
+                }
+            } catch (err) {
+                statusDiv.style.color = "red";
+                statusDiv.innerText = `Error: ${err.message}`;
+            }
+        });
+
+        // 4B. LIST & SEARCH REGISTRY
+        document.getElementById('list-docs-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tableBody = document.getElementById('docs-table-body');
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px; color: var(--text-muted);">Fetching registry items...</td></tr>`;
+
+            const uat = document.getElementById('filter-uat').value;
+            const docType = document.getElementById('filter-type').value;
+            let queryParams = [];
+            if (uat) queryParams.push(`uat=${uat}`);
+            if (docType) queryParams.push(`doc_type=${docType}`);
+            queryParams.push(`limit=100`);
+            const queryStr = `?${queryParams.join('&')}`;
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/documents${queryStr}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+                logDebug('List Documents Response', data);
+
+                if (response.ok) {
+                    tableBody.innerHTML = '';
+                    if (data.items.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">No active documents matched filters.</td></tr>`;
+                        return;
+                    }
+                    data.items.forEach(doc => {
+                        let actionButtons = '';
+                        if (['Plant_Manager', 'Admin', 'Maintenance_Engineer'].includes(loggedUserRole)) {
+                            actionButtons += `<button onclick="processDoc('${doc.doc_id}')" class="act-btn btn-primary" style="background-color: var(--success); margin-right: 4px;">Process Text</button>`;
+                        }
+                        actionButtons += `<button onclick="showEntities('${doc.doc_id}', '${doc.title.replace(/'/g, "\\'")}')" class="act-btn btn-primary" style="background-color: var(--primary); margin-right: 4px;">Show Entities</button>`;
+                        if (['Plant_Manager', 'Admin'].includes(loggedUserRole)) {
+                            actionButtons += `<button onclick="deleteDoc('${doc.doc_id}')" class="act-btn btn-danger">Delete</button>`;
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding: 12px; font-weight: 500;">${doc.title}</td>
+                            <td style="padding: 12px;"><span style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size:11px; font-weight: 600; color: #475569;">${doc.doc_type}</span></td>
+                            <td style="padding: 12px; font-family: monospace;">${doc.uat || 'N/A'}</td>
+                            <td style="padding: 12px;">v${doc.revision}</td>
+                            <td style="padding: 12px;">
+                                ${actionButtons}
+                            </td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px; color: red;">Error: ${getErrorMessage(data)}</td></tr>`;
+                }
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px; color: red;">Error: ${err.message}</td></tr>`;
+            }
+        });
+
+        async function processDoc(docId) {
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.style.color = "blue";
+            statusDiv.innerText = `Invoking text extraction & OCR pipeline for document: ${docId}...`;
+            
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/documents/process/${docId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                logDebug('Process Document Response', data);
+
+                if (response.ok) {
+                    statusDiv.style.color = "green";
+                    statusDiv.innerText = `Success! OCR parser: [${data.method_used}]. Created ${data.chunks_created} vectors. NER Spans: ${data.entities_extracted}.`;
+                    alert(`Extraction Succeeded!\nParser: ${data.method_used}\nVectors: ${data.chunks_created}\nNER Spans: ${data.entities_extracted}`);
+                } else {
+                    statusDiv.style.color = "red";
+                    statusDiv.innerText = `Error: ${getErrorMessage(data)}`;
+                    alert(`Failed to extract text: ${getErrorMessage(data)}`);
+                }
+            } catch (err) {
+                statusDiv.style.color = "red";
+                statusDiv.innerText = `Error: ${err.message}`;
+                alert(`Error: ${err.message}`);
+            }
+        }
+
+        async function deleteDoc(docId) {
+            if (!confirm('Soft-delete this document?')) return;
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/documents/${docId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                logDebug('Delete Document Response', data);
+
+                if (response.ok) {
+                    alert('Document soft-deleted!');
+                    loadOverviewStats();
+                    document.getElementById('list-docs-form').dispatchEvent(new Event('submit'));
+                } else {
+                    alert(`Error: ${data.detail || 'Delete failed'}`);
+                }
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        }
+
+        async function showEntities(docId, docTitle) {
+            const container = document.getElementById('entities-display-container');
+            const titleEl = document.getElementById('entities-display-title');
+            const tableBody = document.getElementById('entities-table-body');
+            
+            titleEl.innerText = `Extracted Entities for: ${docTitle}`;
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 10px;">Reading spans from database...</td></tr>`;
+            container.style.display = 'block';
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/entities/document/${docId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+                logDebug('Get Document Entities Response', data);
+
+                if (response.ok) {
+                    tableBody.innerHTML = '';
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 10px; color: red;">No entities extracted yet. Click "Process Text" first!</td></tr>`;
+                        return;
+                    }
+                    data.forEach(ent => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding: 10px; font-weight: 600; color: #1e3a8a;">${ent.entity_type}</td>
+                            <td style="padding: 10px; font-family: monospace; font-weight: 500;">${ent.entity_value}</td>
+                            <td style="padding: 10px;">${ent.start_char}</td>
+                            <td style="padding: 10px;">${ent.end_char}</td>
+                            <td style="padding: 10px; color: var(--success); font-weight: 600;">${(ent.confidence * 100).toFixed(0)}%</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 10px; color: red;">Error: ${getErrorMessage(data)}</td></tr>`;
+                }
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 10px; color: red;">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        // 5. SEMANTIC SEARCH
+        document.getElementById('search-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const searchStatus = document.getElementById('search-status');
+            const searchResultsContainer = document.getElementById('search-results-container');
+            searchStatus.textContent = 'Executing cosine match calculations...';
+            searchResultsContainer.innerHTML = '';
+
+            const query = document.getElementById('search-query').value;
+            const uat = document.getElementById('search-uat').value;
+            const threshold = parseFloat(document.getElementById('search-threshold').value);
+            const limit = parseInt(document.getElementById('search-limit').value);
+
+            let url = `${BASE_URL}/search/semantic?query=${encodeURIComponent(query)}&threshold=${threshold}&limit=${limit}`;
+            if (uat.trim()) {
+                url += `&uat=${encodeURIComponent(uat.trim())}`;
+            }
+
+            try {
+                const response = await fetchWithAuth(url, { method: 'POST' });
+                const data = await response.json();
+                logDebug('Semantic Search Response', data);
+
+                if (!response.ok) {
+                    searchStatus.textContent = `Error: ${getErrorMessage(data)}`;
+                    searchStatus.style.color = 'red';
+                    return;
+                }
+
+                searchStatus.textContent = `Retrieved ${data.length} ranked segments.`;
+                searchStatus.style.color = 'green';
+
+                if (data.length === 0) {
+                    searchResultsContainer.innerHTML = '<p style="color: var(--text-muted);">No matching vectors found.</p>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach((res, index) => {
+                    html += `
+                        <div style="border: 1px solid var(--border-color); padding: 15px; margin-bottom: 12px; background-color: #ffffff; border-radius: 6px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: var(--text-muted);">
+                                <span><strong>Rank #${index + 1}</strong> | Score: <strong style="color: var(--success); font-size:13px;">${(res.similarity * 100).toFixed(2)}%</strong></span>
+                                <span>Asset UAT: <strong>${res.chunk_metadata.uat || 'N/A'}</strong> | Type: <strong>${res.chunk_metadata.doc_type || 'N/A'}</strong></span>
+                            </div>
+                            <div style="font-weight: 600; margin-bottom: 6px; color: #0f172a; font-size: 14px;">Title: ${res.chunk_metadata.title || 'N/A'}</div>
+                            <blockquote style="margin: 0; padding-left: 12px; border-left: 3px solid var(--primary); color: #334155; font-style: italic; white-space: pre-wrap; font-size:13.5px; line-height: 1.5;">${res.chunk_text}</blockquote>
+                        </div>
+                    `;
+                });
+                searchResultsContainer.innerHTML = html;
+
+            } catch (err) {
+                searchStatus.textContent = 'Server connection error during search.';
+                searchStatus.style.color = 'red';
+            }
+        });
+
+        // 6. GRAPH TOPOLOGY & RELATION RENDER (PHASE 7 & 12)
+        let networkObj = null;
+
+        document.getElementById('btn-fetch-graph').addEventListener('click', triggerGraphFetch);
+
+        function triggerGraphFetch() {
+            const keyword = document.getElementById('graph-search').value;
+            fetchAndRenderGraph(keyword);
+        }
+
+        // -----------------------------------------------------------------
+        // Equipment-type → color map (matches legend in HTML)
+        // -----------------------------------------------------------------
+        function assetColor(equipType) {
+            if (!equipType) return { bg: '#8b5cf6', border: '#6d28d9' };
+            const t = equipType.toLowerCase();
+            if (t.includes('boiler') || t.includes('furnace') || t.includes('heater'))
+                return { bg: '#ef4444', border: '#b91c1c' };
+            if (t.includes('pump') || t.includes('compressor') || t.includes('blower') || t.includes('fan'))
+                return { bg: '#3b82f6', border: '#1d4ed8' };
+            if (t.includes('heat exchanger') || t.includes('condenser') || t.includes('cooler'))
+                return { bg: '#10b981', border: '#065f46' };
+            if (t.includes('reactor') || t.includes('tank') || t.includes('vessel') || t.includes('column') || t.includes('tower'))
+                return { bg: '#f59e0b', border: '#b45309' };
+            return { bg: '#8b5cf6', border: '#6d28d9' };
+        }
+
+        async function fetchAndRenderGraph(keyword = '') {
+            const container = document.getElementById('graph-canvas-container');
+            const loadingMsg = document.getElementById('graph-loading-msg');
+            const summaryCard = document.getElementById('graph-summary-card');
+            const showDocs = document.getElementById('toggle-docs').checked;
+            const showOps = document.getElementById('toggle-ops').checked;
+
+            loadingMsg.style.display = 'block';
+            loadingMsg.innerText = 'Loading plant topology from database…';
+            summaryCard.style.display = 'none';
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/graph/topology`, { method: 'GET' });
+                const data = await response.json();
+
+                loadingMsg.style.display = 'none';
+
+                let allNodes = data.nodes;
+                let allEdges = data.edges;
+
+                // Separate nodes
+                const assetNodes = allNodes.filter(n => n.group === 'assets');
+                const docNodes   = allNodes.filter(n => n.group === 'documents');
+                const failNodes  = allNodes.filter(n => n.group === 'failures');
+                const woNodes    = allNodes.filter(n => n.group === 'work_orders');
+                const inspNodes  = allNodes.filter(n => n.group === 'inspections');
+                const alarmNodes = allNodes.filter(n => n.group === 'alarms');
+
+                // Separate edges
+                const depEdges    = allEdges.filter(e => e.label !== 'HAS_DOCUMENT' && e.label !== 'HAS_FAILURE' && e.label !== 'HAS_WORK_ORDER' && e.label !== 'HAS_INSPECTION' && e.label !== 'HAS_ALARM');
+                const docEdges    = allEdges.filter(e => e.label === 'HAS_DOCUMENT');
+                const failEdges   = allEdges.filter(e => e.label === 'HAS_FAILURE');
+                const woEdges     = allEdges.filter(e => e.label === 'HAS_WORK_ORDER');
+                const inspEdges   = allEdges.filter(e => e.label === 'HAS_INSPECTION');
+                const alarmEdges  = allEdges.filter(e => e.label === 'HAS_ALARM');
+
+                // Update sidebar counters
+                document.getElementById('net-asset-count').innerText   = assetNodes.length;
+                document.getElementById('net-doc-count').innerText      = docNodes.length;
+                document.getElementById('net-fail-count').innerText     = failNodes.length;
+                document.getElementById('net-wo-count').innerText       = woNodes.length;
+                document.getElementById('net-insp-count').innerText     = inspNodes.length;
+                document.getElementById('net-alarm-count').innerText    = alarmNodes.length;
+
+                // Degree centrality — asset-only edges for accuracy
+                const edgeCounts = {};
+                assetNodes.forEach(n => edgeCounts[n.id] = 0);
+                depEdges.forEach(e => {
+                    if (edgeCounts[e.from] !== undefined) edgeCounts[e.from]++;
+                    if (edgeCounts[e.to]   !== undefined) edgeCounts[e.to]++;
+                });
+                let maxNodeId = null, maxCount = 0;
+                for (const id in edgeCounts) {
+                    if (edgeCounts[id] > maxCount) { maxCount = edgeCounts[id]; maxNodeId = id; }
+                }
+                const centralNode = assetNodes.find(n => n.id === maxNodeId);
+                document.getElementById('metric-central-node').innerText = centralNode ? centralNode.label : '—';
+                document.getElementById('metric-central-count').innerText = maxCount || '—';
+
+                // -- Assemble nodes and edges based on toggles --
+                let nodes = [...assetNodes];
+                let edges = [...depEdges];
+
+                if (showDocs) {
+                    nodes.push(...docNodes);
+                    edges.push(...docEdges);
+                }
+                if (showOps) {
+                    nodes.push(...failNodes, ...woNodes, ...inspNodes, ...alarmNodes);
+                    edges.push(...failEdges, ...woEdges, ...inspEdges, ...alarmEdges);
+                }
+
+                // -- Filter by keyword based on search depth selection --
+                const depthVal = document.getElementById('graph-depth').value;
+                if (depthVal !== 'full' && keyword && keyword.trim() !== '') {
+                    const tokens = keyword.toLowerCase().split(/[\s,]+/).map(t => t.trim()).filter(Boolean);
+                    
+                    if (tokens.length > 0) {
+                        const matched = new Set();
+                        nodes.forEach(n => {
+                            const lbl = String(n.label || '').toLowerCase();
+                            const id  = String(n.id  || '').toLowerCase();
+                            const mfr = String((n.properties || {}).manufacturer || '').toLowerCase();
+                            const type = String((n.properties || {}).type || '').toLowerCase();
+                            const docType = String((n.properties || {}).doc_type || '').toLowerCase();
+
+                            const matchesToken = tokens.some(token => 
+                                lbl.includes(token) || 
+                                id.includes(token) || 
+                                mfr.includes(token) || 
+                                type.includes(token) ||
+                                docType.includes(token)
+                            );
+                            
+                            if (matchesToken) {
+                                matched.add(n.id);
+                            }
+                        });
+
+                        let expanded = new Set(matched);
+                        if (depthVal === '1') {
+                            edges.forEach(e => {
+                                if (matched.has(e.from)) expanded.add(e.to);
+                                if (matched.has(e.to))   expanded.add(e.from);
+                            });
+                        } else if (depthVal === '2') {
+                            let currentSet = new Set(matched);
+                            for (let hop = 0; hop < 2; hop++) {
+                                let nextSet = new Set();
+                                edges.forEach(e => {
+                                    if (currentSet.has(e.from) && !expanded.has(e.to)) {
+                                        expanded.add(e.to);
+                                        nextSet.add(e.to);
+                                    }
+                                    if (currentSet.has(e.to) && !expanded.has(e.from)) {
+                                        expanded.add(e.from);
+                                        nextSet.add(e.from);
+                                    }
+                                });
+                                currentSet = nextSet;
+                            }
+                        }
+
+                        nodes = nodes.filter(n => expanded.has(n.id));
+                        edges = edges.filter(e => expanded.has(e.from) && expanded.has(e.to));
+                    }
+                }
+
+                // Update success banner
+                summaryCard.style.display = 'block';
+                summaryCard.innerText = `Network graph retrieved successfully. Showing ${
+                    nodes.filter(n=>n.group==='assets').length} asset nodes, ${
+                    nodes.filter(n=>n.group==='documents').length} document nodes, ${
+                    nodes.filter(n=>n.group==='failures').length} failure events, ${
+                    nodes.filter(n=>n.group==='work_orders').length} work orders, ${
+                    nodes.filter(n=>n.group==='inspections').length} inspections, ${
+                    nodes.filter(n=>n.group==='alarms').length} alarms, and ${edges.length} edges.`;
+
+                // -- Build vis.js DataSets --
+                const visNodes = new vis.DataSet(nodes.map(n => {
+                    if (n.group === 'assets') {
+                        const eq_type = (n.properties || {}).type || '';
+                        const c = assetColor(eq_type);
+                        return {
+                            id: n.id,
+                            label: n.label,
+                            title: `<b>${n.label}</b><br>Type: ${eq_type}<br>UAT: ${n.id}<br>Status: ${(n.properties||{}).status||'—'}`,
+                            shape: 'dot',
+                            color: { background: c.bg, border: c.border, highlight: { background: '#fbbf24', border: '#d97706' } },
+                            font: { size: 11, face: 'Inter', color: '#0f172a', bold: { color: '#0f172a' } },
+                            size: 18 + Math.min((edgeCounts[n.id]||0) * 1.5, 16),
+                            properties: n.properties,
+                            groupName: 'assets'
+                        };
+                    } else if (n.group === 'documents') {
+                        return {
+                            id: n.id,
+                            label: n.label,
+                            title: `<b>${n.label}</b><br>Type: ${(n.properties||{}).doc_type||'—'}`,
+                            shape: 'dot',
+                            color: { background: '#94a3b8', border: '#64748b', highlight: { background: '#fbbf24', border: '#d97706' } },
+                            font: { size: 9, face: 'Inter', color: '#475569' },
+                            size: 8,
+                            properties: n.properties,
+                            groupName: 'documents'
+                        };
+                    } else if (n.group === 'failures') {
+                        return {
+                            id: n.id,
+                            label: n.label,
+                            title: `<b>Failure Event</b><br>Mode: ${(n.properties||{}).mode || '—'}<br>Category: ${(n.properties||{}).category || '—'}<br>Severity: ${(n.properties||{}).severity || '—'}<br>Date: ${(n.properties||{}).date || '—'}`,
+                            shape: 'triangle',
+                            color: { background: '#ef4444', border: '#b91c1c', highlight: { background: '#fbbf24', border: '#d97706' } },
+                            font: { size: 10, face: 'Inter', color: '#7f1d1d' },
+                            size: 14,
+                            properties: n.properties,
+                            groupName: 'failures'
+                        };
+                    } else if (n.group === 'work_orders') {
+                        return {
+                            id: n.id,
+                            label: n.label,
+                            title: `<b>Work Order</b><br>Type: ${(n.properties||{}).type || '—'}<br>Priority: ${(n.properties||{}).priority || '—'}<br>Status: ${(n.properties||{}).status || '—'}<br>Description: ${(n.properties||{}).description || '—'}`,
+                            shape: 'square',
+                            color: { background: '#10b981', border: '#047857', highlight: { background: '#fbbf24', border: '#d97706' } },
+                            font: { size: 10, face: 'Inter', color: '#064e3b' },
+                            size: 12,
+                            properties: n.properties,
+                            groupName: 'work_orders'
+                        };
+                    } else if (n.group === 'inspections') {
+                        return {
+                            id: n.id,
+                            label: n.label,
+                            title: `<b>Inspection Report</b><br>Type: ${(n.properties||{}).type || '—'}<br>Findings: ${(n.properties||{}).findings || '—'}<br>Severity: ${(n.properties||{}).severity || '—'}`,
+                            shape: 'diamond',
+                            color: { background: '#06b6d4', border: '#0891b2', highlight: { background: '#fbbf24', border: '#d97706' } },
+                            font: { size: 10, face: 'Inter', color: '#164e63' },
+                            size: 12,
+                            properties: n.properties,
+                            groupName: 'inspections'
+                        };
+                    } else if (n.group === 'alarms') {
+                        return {
+                            id: n.id,
+                            label: n.label,
+                            title: `<b>Alarm</b><br>Tag: ${(n.properties||{}).tag || '—'}<br>Type: ${(n.properties||{}).type || '—'}<br>Priority: ${(n.properties||{}).priority || '—'}<br>Time: ${(n.properties||{}).time || '—'}`,
+                            shape: 'star',
+                            color: { background: '#f97316', border: '#ea580c', highlight: { background: '#fbbf24', border: '#d97706' } },
+                            font: { size: 10, face: 'Inter', color: '#7c2d12' },
+                            size: 14,
+                            properties: n.properties,
+                            groupName: 'alarms'
+                        };
+                    }
+                }));
+
+                const visEdges = new vis.DataSet(edges.map(e => {
+                    const isDocLink = e.label === 'HAS_DOCUMENT';
+                    const isOpLink = ['HAS_FAILURE', 'HAS_WORK_ORDER', 'HAS_INSPECTION', 'HAS_ALARM'].includes(e.label);
+                    
+                    let edgeColor = '#64748b'; // default
+                    if (isDocLink) edgeColor = '#cbd5e1';
+                    else if (e.label === 'HAS_FAILURE') edgeColor = '#fca5a5';
+                    else if (e.label === 'HAS_WORK_ORDER') edgeColor = '#a7f3d0';
+                    else if (e.label === 'HAS_INSPECTION') edgeColor = '#a5f3fc';
+                    else if (e.label === 'HAS_ALARM') edgeColor = '#fed7aa';
+
+                    return {
+                        id: e.id,
+                        from: e.from,
+                        to: e.to,
+                        title: e.label,
+                        label: undefined,
+                        color: {
+                            color:     edgeColor,
+                            highlight: '#f59e0b',
+                            opacity: isDocLink ? 0.5 : 0.9
+                        },
+                        arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+                        width:  isDocLink ? 1 : (isOpLink ? 1.2 : 1.8),
+                        dashes: isDocLink || isOpLink,
+                        smooth: { type: 'dynamic' }
+                    };
+                }));
+
+                const options = {
+                    nodes: { borderWidth: 2 },
+                    edges: { smooth: { type: 'dynamic' } },
+                    physics: {
+                        solver: 'forceAtlas2Based',
+                        forceAtlas2Based: {
+                            gravitationalConstant: -70,
+                            centralGravity: 0.015,
+                            springLength: 100,
+                            springConstant: 0.08,
+                            damping: 0.4
+                        },
+                        stabilization: { iterations: 200 }
+                    },
+                    interaction: {
+                        hover: true,
+                        tooltipDelay: 150,
+                        selectConnectedEdges: true,
+                        navigationButtons: false
+                    },
+                    layout: { improvedLayout: true }
+                };
+
+                networkObj = new vis.Network(container, { nodes: visNodes, edges: visEdges }, options);
+
+                // Click → sidebar node properties & Causal path highlighting
+                networkObj.on('click', async function(params) {
+                    const detailsContent = document.getElementById('selection-details-content');
+                    if (params.nodes.length > 0) {
+                        const selectedId = params.nodes[0];
+                        const nodeData = visNodes.get(selectedId);
+                        
+                        // 1. Fetch neighbor details if it's an asset
+                        let neighborsData = null;
+                        if (nodeData.groupName === 'assets') {
+                            detailsContent.innerHTML = `<div style="text-align:center;padding:15px;color:var(--text-muted);font-size:11.5px;">Fetching live diagnostics...</div>`;
+                            try {
+                                const response = await fetchWithAuth(`${BASE_URL}/graph/neighbors/${selectedId}`, { method: 'GET' });
+                                if (response.ok) {
+                                    neighborsData = await response.json();
+                                }
+                            } catch (e) {
+                                console.warn("Failed to fetch neighbors details:", e);
+                            }
+                        }
+                        
+                        // 2. Render sidebar HTML details
+                        let html = `<div style="font-weight:700;color:#0f172a;margin-bottom:6px;font-size:13.5px;border-bottom:1px solid var(--border-color);padding-bottom:5px;">${nodeData.label}</div>`;
+                        html += `<div style="margin-bottom:10px;"><span style="background:#e0e7ff;color:#3730a3;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:600;">${nodeData.groupName.toUpperCase()}</span></div>`;
+                        
+                        if (neighborsData) {
+                            // Operational Status Indicator
+                            let statusText = 'HEALTHY';
+                            let statusColor = 'var(--success)';
+                            let alarmsHtml = '';
+                            
+                            if (neighborsData.active_alarms && neighborsData.active_alarms.length > 0) {
+                                statusText = `${neighborsData.active_alarms.length} ACTIVE ALARMS`;
+                                statusColor = 'var(--danger)';
+                                alarmsHtml += `<div style="margin-top:10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;margin-bottom:10px;">
+                                    <div style="font-weight:700;color:#991b1b;font-size:11.5px;margin-bottom:4px;">🚨 Active Alarms:</div>`;
+                                neighborsData.active_alarms.forEach(a => {
+                                    alarmsHtml += `<div style="font-size:11px;color:#7f1d1d;border-bottom:1px dashed #fca5a5;padding:4px 0;margin-bottom:2px;">
+                                        <strong>${a.alarm_type}</strong> (Priority: ${a.alarm_priority})<br>
+                                        <span style="color:#b91c1c;font-size:10.5px;">Triggered: ${new Date(a.triggered_at).toLocaleString()}</span>
+                                    </div>`;
+                                });
+                                alarmsHtml += `</div>`;
+                            } else if (nodeData.properties && nodeData.properties.status === 'maintenance') {
+                                statusText = 'UNDER MAINTENANCE';
+                                statusColor = 'var(--warning)';
+                            }
+                            
+                            html += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:12px;font-weight:600;">
+                                <span>Diagnostics:</span>
+                                <span style="background:${statusColor};color:white;padding:2px 6px;border-radius:4px;font-size:11px;">${statusText}</span>
+                            </div>`;
+                            
+                            html += alarmsHtml;
+                        }
+                        
+                        // Node Properties Listing
+                        if (nodeData.properties) {
+                            html += `<div style="font-weight:700;font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:10px;margin-bottom:5px;">Properties</div>`;
+                            for (const [key, val] of Object.entries(nodeData.properties)) {
+                                if (!val || val === 'Unknown') continue;
+                                html += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding:4px 0;font-size:11px;">
+                                    <span style="color:#64748b;">${key.replace(/_/g,' ').toUpperCase()}</span>
+                                    <span style="font-weight:600;color:#334155;text-align:right;max-width:160px;word-break:break-word;">${val}</span>
+                                </div>`;
+                            }
+                        }
+                        
+                        // Neighbor Connections Listing
+                        if (neighborsData) {
+                            if (neighborsData.upstream && neighborsData.upstream.length > 0) {
+                                html += `<div style="font-weight:700;font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:15px;margin-bottom:5px;">Upstream Feeder Assets</div>`;
+                                neighborsData.upstream.forEach(up => {
+                                    html += `<div style="font-size:11.5px;padding:4px 6px;background:#f1f5f9;border-radius:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid #f59e0b;">
+                                        <span style="font-weight:600;color:var(--primary);cursor:pointer;text-decoration:underline;" onclick="selectNodeInGraph('${up.uat}')">${up.equipment_tag}</span>
+                                        <span style="font-size:10px;color:#64748b;">${up.equipment_type}</span>
+                                    </div>`;
+                                });
+                            }
+                            
+                            if (neighborsData.downstream && neighborsData.downstream.length > 0) {
+                                html += `<div style="font-weight:700;font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:15px;margin-bottom:5px;">Downstream Fed Assets</div>`;
+                                neighborsData.downstream.forEach(down => {
+                                    html += `<div style="font-size:11.5px;padding:4px 6px;background:#f1f5f9;border-radius:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid #3b82f6;">
+                                        <span style="font-weight:600;color:var(--primary);cursor:pointer;text-decoration:underline;" onclick="selectNodeInGraph('${down.uat}')">${down.equipment_tag}</span>
+                                        <span style="font-size:10px;color:#64748b;">${down.equipment_type}</span>
+                                    </div>`;
+                                });
+                            }
+                        }
+                        
+                        detailsContent.innerHTML = html;
+                        
+                        // 3. Programmatic Visual Highlighting (fade others)
+                        const connectedNodes = new Set();
+                        connectedNodes.add(selectedId);
+                        
+                        // Add immediate neighbors from edges list
+                        edges.forEach(e => {
+                            if (e.from === selectedId) connectedNodes.add(e.to);
+                            if (e.to === selectedId)   connectedNodes.add(e.from);
+                        });
+                        
+                        // Update opacity for nodes
+                        const nodesUpdate = nodes.map(n => {
+                            const isConnected = connectedNodes.has(n.id);
+                            let opacity = isConnected ? 1.0 : 0.15;
+                            let borderW = (n.id === selectedId) ? 4 : 2;
+                            return { id: n.id, opacity: opacity, borderWidth: borderW };
+                        });
+                        visNodes.update(nodesUpdate);
+                        
+                        // Update opacity for edges
+                        const edgesUpdate = edges.map(e => {
+                            const isConnected = (e.from === selectedId || e.to === selectedId);
+                            let opacity = isConnected ? 1.0 : 0.08;
+                            let width = isConnected ? (e.label === 'HAS_DOCUMENT' ? 1.5 : 2.5) : (e.label === 'HAS_DOCUMENT' ? 0.5 : 1.0);
+                            return { id: e.id, color: { opacity: opacity }, width: width };
+                        });
+                        visEdges.update(edgesUpdate);
+                        
+                    } else {
+                        detailsContent.innerHTML = 'Click a node to inspect properties.';
+                        
+                        // Restore original nodes & edges opacity
+                        const nodesReset = nodes.map(n => ({ id: n.id, opacity: 1.0, borderWidth: 2 }));
+                        visNodes.update(nodesReset);
+                        
+                        const edgesReset = edges.map(e => {
+                            const isDocLink = e.label === 'HAS_DOCUMENT';
+                            const isOpLink = ['HAS_FAILURE', 'HAS_WORK_ORDER', 'HAS_INSPECTION', 'HAS_ALARM'].includes(e.label);
+                            return {
+                                id: e.id,
+                                color: { opacity: isDocLink ? 0.5 : 0.9 },
+                                width: isDocLink ? 1 : (isOpLink ? 1.2 : 1.8)
+                            };
+                        });
+                        visEdges.update(edgesReset);
+                    }
+                });
+
+            } catch (err) {
+                loadingMsg.style.display = 'block';
+                loadingMsg.innerText = `Error loading graph: ${err.message}`;
+            }
+        }
+
+        function fitGraphView() {
+            if (networkObj) {
+                networkObj.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+            } else {
+                alert("Please fetch the network graph first.");
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // 7. REPORTS & AUDIT TRAIL LOGIC (PHASE 13)
+        // -----------------------------------------------------------------
+        function switchAuditSubTab(type) {
+            const ecrBtn = document.getElementById('btn-show-ecr');
+            const auditBtn = document.getElementById('btn-show-audit');
+            const ecrPanel = document.getElementById('audit-ecr-panel');
+            const auditPanel = document.getElementById('audit-logs-panel');
+
+            if (type === 'ecr') {
+                ecrBtn.style.background = 'var(--primary)';
+                ecrBtn.style.color = 'white';
+                auditBtn.style.background = '#e2e8f0';
+                auditBtn.style.color = '#475569';
+                ecrPanel.style.display = 'block';
+                auditPanel.style.display = 'none';
+                fetchECR();
+            } else {
+                auditBtn.style.background = 'var(--primary)';
+                auditBtn.style.color = 'white';
+                ecrBtn.style.background = '#e2e8f0';
+                ecrBtn.style.color = '#475569';
+                ecrPanel.style.display = 'none';
+                auditPanel.style.display = 'block';
+                fetchAuditLogs();
+            }
+        }
+
+        async function downloadRCAReport() {
+            const failId = document.getElementById('report-fail-id').value;
+            const statusDiv = document.getElementById('report-status');
+            statusDiv.style.color = 'blue';
+            statusDiv.innerText = 'Compiling and generating PDF audit package...';
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/reports/rca`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ failure_id: parseInt(failId) })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = `RCA_Report_${failId}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    window.URL.revokeObjectURL(downloadUrl);
+                    
+                    statusDiv.style.color = 'green';
+                    statusDiv.innerText = 'RCA PDF Downloaded successfully!';
+                } else {
+                    const errData = await response.json();
+                    statusDiv.style.color = 'red';
+                    statusDiv.innerText = `Error: ${errData.detail || 'Failed to download report'}`;
+                }
+            } catch (err) {
+                statusDiv.style.color = 'red';
+                statusDiv.innerText = `Error: ${err.message}`;
+            }
+        }
+
+        async function fetchECR() {
+            const tableBody = document.getElementById('ecr-table-body');
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px;">Loading Merkle ledger logs...</td></tr>`;
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/reports/engineering-changes?limit=50`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    tableBody.innerHTML = '';
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px;">No engineering change records in database.</td></tr>`;
+                        return;
+                    }
+                    data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        const truncatedHash = item.commit_hash ? item.commit_hash.slice(0, 8) + '...' : 'N/A';
+                        tr.innerHTML = `
+                            <td style="padding: 8px; font-family: monospace; font-weight:600;" title="${item.commit_hash || ''}">${truncatedHash}</td>
+                            <td style="padding: 8px; font-weight:500;">
+                                <span style="color:var(--primary); cursor:pointer; text-decoration:underline;" onclick="selectNodeInGraph('${item.uat}')">${item.entity_id || item.uat}</span>
+                            </td>
+                            <td style="padding: 8px;"><span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:600; font-size:10px;">${item.action}</span></td>
+                            <td style="padding: 8px;">${item.engineer_name || 'System'}</td>
+                            <td style="padding: 8px;">${item.approved_by || 'Auto'}</td>
+                            <td style="padding: 8px; font-size:11px; color:#64748b;">${new Date(item.timestamp).toLocaleString()}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: red;">Failed to fetch ledger.</td></tr>`;
+                }
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: red;">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        async function fetchAuditLogs() {
+            const tableBody = document.getElementById('audit-table-body');
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px;">Loading compliance logs...</td></tr>`;
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/reports/audit-logs?limit=50`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    tableBody.innerHTML = '';
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px;">No compliance query logs in database.</td></tr>`;
+                        return;
+                    }
+                    data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding: 8px; font-weight:600; color:#475569;">${item.user_role}</td>
+                            <td style="padding: 8px; font-style:italic;">"${item.query_text}"</td>
+                            <td style="padding: 8px;"><span style="color:#0369a1; font-weight:600;">${item.agent_used || 'Supervisor'}</span></td>
+                            <td style="padding: 8px; font-weight:700; color:var(--success);">${((item.intent_confidence || 1.0) * 100).toFixed(0)}%</td>
+                            <td style="padding: 8px; font-family:monospace;">${item.latency_ms} ms</td>
+                            <td style="padding: 8px; font-size:11px; color:#64748b;">${new Date(item.timestamp).toLocaleString()}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: red;">Failed to fetch audit trail.</td></tr>`;
+                }
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: red;">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        // Programmatically select and focus on a node in the network graph canvas
+        function selectNodeInGraph(nodeId) {
+            if (networkObj) {
+                networkObj.selectNodes([nodeId]);
+                // Fire click event programmatically
+                networkObj.fire('click', { nodes: [nodeId] });
+                // Smoothly focus and zoom on the selected node
+                networkObj.focus(nodeId, {
+                    scale: 1.15,
+                    animation: {
+                        duration: 750,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
+            }
+        }
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            handleLogout("Signed out successfully.");
+        });
+
+        // Initial UI check
+        updateAuthUI();
+    </script>
+</body>
+</html>
