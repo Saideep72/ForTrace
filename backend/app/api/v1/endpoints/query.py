@@ -92,6 +92,7 @@ class QueryRequest(BaseModel):
     session_id: Optional[str] = "default_session"
     query_language: Optional[str] = "en"
     tee_shield: Optional[bool] = False
+    include_expert_advice: Optional[bool] = False
 
 
 class QueryResponse(BaseModel):
@@ -160,6 +161,7 @@ async def ask_query(
         result = graph.invoke({
             "query": translated_query,
             "messages": history,
+            "include_expert_advice": payload.include_expert_advice,
             "retrieved_context": {}
         })
         

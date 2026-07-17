@@ -129,7 +129,7 @@ def search_sql(query: str) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # 2. Vector / Semantic Search — document_embeddings table via RPC
 # ---------------------------------------------------------------------------
-def search_vector(query: str) -> List[Dict[str, Any]]:
+def search_vector(query: str, include_expert_advice: bool = False) -> List[Dict[str, Any]]:
     """
     Calls the Supabase match_embeddings RPC function to retrieve the most
     semantically relevant document chunks for the query.
@@ -154,13 +154,20 @@ def search_vector(query: str) -> List[Dict[str, Any]]:
             ).execute()
 
             for row in (rpc_res.data or []):
+                meta = row.get("chunk_metadata") or {}
+                doc_type = meta.get("doc_type")
+                
+                # Filter out Expert Advice if disabled
+                if not include_expert_advice and doc_type == "LESSONS_LEARNED":
+                    continue
+
                 results.append({
                     "source": "vector_search",
-                    "chunk_text": row.get("chunk_text", "")[:400],
+                    "chunk_text": row.get("chunk_text", ""),
                     "similarity": row.get("similarity", 0),
-                    "doc_title": row.get("doc_title"),
-                    "doc_type": row.get("doc_type"),
-                    "uat": row.get("uat"),
+                    "doc_title": meta.get("title"),
+                    "doc_type": meta.get("doc_type"),
+                    "uat": meta.get("uat"),
                 })
         except Exception:
             # Fallback: keyword search on document titles
@@ -173,10 +180,16 @@ def search_vector(query: str) -> List[Dict[str, Any]]:
                     .limit(3) \
                     .execute()
                 for row in doc_res.data:
+                    doc_type = row.get("doc_type")
+                    
+                    # Filter out Expert Advice if disabled
+                    if not include_expert_advice and doc_type == "LESSONS_LEARNED":
+                        continue
+
                     results.append({
                         "source": "vector_keyword_fallback",
                         "doc_title": row.get("title"),
-                        "doc_type": row.get("doc_type"),
+                        "doc_type": doc_type,
                         "uat": row.get("uat"),
                         "chunk_text": f"Document titled '{row.get('title')}' is linked to asset {row.get('uat')}.",
                     })

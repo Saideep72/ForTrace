@@ -37,12 +37,19 @@ async def upload_document(
     title = title.strip()
     revision = revision.strip()
 
-    # 1. Enforce RBAC (only Plant_Manager, Maintenance_Engineer, Admin can upload)
-    allowed_roles = ["Plant_Manager", "Maintenance_Engineer", "Admin"]
+    # 1. Enforce RBAC (only Plant_Manager, Maintenance_Engineer, Expert_Engineer, Admin can upload)
+    allowed_roles = ["Plant_Manager", "Maintenance_Engineer", "Expert_Engineer", "Admin"]
     if current_user["role"] not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access denied: Role '{current_user['role']}' is not authorized to upload documents."
+        )
+
+    # 1.1 Enforce Expert advice security check
+    if doc_type == "LESSONS_LEARNED" and current_user["role"] not in ["Expert_Engineer", "Plant_Manager", "Admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied: Only Expert Engineers and Admins are authorized to upload Expert Advice (LESSONS_LEARNED)."
         )
 
     # 2. Check that the linked asset exists in the database

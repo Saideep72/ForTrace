@@ -24,20 +24,26 @@ def agent_node(state: GraphState) -> Dict[str, Any]:
         Dict[str, Any]: A dictionary containing the updated fields for the GraphState.
     """
     # 1. Read State
-    # Extract the original user query from the incoming state
     query = state.get("query", "")
+    include_expert_advice = state.get("include_expert_advice", False)
     
     # 2. Retrieve Context
-    retrieved_context = gather_search_context(query)
+    retrieved_context = gather_search_context(query, include_expert_advice=include_expert_advice)
     
     # 3. Call LLM
     # Prepare the context and instructions for the LLM
-    system_msg = SystemMessage(
-        content=(
-            "You are a helpful industrial assistant. Answer the user's query concisely "
-            "based ONLY on the provided context. Do not invent information."
-        )
+    system_msg_content = (
+        "You are a helpful industrial assistant. Answer the user's query concisely "
+        "based ONLY on the provided context. Do not invent information."
     )
+    if include_expert_advice:
+        system_msg_content += (
+            "\nIf any retrieved chunks have 'doc_type': 'LESSONS_LEARNED', compile those specific retiring engineer notes "
+            "and insights separately at the end of your answer in a section labeled exactly: '**Expert Advice (Retiring Engineer Notes)**'."
+            "\nIf there are no expert notes, do not output that section."
+        )
+
+    system_msg = SystemMessage(content=system_msg_content)
     human_msg = HumanMessage(
         content=(
             f"Context: {json.dumps(retrieved_context)}\n\n"

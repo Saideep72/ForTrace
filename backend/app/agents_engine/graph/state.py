@@ -31,6 +31,9 @@ class GraphState(TypedDict):
     # Self-assessed confidence score from the agent (0.0 – 1.0)
     confidence: Optional[float]
     
+    # Toggle switch to include expert retiring engineer notes in RAG search context
+    include_expert_advice: Optional[bool]
+    
     # The conversation history and intermediate tool messages.
     # `add_messages` ensures new messages are appended rather than overwritten.
     messages: Annotated[List[BaseMessage], add_messages]

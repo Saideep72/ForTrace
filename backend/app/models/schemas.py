@@ -11,6 +11,7 @@ UserRole = Literal[
     "Field_Technician",
     "Quality_Engineer",
     "Auditor",
+    "Expert_Engineer",
     "Admin"
 ]
 
@@ -246,7 +247,8 @@ DocType = Literal[
     "INSPECTION_REPORT",
     "REGULATORY_FILING",
     "INCIDENT_REPORT",
-    "LESSONS_LEARNED"
+    "LESSONS_LEARNED",
+    "EXPERT_NOTES"
 ]
 
 class DocumentResponse(BaseModel):

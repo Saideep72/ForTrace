@@ -66,7 +66,13 @@ async def register(
     in Supabase Auth using the admin API, then inserts user profile information
     into public.users.
     """
-    logger.info(f"Registration attempt initiated for email: {user_in.email}")
+    logger.info(f"Registration attempt initiated for email: {user_in.email} with role: {user_in.role}")
+    if user_in.role in ["Expert_Engineer", "Admin"]:
+        logger.warning(f"Registration blocked: Role '{user_in.role}' is not allowed to self-register: {user_in.email}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Self-registration is disabled for security-critical role '{user_in.role}'. Please contact system administrator."
+        )
 
     try:
         # Check if email already exists in Supabase public.users table
