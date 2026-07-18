@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bot, ChevronRight, AlertCircle, FileText, CheckCircle2, FileUp, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
@@ -7,7 +8,8 @@ import {
 } from 'recharts';
 
 import HeaderBar from '../components/HeaderBar';
-import SideNav from '../components/SideNav';
+import Footer from '../components/Footer';
+
 
 const MOCK_USER = {
   name: "Admin",
@@ -58,15 +60,30 @@ const pageVariants = {
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
       <div className={`app-shell ${isCollapsed ? 'collapsed' : ''}`}>
-        <SideNav activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} onToggleSidebar={() => setIsCollapsed(!isCollapsed)} />
+
 
         <main className="main-content">
           <HeaderBar />
           <motion.div initial="initial" animate="animate" variants={pageVariants}>
+
+            {/* Hero Section */}
+            <div style={{ position: 'relative', overflow: 'hidden', padding: '4rem 2rem', marginBottom: '2.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'relative', zIndex: 1, maxWidth: '800px' }}>
+                <h1 style={{ fontSize: '2.8rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--c-text)', marginBottom: '1.25rem', lineHeight: 1.15 }}>
+                  Where industrial intelligence <br/>
+                  <span style={{ color: 'var(--c-text)' }}>meets </span>
+                  <span style={{ color: 'var(--c-primary)' }}>operational excellence.</span>
+                </h1>
+                <p style={{ fontSize: '1.15rem', color: 'var(--c-text-secondary)', fontWeight: 400, maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
+                  Empower your teams with real-time visibility, predictive maintenance, and AI-driven decision support.
+                </p>
+              </div>
+            </div>
 
             {/* KPI Grid */}
             <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
@@ -201,7 +218,7 @@ export default function Dashboard() {
                         <p style={{ fontSize: '0.85rem', color: 'var(--c-text-secondary)' }}>"Why did Reactor R-101 trip yesterday?"</p>
                       </div>
                     </div>
-                    <button className="btn btn-primary">
+                    <button className="btn btn-primary" onClick={() => navigate('/ai')}>
                       Ask AI <ChevronRight size={16} />
                     </button>
                   </div>
@@ -271,6 +288,7 @@ export default function Dashboard() {
 
             </div>
           </motion.div>
+          <Footer />
         </main>
       </div>
     </>

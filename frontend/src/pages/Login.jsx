@@ -11,11 +11,11 @@ export default function Login() {
   const [activeRole, setActiveRole] = useState(null);
 
   const demoAccounts = [
-    { id: 'mgr', role: 'Manager', email: 'manager@plant.com', password: 'Manager@123' },
-    { id: 'eng', role: 'Engineer', email: 'engineer@plant.com', password: 'Pass@123' },
-    { id: 'adm', role: 'Admin', email: 'admin@plant.com', password: 'Pass@123' },
-    { id: 'tech', role: 'Field Tech', email: 'tech@plant.com', password: 'Pass@123' },
-    { id: 'aud', role: 'Auditor', email: 'auditor@plant.com', password: 'Pass@123' },
+    { id: 'mgr', label: 'Manager', role: 'Plant_Manager', email: 'manager@plant.com', password: 'Manager@123' },
+    { id: 'eng', label: 'Engineer', role: 'Maintenance_Engineer', email: 'engineer@plant.com', password: 'Pass@123' },
+    { id: 'adm', label: 'Admin', role: 'Admin', email: 'admin@plant.com', password: 'Pass@123' },
+    { id: 'tech', label: 'Field Tech', role: 'Field_Technician', email: 'tech@plant.com', password: 'Pass@123' },
+    { id: 'aud', label: 'Auditor', role: 'Auditor', email: 'auditor@plant.com', password: 'Pass@123' },
   ];
 
   const handleRoleSelect = (acc) => {
@@ -47,18 +47,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#f0f2f5] font-inter p-4 lg:p-8">
+    <div className="min-h-screen w-full flex items-center justify-center bg-transparent font-inter p-4 lg:p-8">
       
       {/* Central Card Container */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[1100px] h-full min-h-[650px] lg:h-[750px] bg-white rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] flex flex-col lg:flex-row overflow-hidden relative"
+        className="w-full max-w-[1100px] h-full min-h-[650px] lg:h-[750px] bg-surface rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] flex flex-col lg:flex-row overflow-hidden relative"
       >
         
         {/* Left Side: Form */}
-        <div className="w-full lg:w-[45%] p-8 sm:p-12 lg:p-16 flex flex-col justify-center h-full relative z-10 bg-white">
+        <div className="w-full lg:w-[45%] p-8 sm:p-12 lg:p-16 flex flex-col justify-center h-full relative z-10 bg-surface">
           
           {/* Logo */}
           <div className="flex items-center gap-2 mb-10">
@@ -83,11 +83,11 @@ export default function Login() {
                    className={`flex-1 py-3 px-1 rounded-xl text-[11px] font-semibold border transition-all duration-200 tracking-wide
                      ${isActive 
                        ? 'border-primary bg-primary/5 text-primary shadow-sm' 
-                       : 'border-gray-200 text-textMuted hover:border-gray-300 hover:bg-gray-50'
+                       : 'border-borderMain text-textMuted hover:border-textMuted hover:bg-bgMain'
                      }
                    `}
                  >
-                   {acc.role}
+                   {acc.label}
                  </button>
                );
              })}
@@ -95,9 +95,9 @@ export default function Login() {
 
           {/* Divider */}
           <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Or</span>
-            <div className="flex-1 h-px bg-gray-200"></div>
+            <div className="flex-1 h-px bg-borderMain"></div>
+            <span className="text-[10px] uppercase font-bold text-textMuted tracking-wider">Or</span>
+            <div className="flex-1 h-px bg-borderMain"></div>
           </div>
 
           {/* Form */}
@@ -109,7 +109,7 @@ export default function Login() {
                  value={email}
                  onChange={(e) => setEmail(e.target.value)}
                  placeholder="rownok@gmail.com"
-                 className="w-full bg-[#f8fafc] border border-transparent focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all rounded-xl px-4 pt-7 pb-3 text-[13px] font-semibold text-textMain outline-none peer placeholder:text-transparent focus:placeholder:text-gray-400"
+                 className="w-full bg-bgMain border border-transparent focus:border-primary/30 focus:bg-surface focus:ring-4 focus:ring-primary/10 transition-all rounded-xl px-4 pt-7 pb-3 text-[13px] font-semibold text-textMain outline-none peer placeholder:text-transparent focus:placeholder:text-textMuted"
                  required
                />
                <label className="absolute left-4 top-2.5 text-[10px] font-semibold text-textMuted pointer-events-none">Email</label>
@@ -122,11 +122,11 @@ export default function Login() {
                  value={password}
                  onChange={(e) => setPassword(e.target.value)}
                  placeholder="***************"
-                 className="w-full bg-[#f8fafc] border border-transparent focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all rounded-xl px-4 pt-7 pb-3 text-[13px] font-semibold text-textMain outline-none peer placeholder:text-transparent focus:placeholder:text-gray-400"
+                 className="w-full bg-bgMain border border-transparent focus:border-primary/30 focus:bg-surface focus:ring-4 focus:ring-primary/10 transition-all rounded-xl px-4 pt-7 pb-3 text-[13px] font-semibold text-textMain outline-none peer placeholder:text-transparent focus:placeholder:text-textMuted"
                  required
                />
                <label className="absolute left-4 top-2.5 text-[10px] font-semibold text-textMuted pointer-events-none">Password</label>
-               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-textMain transition-colors">
+               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-textMuted hover:text-textMain transition-colors">
                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                </button>
              </div>
@@ -136,14 +136,14 @@ export default function Login() {
                <label className="flex items-center gap-2 cursor-pointer">
                  <div className="relative flex items-center justify-center">
                    <input type="checkbox" className="peer sr-only" />
-                   <div className="w-4 h-4 border-2 border-gray-300 rounded peer-checked:bg-textMain peer-checked:border-textMain transition-all duration-200"></div>
-                   <svg className="w-3 h-3 text-white absolute opacity-0 peer-checked:opacity-100 transition-opacity duration-200 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <div className="w-4 h-4 border-2 border-borderMain rounded peer-checked:bg-textMain peer-checked:border-textMain transition-all duration-200"></div>
+                   <svg className="w-3 h-3 text-surface absolute opacity-0 peer-checked:opacity-100 transition-opacity duration-200 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                    </svg>
                  </div>
                  <span className="text-[12px] font-semibold text-textMain">Remember me</span>
                </label>
-               <button type="button" className="text-[12px] font-bold text-textMain hover:text-primary transition-colors underline underline-offset-2 decoration-gray-300">
+               <button type="button" className="text-[12px] font-bold text-textMain hover:text-primary transition-colors underline underline-offset-2 decoration-borderMain">
                  Forgot Password?
                </button>
              </div>
@@ -164,8 +164,8 @@ export default function Login() {
         </div>
 
         {/* Right Side: Image Area */}
-        <div className="hidden lg:block w-[55%] p-4 lg:p-6 relative h-full bg-white z-0">
-           <div className="w-full h-full rounded-[32px] rounded-tl-[140px] rounded-br-[100px] overflow-hidden relative shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] bg-slate-100">
+        <div className="hidden lg:block w-[55%] p-4 lg:p-6 relative h-full bg-surface z-0">
+           <div className="w-full h-full rounded-[32px] rounded-tl-[140px] rounded-br-[100px] overflow-hidden relative shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] bg-bgMain">
              
              {/* Machine Plant Image */}
              <img 
