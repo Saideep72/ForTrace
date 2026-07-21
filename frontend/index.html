@@ -225,6 +225,53 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
+        /* Toggle Switch Slider Styling */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #475569;
+            transition: .3s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        #tee-shield-toggle:checked + .slider {
+            background-color: #10b981;
+        }
+
+        #expert-shield-toggle:checked + .slider {
+            background-color: #f59e0b;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
         /* Custom buttons styling */
         button {
             padding: 10px 18px;
@@ -630,29 +677,59 @@
             <h2>AI Agent Orchestration Desk</h2>
             <p style="color: var(--text-muted);">Consult LangGraph agents for causal chain reasoning, sensor predictions, and diagnostics.</p>
 
-            <!-- TEE Confidentiality Shield Panel -->
-            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #f8fafc; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span id="tee-status-dot" style="width: 10px; height: 10px; background-color: #64748b; border-radius: 50%; display: inline-block;"></span>
+            <!-- DUAL SHIELD CONTROLS GRID (TEE Confidentiality Shield + Retiring Engineer Expert Advice Shield) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                
+                <!-- 1. TEE Confidentiality Shield Panel -->
+                <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 8px; padding: 15px; color: #f8fafc; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="tee-status-dot" style="width: 10px; height: 10px; background-color: #64748b; border-radius: 50%; display: inline-block;"></span>
+                            <div>
+                                <strong style="font-size: 14px; display: block; color: #f1f5f9;">🔒 Confidential TEE Shield</strong>
+                                <span id="tee-status-text" style="font-size: 11px; color: #94a3b8;">Enclave Status: INACTIVE (Plaintext Mode)</span>
+                            </div>
+                        </div>
                         <div>
-                            <strong style="font-size: 14px; display: block; color: #f1f5f9;">Confidential TEE Shield</strong>
-                            <span id="tee-status-text" style="font-size: 11px; color: #94a3b8;">Enclave Status: INACTIVE (Plaintext Mode)</span>
+                            <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 22px; margin: 0;">
+                                <input type="checkbox" id="tee-shield-toggle" style="opacity: 0; width: 0; height: 0;" onchange="toggleTeeShield()">
+                                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 22px;"></span>
+                            </label>
                         </div>
                     </div>
-                    <div>
-                        <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 22px; margin: 0;">
-                            <input type="checkbox" id="tee-shield-toggle" style="opacity: 0; width: 0; height: 0;" onchange="toggleTeeShield()">
-                            <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 22px;"></span>
-                        </label>
+                    
+                    <!-- TEE Terminal Log Console -->
+                    <div id="tee-terminal" style="display: none; margin-top: 12px; background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; color: #38bdf8; max-height: 150px; overflow-y: auto;">
+                        <div style="color: #64748b; border-bottom: 1px solid #1e293b; padding-bottom: 4px; margin-bottom: 6px; font-weight: bold;">🛡️ Hardware Enclave Attestation Console</div>
+                        <div id="tee-terminal-logs" style="white-space: pre-wrap; line-height: 1.4;">Waiting for transaction execution...</div>
                     </div>
                 </div>
-                
-                <!-- TEE Terminal Log Console -->
-                <div id="tee-terminal" style="display: none; margin-top: 12px; background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; color: #38bdf8; max-height: 150px; overflow-y: auto;">
-                    <div style="color: #64748b; border-bottom: 1px solid #1e293b; padding-bottom: 4px; margin-bottom: 6px; font-weight: bold;">🛡️ Hardware Enclave Attestation Console</div>
-                    <div id="tee-terminal-logs" style="white-space: pre-wrap; line-height: 1.4;">Waiting for transaction execution...</div>
+
+                <!-- 2. Retiring Engineer Expert Advice Shield Panel -->
+                <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 8px; padding: 15px; color: #f8fafc; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="expert-status-dot" style="width: 10px; height: 10px; background-color: #64748b; border-radius: 50%; display: inline-block;"></span>
+                            <div>
+                                <strong style="font-size: 14px; display: block; color: #f1f5f9;">💡 Retiring Engineer Expert Shield</strong>
+                                <span id="expert-status-text" style="font-size: 11px; color: #94a3b8;">Expert Advice: INACTIVE (Standard SOPs Only)</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 22px; margin: 0;">
+                                <input type="checkbox" id="expert-shield-toggle" style="opacity: 0; width: 0; height: 0;" onchange="toggleExpertShield()">
+                                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 22px;"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Expert Terminal Log Console -->
+                    <div id="expert-terminal" style="display: none; margin-top: 12px; background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; color: #f59e0b; max-height: 150px; overflow-y: auto;">
+                        <div style="color: #64748b; border-bottom: 1px solid #1e293b; padding-bottom: 4px; margin-bottom: 6px; font-weight: bold;">👴 Retiring Engineer Tacit Wisdom Console</div>
+                        <div id="expert-terminal-logs" style="white-space: pre-wrap; line-height: 1.4;">Waiting for query execution...</div>
+                    </div>
                 </div>
+
             </div>
             
             <!-- Text vs Voice Selector Tabs -->
@@ -751,10 +828,18 @@
                 <div><strong>Translated Query (English):</strong> <span id="voice-log-translated" style="font-weight: 600;">—</span></div>
             </div>
 
-            <!-- Response Chat box -->
-            <div class="chat-container">
+            <!-- 1. Normal AI Query Response Chat box -->
+            <div class="chat-container" style="margin-bottom: 20px; border-left: 4px solid var(--primary);">
                 <div class="chat-header">
-                    <div>Query Results</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span>📘</span> <strong>Standard Operations AI Response</strong>
+                        <span style="font-size: 11px; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 600;">SOPs & OEM Manuals</span>
+                        
+                        <!-- Audio Dispatch Button (On Demand) -->
+                        <button id="btn-audio-dispatch" onclick="playCurrentAudioSummary()" style="display: none; padding: 4px 12px; font-size: 11.5px; background: #3b82f6; color: white; border: none; border-radius: 12px; cursor: pointer; align-items: center; gap: 5px; font-weight: 600;">
+                            🔊 Play Spoken Summary
+                        </button>
+                    </div>
                     <div style="font-size: 13px; color: var(--text-muted);">
                         Used Node: <span id="result-agent" style="font-weight: 700; color: var(--primary);">N/A</span>
                         &nbsp;|&nbsp;
@@ -762,6 +847,22 @@
                     </div>
                 </div>
                 <div class="chat-body" id="result-answer">No query sent yet. Enter a query or click 'Record Voice' to consult the AI model.</div>
+            </div>
+
+            <!-- 2. Retiring Engineer Expert Advice Response Box -->
+            <div class="chat-container" id="expert-response-card" style="margin-bottom: 20px; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b; background-color: #fffbeb;">
+                <div class="chat-header" style="background-color: #fef3c7; border-bottom: 1px solid #fde68a;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span>💡</span> <strong style="color: #92400e;">Retiring Engineer Expert Advice</strong>
+                        <span id="expert-badge-status" style="font-size: 11px; background: #f59e0b; color: white; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Tacit Wisdom Notes</span>
+                    </div>
+                    <div style="font-size: 12px; color: #b45309; font-weight: 600;">
+                        Source Category: LESSONS_LEARNED
+                    </div>
+                </div>
+                <div class="chat-body" id="result-expert-advice" style="background-color: #fffdf5; color: #78350f;">
+                    Retiring Engineer Expert Shield is currently INACTIVE. Toggle ON the "Retiring Engineer Expert Shield" above to include tacit operational wisdom from retiring senior engineers.
+                </div>
             </div>
 
             <div style="margin-top: 20px;">
@@ -1492,6 +1593,18 @@
             statusLabel.innerText = "Idle (Microphone Ready)";
         }
 
+        // On-Demand Web Speech Audio Summary Dispatcher
+        let currentSpokenSummary = null;
+        let currentSpokenLang = 'en';
+
+        function playCurrentAudioSummary() {
+            if (currentSpokenSummary) {
+                speakResponse(currentSpokenSummary, currentSpokenLang);
+            } else {
+                alert("No spoken summary available for this response.");
+            }
+        }
+
         // Web Speech API Synthesis for spoken summary feedback (Phase 9 Conversational Loop)
         function speakResponse(text, langCode) {
             if (!window.speechSynthesis) {
@@ -1519,6 +1632,47 @@
             window.speechSynthesis.speak(utterance);
         }
 
+        // Shield Toggle UI Event Handlers
+        function toggleTeeShield() {
+            const isChecked = document.getElementById('tee-shield-toggle').checked;
+            const statusDot = document.getElementById('tee-status-dot');
+            const statusText = document.getElementById('tee-status-text');
+            const terminal = document.getElementById('tee-terminal');
+
+            if (isChecked) {
+                statusDot.style.backgroundColor = '#10b981'; // emerald green
+                statusText.innerText = "Enclave Status: ACTIVE (Encrypted AMD SEV-SNP Perimeter)";
+                statusText.style.color = "#34d399";
+                terminal.style.display = 'block';
+                document.getElementById('tee-terminal-logs').innerText = "[TEE] Secure Enclave Initialized.\n[TEE] Hardware Attestation: AMD SEV-SNP Vault Operational.\n[TEE] Anonymization Regex Engine Active.";
+            } else {
+                statusDot.style.backgroundColor = '#64748b';
+                statusText.innerText = "Enclave Status: INACTIVE (Plaintext Mode)";
+                statusText.style.color = "#94a3b8";
+                terminal.style.display = 'none';
+            }
+        }
+
+        function toggleExpertShield() {
+            const isChecked = document.getElementById('expert-shield-toggle').checked;
+            const statusDot = document.getElementById('expert-status-dot');
+            const statusText = document.getElementById('expert-status-text');
+            const terminal = document.getElementById('expert-terminal');
+
+            if (isChecked) {
+                statusDot.style.backgroundColor = '#f59e0b'; // amber / gold
+                statusText.innerText = "Expert Advice: ACTIVE (Injecting Lessons Learned)";
+                statusText.style.color = "#fbbf24";
+                terminal.style.display = 'block';
+                document.getElementById('expert-terminal-logs').innerText = "[EXPERT SHIELD] Retiring Engineer Wisdom Ingestion Engine ACTIVE.\n[EXPERT SHIELD] Query RAG context will include doc_type='LESSONS_LEARNED'.";
+            } else {
+                statusDot.style.backgroundColor = '#64748b';
+                statusText.innerText = "Expert Advice: INACTIVE (Standard SOPs Only)";
+                statusText.style.color = "#94a3b8";
+                terminal.style.display = 'none';
+            }
+        }
+
         async function sendVoiceRecording() {
             if (!recordedBlob) {
                 alert("Please record audio first.");
@@ -1530,16 +1684,19 @@
             const voiceTranscribed = document.getElementById('voice-log-transcribed');
             const voiceTranslated = document.getElementById('voice-log-translated');
             const voiceLangCode = document.getElementById('voice-detected-lang');
+            const expertShield = document.getElementById('expert-shield-toggle').checked;
             
             resultAnswer.style.color = "#475569";
             resultAnswer.innerText = "Transcribing audio speech and consulting LangGraph agent chain...";
             voiceLogs.style.display = 'none';
+            document.getElementById('btn-audio-dispatch').style.display = 'none';
 
             const prefLang = document.getElementById('voice-pref-lang').value;
             const formData = new FormData();
             formData.append('file', recordedBlob, 'query.wav');
             formData.append('preferred_language', prefLang);
             formData.append('session_id', querySessionId);
+            formData.append('include_expert_advice', expertShield);
 
             try {
                 const response = await fetchWithAuth(`${BASE_URL}/query/voice`, {
@@ -1566,8 +1723,24 @@
                     document.getElementById('result-confidence').innerText = `${(data.agent_response.confidence * 100).toFixed(0)}%`;
                     document.getElementById('result-sources').value = JSON.stringify(data.agent_response.sources, null, 2);
 
-                    // Speak response summary out loud conversational loop
+                    // Update Expert Advice Response Box
+                    const resultExpertAdvice = document.getElementById('result-expert-advice');
+                    if (data.agent_response && data.agent_response.expert_advice) {
+                        resultExpertAdvice.style.color = "#78350f";
+                        resultExpertAdvice.innerText = data.agent_response.expert_advice;
+                    } else if (expertShield) {
+                        resultExpertAdvice.style.color = "#b45309";
+                        resultExpertAdvice.innerHTML = "<em>No specific retiring engineer notes (LESSONS_LEARNED) found in the knowledge repository for this query. Standard operating procedures were used above.</em>";
+                    } else {
+                        resultExpertAdvice.style.color = "#78350f";
+                        resultExpertAdvice.innerText = 'Retiring Engineer Expert Shield is currently INACTIVE. Toggle ON the "Retiring Engineer Expert Shield" above to include tacit operational wisdom from retiring senior engineers.';
+                    }
+
+                    // For Voice Query Mode: Auto-play spoken audio & enable button
                     if (data.spoken_summary) {
+                        currentSpokenSummary = data.spoken_summary;
+                        currentSpokenLang = prefLang;
+                        document.getElementById('btn-audio-dispatch').style.display = 'inline-flex';
                         speakResponse(data.spoken_summary, prefLang);
                     }
                 } else {
@@ -1586,15 +1759,22 @@
             const resultAnswer = document.getElementById('result-answer');
             const voiceLogs = document.getElementById('voice-logs-container');
             const teeTerminalLogs = document.getElementById('tee-terminal-logs');
+            const expertTerminalLogs = document.getElementById('expert-terminal-logs');
             const teeShield = document.getElementById('tee-shield-toggle').checked;
+            const expertShield = document.getElementById('expert-shield-toggle').checked;
             
             resultAnswer.style.color = "#475569";
             resultAnswer.innerText = "Consulting LangGraph agents network...";
             voiceLogs.style.display = 'none';
+            document.getElementById('btn-audio-dispatch').style.display = 'none';
 
             if (teeShield) {
                 teeTerminalLogs.innerHTML = `[TEE] Init transaction: establishing secure session channel...
 [TEE] Requesting hardware attestation report (AMD SEV-SNP)...`;
+            }
+            if (expertShield) {
+                expertTerminalLogs.innerHTML = `[EXPERT SHIELD] Retiring Engineer Wisdom Ingestion Engine ACTIVE.
+[EXPERT SHIELD] Including doc_type='LESSONS_LEARNED' chunks in RAG context vector match...`;
             }
             
             const query = document.getElementById('query-input').value;
@@ -1608,7 +1788,8 @@
                         query: query,
                         query_language: prefLang,
                         session_id: querySessionId,
-                        tee_shield: teeShield
+                        tee_shield: teeShield,
+                        include_expert_advice: expertShield
                     })
                 });
                 const data = await response.json();
@@ -1620,6 +1801,19 @@
                     document.getElementById('result-agent').innerText = data.agent_used;
                     document.getElementById('result-confidence').innerText = `${(data.confidence * 100).toFixed(0)}%`;
                     document.getElementById('result-sources').value = JSON.stringify(data.sources, null, 2);
+
+                    // Update Expert Advice Response Box
+                    const resultExpertAdvice = document.getElementById('result-expert-advice');
+                    if (data.expert_advice) {
+                        resultExpertAdvice.style.color = "#78350f";
+                        resultExpertAdvice.innerText = data.expert_advice;
+                    } else if (expertShield) {
+                        resultExpertAdvice.style.color = "#b45309";
+                        resultExpertAdvice.innerHTML = "<em>No specific retiring engineer notes (LESSONS_LEARNED) found in the knowledge repository for this query. Standard operating procedures were used above.</em>";
+                    } else {
+                        resultExpertAdvice.style.color = "#78350f";
+                        resultExpertAdvice.innerText = 'Retiring Engineer Expert Shield is currently INACTIVE. Toggle ON the "Retiring Engineer Expert Shield" above to include tacit operational wisdom from retiring senior engineers.';
+                    }
 
                     // If TEE was used and metadata returned, render it in logs
                     if (teeShield && data.tee_metadata) {
@@ -1636,9 +1830,11 @@
                         teeTerminalLogs.innerText = logs;
                     }
 
-                    // Speak response summary out loud conversational loop
+                    // For Text Query Mode: On-Demand Audio Dispatch button enabled (No auto-play)
                     if (data.spoken_summary) {
-                        speakResponse(data.spoken_summary, prefLang);
+                        currentSpokenSummary = data.spoken_summary;
+                        currentSpokenLang = prefLang;
+                        document.getElementById('btn-audio-dispatch').style.display = 'inline-flex';
                     }
                 } else {
                     resultAnswer.style.color = "red";

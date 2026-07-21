@@ -187,6 +187,16 @@ async def ask_query(
             answer, deanon_logs = tee.deanonymize_text(answer)
             tee_metadata["deanonymization_logs"] = deanon_logs
 
+        # Separate Expert Advice block if present in answer
+        expert_advice = None
+        EXPERT_MARKER = "**Expert Advice (Retiring Engineer Notes)**"
+        if EXPERT_MARKER in answer:
+            parts = answer.split(EXPERT_MARKER)
+            answer = parts[0].strip()
+            expert_advice = parts[1].strip()
+            if expert_advice.startswith(":"):
+                expert_advice = expert_advice[1:].strip()
+
         # Update in-memory session history
         add_session_message(session_id, HumanMessage(content=translated_query))
         add_session_message(session_id, AIMessage(content=answer))
@@ -202,6 +212,8 @@ async def ask_query(
         if pref_lang == "hi":
             logger.info("Translating final detailed agent answer back to Hindi...")
             answer = translate_en_to_hi(answer)
+            if expert_advice:
+                expert_advice = translate_en_to_hi(expert_advice)
             
         latency_ms = int((time.time() - start_time) * 1000)
  
@@ -216,7 +228,7 @@ async def ask_query(
                 "query_type": "text",
                 "intent_confidence": float(confidence),
                 "agent_used": current_agent,
-                "response_json": {"answer": answer},
+                "response_json": {"answer": answer, "expert_advice": expert_advice},
                 "sources_cited": [s.get("title", "source") for s in sources[:3]],
                 "model_used": "FortTrace-Llama3-TEE" if tee else "FortTrace-Llama3",
                 "model_version": "v1.2",
@@ -233,6 +245,7 @@ async def ask_query(
  
         return {
             "answer": answer,
+            "expert_advice": expert_advice,
             "sources": sources,
             "confidence": confidence,
             "agent_used": current_agent,
@@ -270,6 +283,7 @@ async def ask_voice_query(
     file: UploadFile = File(...),
     preferred_language: str = Form("en"),
     session_id: str = Form("default_voice_session"),
+    include_expert_advice: bool = Form(False),
     current_user: Dict[str, Any] = Depends(get_current_user),
     db: Client = Depends(get_db)
 ) -> Dict[str, Any]:
@@ -320,6 +334,7 @@ async def ask_voice_query(
         result = graph.invoke({
             "query": translated_query,
             "messages": history,
+            "include_expert_advice": include_expert_advice,
             "retrieved_context": {}
         })
         
@@ -340,6 +355,16 @@ async def ask_voice_query(
                 elif isinstance(v, dict):
                     sources.append(v)
                     
+        # Separate Expert Advice block if present in answer
+        expert_advice = None
+        EXPERT_MARKER = "**Expert Advice (Retiring Engineer Notes)**"
+        if EXPERT_MARKER in answer:
+            parts = answer.split(EXPERT_MARKER)
+            answer = parts[0].strip()
+            expert_advice = parts[1].strip()
+            if expert_advice.startswith(":"):
+                expert_advice = expert_advice[1:].strip()
+
         # Update session memory history
         add_session_message(session_id, HumanMessage(content=translated_query))
         add_session_message(session_id, AIMessage(content=answer))
@@ -371,7 +396,7 @@ async def ask_voice_query(
                 "query_type": "voice",
                 "intent_confidence": float(confidence),
                 "agent_used": current_agent,
-                "response_json": {"answer": answer},
+                "response_json": {"answer": answer, "expert_advice": expert_advice},
                 "sources_cited": [s.get("title", "source") for s in sources[:3]],
                 "model_used": "FortTrace-Llama3-Whisper",
                 "model_version": "v1.2",
@@ -393,6 +418,7 @@ async def ask_voice_query(
             "confidence": float(confidence),
             "agent_response": {
                 "answer": answer,
+                "expert_advice": expert_advice,
                 "sources": sources,
                 "confidence": float(confidence),
                 "agent_used": current_agent

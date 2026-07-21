@@ -46,13 +46,13 @@ def _initialize_shared_llm():
 
     # Initialize primary and backup ChatGroq instances
     primary = ChatGroq(
-        model="qwen/qwen3-32b",
+        model="llama-3.3-70b-versatile",
         temperature=0,
         api_key=api_key,
     )
     
     fallback_1 = ChatGroq(
-        model="llama-3.3-70b-versatile",
+        model="qwen-2.5-32b",
         temperature=0,
         api_key=api_key,
     )
