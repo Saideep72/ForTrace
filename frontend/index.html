@@ -2252,7 +2252,7 @@
                 if (response.ok) {
                     tableBody.innerHTML = '';
                     if (data.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 10px; color: red;">No entities extracted yet. Click "Process Text" first!</td></tr>`;
+                        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 10px; color: #f43f5e; font-weight: 500;">No entities found. If you haven't yet, click "Process Text" on this document. (Note: Raw numeric data files like CSV logs may yield 0 entities).</td></tr>`;
                         return;
                     }
                     data.forEach(ent => {

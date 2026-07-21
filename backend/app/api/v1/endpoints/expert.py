@@ -231,13 +231,29 @@ Date: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}
 
         doc_id = str(uuid.uuid4())
         file_hash = str(uuid.uuid4())
+        storage_path = f"expert_wisdom/{uat}/{doc_id}.txt"
+
+        # Upload the text file to Supabase Storage
+        try:
+            db.storage.from_("indra-assets").upload(
+                path=storage_path,
+                file=full_text.encode("utf-8"),
+                file_options={"content-type": "text/plain"}
+            )
+            logger.info(f"Uploaded expert wisdom text file to storage: {storage_path}")
+        except Exception as st_err:
+            logger.error(f"Failed to upload expert wisdom to storage: {st_err}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to upload document to storage: {str(st_err)}"
+            )
 
         db.table("documents").insert({
             "doc_id": doc_id,
             "uat": uat,
             "title": f"[EXPERT WISDOM] {title}",
             "doc_type": "LESSONS_LEARNED",
-            "file_path": f"expert_wisdom/{uat}/{doc_id}.txt",
+            "file_path": storage_path,
             "file_hash": file_hash,
             "revision": "1.0",
             "compliance_scope": [f"Expert-{current_user.get('email', 'unknown')}"],
