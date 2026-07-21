@@ -36,7 +36,7 @@ async def list_failure_cases(
 
     try:
         fail_res = db.table("failure_events") \
-            .select("failure_id, uat, failure_mode, failure_category, severity, occurrence_date, status, root_cause") \
+            .select("failure_id, uat, failure_mode, failure_category, severity, occurrence_date, resolution_date, root_cause, downtime_hours, financial_loss_inr") \
             .order("occurrence_date", desc=True) \
             .execute()
 
@@ -64,6 +64,9 @@ async def list_failure_cases(
                     .execute()
                 notes_count = len(notes_res.data or [])
 
+            # Derive status from resolution_date
+            derived_status = "Resolved" if f.get("resolution_date") else "Open"
+
             cases.append({
                 "failure_id": str(f["failure_id"]),
                 "uat": uat,
@@ -73,7 +76,9 @@ async def list_failure_cases(
                 "failure_category": f.get("failure_category", "Unknown"),
                 "severity": f.get("severity", "medium"),
                 "occurrence_date": str(f.get("occurrence_date", "")),
-                "status": f.get("status", "open"),
+                "status": derived_status,
+                "downtime_hours": f.get("downtime_hours"),
+                "financial_loss_inr": f.get("financial_loss_inr"),
                 "expert_notes_count": notes_count,
             })
 

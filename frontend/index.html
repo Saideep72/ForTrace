@@ -973,30 +973,23 @@
             </div>
 
             <!-- CASCADE STRESS TESTER PANEL -->
-            <div style="margin-top: 25px; background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%); border-radius: 12px; padding: 22px; border: 1px solid #7c3aed;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-                    <span style="font-size: 22px;">&#x1F4A5;</span>
-                    <div>
-                        <h3 style="margin:0; color: white; font-size: 16px;">What-If Emergency Cascade Stress Tester</h3>
-                        <p style="margin:0; color: #c4b5fd; font-size: 12px;">Digital Twin Blast-Radius Simulator — What happens if this asset trips?</p>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; margin-bottom: 16px;">
-                    <div>
-                        <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Select Asset to Trip</label>
-                        <select id="sim-asset-select" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #7c3aed; background: #1e1b4b; color: white; font-size: 13px;">
+            <div style="margin-top: 25px; background: #f8fafc; border-radius: 8px; padding: 20px; border: 1px solid var(--border-color);">
+                <h3 style="margin-top:0; font-size:15px; color:var(--text-primary, #0f172a);">What-If Cascade Stress Tester</h3>
+                <p style="color:var(--text-muted, #64748b); font-size:12px; margin-bottom:16px;">Digital Twin Blast-Radius Simulator — What happens if this asset trips?</p>
+                <div style="display: grid; grid-template-columns: 1fr 200px auto; gap: 10px; align-items: end; margin-bottom: 16px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Select Asset to Trip</label>
+                        <select id="sim-asset-select">
                             <option value="">— Loading assets... —</option>
                         </select>
                     </div>
-                    <div>
-                        <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Trip Scenario</label>
-                        <input type="text" id="sim-scenario" placeholder="e.g. fouling_shutdown" value="fouling_shutdown" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #7c3aed; background: #1e1b4b; color: white; font-size: 13px; width: 180px;" />
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Trip Scenario</label>
+                        <input type="text" id="sim-scenario" placeholder="e.g. fouling_shutdown" value="fouling_shutdown" />
                     </div>
-                    <button onclick="runCascadeSimulation()" id="sim-btn" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 9px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; white-space: nowrap;">&#x1F4A5; Simulate Trip</button>
+                    <button onclick="runCascadeSimulation()" id="sim-btn" class="btn-danger" style="padding:9px 18px; font-size:13px; white-space:nowrap; margin-bottom:0;">Simulate Trip</button>
                 </div>
-                <div id="sim-results" style="display:none;">
-                    <!-- Filled by JS -->
-                </div>
+                <div id="sim-results" style="display:none;"></div>
             </div>
         </div>
 
@@ -1118,83 +1111,74 @@
         </div>
     </div> <!-- end dashboard-container -->
 
-    <!-- EXPERT ENGINEER PORTAL — standalone full-screen overlay -->
-    <div id="expert-portal" style="display:none; position:fixed; inset:0; background:#0f0a1e; z-index:1000; overflow-y:auto; font-family: 'Inter', sans-serif;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%); padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #7c3aed; position: sticky; top:0; z-index:10;">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">&#x1F9E0;</div>
-                <div>
-                    <div style="font-size: 18px; font-weight: 800; color: white;">Expert Engineer Portal</div>
-                    <div style="font-size: 12px; color: #c4b5fd;">Tacit Wisdom Capture &amp; Incident Review Console</div>
-                </div>
-            </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <span id="expert-user-badge" style="background: rgba(124,58,237,0.3); color: #c4b5fd; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #7c3aed;"></span>
-                <button onclick="closeExpertPortal()" style="background: rgba(220,38,38,0.2); color: #fca5a5; border: 1px solid #dc2626; padding: 7px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px;">&#x2190; Back to Dashboard</button>
+    <!-- EXPERT PORTAL TAB — matches dashboard style -->
+    <div id="expert-portal" style="display:none; position:fixed; inset:0; background:var(--bg-primary, #f8fafc); z-index:1000; overflow-y:auto;">
+
+        <!-- Header bar matching dashboard header -->
+        <div id="header-bar" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 28px; background: var(--surface, #1e293b); border-bottom: 1px solid var(--border-color, #e2e8f0);">
+            <h1 style="margin:0; font-size:18px;">Expert Engineer Portal — Incident Review &amp; Tacit Wisdom Console</h1>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="user-badge" id="expert-user-badge"></span>
+                <button onclick="closeExpertPortal()" class="btn-primary" style="padding:6px 14px; font-size:13px;">&#x2190; Dashboard</button>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 340px 1fr; height: calc(100vh - 75px);">
+        <!-- Two-column layout -->
+        <div style="display:grid; grid-template-columns:300px 1fr; height:calc(100vh - 57px);">
 
-            <!-- LEFT: Incident Cases Sidebar -->
-            <div style="border-right: 1px solid #2d1b69; background: #0f0a1e; overflow-y: auto; padding: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                    <h3 style="color: #c4b5fd; margin:0; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">&#x1F4CB; Failure Incidents</h3>
-                    <button onclick="loadExpertCases()" style="background: rgba(124,58,237,0.3); color: #c4b5fd; border: 1px solid #7c3aed; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;">Refresh</button>
+            <!-- LEFT: Failure Incidents sidebar -->
+            <div style="border-right:1px solid var(--border-color, #e2e8f0); overflow-y:auto; padding:16px; background:var(--bg-primary, #f8fafc);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0; font-size:14px; color:var(--text-primary,#0f172a);">Failure Incidents</h3>
+                    <button onclick="loadExpertCases()" class="btn-primary" style="padding:4px 10px; font-size:11px; background:#64748b;">Refresh</button>
                 </div>
-                <div id="expert-cases-list" style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="color: #6b7280; font-size: 13px; text-align: center; padding: 30px 0;">Loading incidents...</div>
+                <div id="expert-cases-list" style="display:flex; flex-direction:column; gap:6px;">
+                    <div style="color:var(--text-muted,#64748b); font-size:13px; padding:20px 0; text-align:center;">Loading incidents...</div>
                 </div>
             </div>
 
-            <!-- RIGHT: Detail Panel + Wisdom Form -->
-            <div style="overflow-y: auto; padding: 24px; background: #13111d;">
-                <!-- Placeholder before case selected -->
-                <div id="expert-detail-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: #4b5563;">
-                    <div style="font-size: 48px; margin-bottom: 16px;">&#x1F4E1;</div>
-                    <div style="font-size: 16px; font-weight: 600;">Select an incident from the sidebar</div>
-                    <div style="font-size: 13px; margin-top: 6px;">to view full details and capture expert wisdom</div>
+            <!-- RIGHT: Detail panel + Wisdom form -->
+            <div style="overflow-y:auto; padding:24px; background:white;">
+
+                <!-- Placeholder -->
+                <div id="expert-detail-placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:250px; color:#64748b;">
+                    <div style="font-size:40px; margin-bottom:12px;">&#x1F4CB;</div>
+                    <div style="font-size:15px; font-weight:600;">Select an incident from the sidebar</div>
+                    <div style="font-size:13px; margin-top:4px;">to view full details and capture expert wisdom</div>
                 </div>
 
-                <!-- Filled dynamically when a case is selected -->
-                <div id="expert-detail-panel" style="display: none;">
-
-                    <!-- Incident Summary Cards -->
-                    <div id="expert-incident-header" style="margin-bottom: 20px;"></div>
-
-                    <!-- Data Grid: Alarms + Work Orders -->
-                    <div id="expert-incident-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;"></div>
-
-                    <!-- Existing Wisdom Notes -->
-                    <div id="expert-existing-notes" style="margin-bottom: 20px;"></div>
+                <!-- Detail panel (filled by JS) -->
+                <div id="expert-detail-panel" style="display:none;">
+                    <div id="expert-incident-header" style="margin-bottom:20px;"></div>
+                    <div id="expert-incident-data" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;"></div>
+                    <div id="expert-existing-notes" style="margin-bottom:20px;"></div>
 
                     <!-- Tacit Wisdom Capture Form -->
-                    <div style="background: linear-gradient(135deg, #1e1b4b 0%, #2d1b69 100%); border: 1px solid #7c3aed; border-radius: 12px; padding: 22px;">
-                        <h3 style="color: #c4b5fd; margin-top: 0; font-size: 15px; display: flex; align-items: center; gap: 8px;">&#x270D;&#xFE0F; Capture Tacit Wisdom</h3>
-                        <p style="color: #6b7280; font-size: 12px; margin-bottom: 16px;">Your knowledge will be instantly embedded into the RAG knowledge base and retrievable via Expert Shield queries.</p>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                            <div>
-                                <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Note Title *</label>
-                                <input type="text" id="wisdom-title" placeholder="e.g. Pump Seal Degradation Pattern" style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #0f0a1e; color: white; font-size: 13px; box-sizing: border-box;" />
+                    <div style="background:#f8fafc; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; padding:20px;">
+                        <h3 style="margin-top:0; font-size:15px; color:var(--text-primary,#0f172a);">&#x270D;&#xFE0F; Capture Tacit Wisdom</h3>
+                        <p style="color:#64748b; font-size:12px; margin-bottom:14px;">Your knowledge will be instantly embedded into the RAG knowledge base and retrievable via Expert Shield queries.</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Note Title *</label>
+                                <input type="text" id="wisdom-title" placeholder="e.g. Pump Seal Degradation Pattern" />
                             </div>
-                            <div>
-                                <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Asset UAT *</label>
-                                <input type="text" id="wisdom-uat" readonly placeholder="Auto-filled from selected incident" style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #1e1b4b; color: #c4b5fd; font-size: 13px; box-sizing: border-box;" />
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Asset UAT *</label>
+                                <input type="text" id="wisdom-uat" readonly placeholder="Auto-filled from selected incident" />
                             </div>
                         </div>
-                        <div style="margin-bottom: 12px;">
-                            <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Detailed Insight / Tacit Knowledge *</label>
-                            <textarea id="wisdom-insight" rows="5" placeholder="Describe what you've learned from working with this equipment for decades. Include patterns, symptoms, informal heuristics, and hard-won observations that aren't in any manual..." style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #0f0a1e; color: white; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
+                        <div class="form-group">
+                            <label>Detailed Insight / Tacit Knowledge *</label>
+                            <textarea id="wisdom-insight" rows="4" placeholder="Describe what you've learned from working with this equipment. Include patterns, symptoms, heuristics not in any manual..."></textarea>
                         </div>
-                        <div style="margin-bottom: 16px;">
-                            <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Verdict / Key Recommendation</label>
-                            <input type="text" id="wisdom-verdict" placeholder="e.g. Always inspect bearing housing every 6 months during turnaround" style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #0f0a1e; color: white; font-size: 13px; box-sizing: border-box;" />
+                        <div class="form-group">
+                            <label>Verdict / Key Recommendation</label>
+                            <input type="text" id="wisdom-verdict" placeholder="e.g. Always inspect bearing housing every 6 months during turnaround" />
                         </div>
-                        <button onclick="submitExpertWisdom()" id="wisdom-submit-btn" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none; padding: 11px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; width: 100%;">
-                            &#x1F9E0; Submit &amp; Embed into Knowledge Base
+                        <button onclick="submitExpertWisdom()" id="wisdom-submit-btn" class="btn-primary" style="width:100%;">
+                            Submit &amp; Embed into Knowledge Base
                         </button>
-                        <div id="wisdom-status" style="margin-top: 12px; font-size: 13px; font-weight: 600;"></div>
+                        <div id="wisdom-status" style="margin-top:10px; font-size:13px; font-weight:600;"></div>
                     </div>
                 </div>
             </div>
@@ -2906,46 +2890,47 @@
 
         async function loadExpertCases() {
             const listDiv = document.getElementById('expert-cases-list');
-            listDiv.innerHTML = '<div style="color: #6b7280; text-align: center; padding: 20px;">Loading...</div>';
+            listDiv.innerHTML = '<div style="color:#64748b; text-align:center; padding:20px; font-size:13px;">Loading...</div>';
 
             try {
                 const res = await fetchWithAuth(`${BASE_URL}/expert/failure-cases`);
                 const data = await res.json();
 
                 if (!res.ok) {
-                    listDiv.innerHTML = `<div style="color: #f87171; font-size: 12px;">${data.detail || 'Error loading cases'}</div>`;
+                    listDiv.innerHTML = `<div style="color:red; font-size:12px; padding:10px;">${data.detail || 'Error loading cases'}</div>`;
                     return;
                 }
 
                 const cases = data.cases || [];
                 if (cases.length === 0) {
-                    listDiv.innerHTML = '<div style="color: #6b7280; text-align: center; padding: 20px;">No failure incidents found.</div>';
+                    listDiv.innerHTML = '<div style="color:#64748b; text-align:center; padding:20px; font-size:13px;">No failure incidents found.</div>';
                     return;
                 }
 
-                const severityColors = { critical: '#dc2626', high: '#f59e0b', medium: '#3b82f6', low: '#16a34a' };
+                const sevBg = { critical:'#fee2e2', high:'#fef3c7', medium:'#dbeafe', low:'#dcfce7' };
+                const sevTxt = { critical:'#991b1b', high:'#92400e', medium:'#1e40af', low:'#166534' };
 
                 listDiv.innerHTML = cases.map(c => {
                     const sev = (c.severity || 'medium').toLowerCase();
-                    const sevColor = severityColors[sev] || '#6b7280';
-                    const noteBadge = c.expert_notes_count > 0 ? `<span style="background: rgba(124,58,237,0.3); color: #c4b5fd; border: 1px solid #7c3aed; padding: 2px 7px; border-radius: 10px; font-size: 10px;">✍️ ${c.expert_notes_count} note${c.expert_notes_count > 1 ? 's' : ''}</span>` : '';
-                    return `
-                        <div onclick="loadExpertCaseDetail('${c.failure_id}', '${c.uat || ''}')"
-                             style="background: #1e1b4b; border: 1px solid #4c1d95; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s;"
-                             onmouseover="this.style.borderColor='#7c3aed'; this.style.background='#2d1b69';"
-                             onmouseout="this.style.borderColor='#4c1d95'; this.style.background='#1e1b4b';">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                                <span style="font-weight: 700; color: white; font-size: 13px;">${c.asset_tag || c.uat}</span>
-                                <span style="background: ${sevColor}22; color: ${sevColor}; border: 1px solid ${sevColor}; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase;">${sev}</span>
-                            </div>
-                            <div style="color: #c4b5fd; font-size: 11px; margin-bottom: 4px;">${c.failure_mode || 'Unknown Failure'}</div>
-                            <div style="color: #6b7280; font-size: 10px; margin-bottom: 6px;">${(c.occurrence_date || '').slice(0,10)} · ${c.asset_type}</div>
-                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">${noteBadge}</div>
-                        </div>`;
+                    const noteBadge = c.expert_notes_count > 0
+                        ? `<span style="background:#f1f5f9; color:#475569; padding:1px 6px; border-radius:4px; font-size:10px; border:1px solid #e2e8f0;">✍️ ${c.expert_notes_count} note${c.expert_notes_count > 1 ? 's' : ''}</span>`
+                        : '';
+                    return `<div onclick="loadExpertCaseDetail('${c.failure_id}', '${c.uat || ''}')"
+                         style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:10px 12px; cursor:pointer; font-size:12px;"
+                         onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#94a3b8';"
+                         onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0';">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="font-weight:700; color:#0f172a; font-size:13px;">${c.asset_tag || c.uat}</span>
+                            <span style="background:${sevBg[sev]||'#f1f5f9'}; color:${sevTxt[sev]||'#475569'}; padding:1px 7px; border-radius:4px; font-size:10px; font-weight:700; text-transform:uppercase;">${sev}</span>
+                        </div>
+                        <div style="color:#475569; margin-bottom:2px;">${c.failure_mode || 'Unknown'}</div>
+                        <div style="color:#94a3b8; font-size:10px; margin-bottom:4px;">${(c.occurrence_date || '').slice(0,10)} · ${c.status}</div>
+                        ${noteBadge}
+                    </div>`;
                 }).join('');
 
             } catch (err) {
-                listDiv.innerHTML = `<div style="color: #f87171; font-size: 12px;">Error: ${err.message}</div>`;
+                listDiv.innerHTML = `<div style="color:red; font-size:12px; padding:10px;">Error: ${err.message}</div>`;
             }
         }
 
@@ -2953,7 +2938,6 @@
             expertCurrentFailureId = failureId;
             expertCurrentUat = uat;
 
-            // Pre-fill wisdom form fields
             document.getElementById('wisdom-uat').value = uat;
             document.getElementById('wisdom-title').value = '';
             document.getElementById('wisdom-insight').value = '';
@@ -2967,7 +2951,7 @@
             const dataDiv = document.getElementById('expert-incident-data');
             const notesDiv = document.getElementById('expert-existing-notes');
 
-            headerDiv.innerHTML = '<div style="color: #c4b5fd; text-align: center; padding: 10px;">Loading incident details...</div>';
+            headerDiv.innerHTML = '<div style="color:#64748b; padding:10px; font-size:13px;">Loading incident details...</div>';
             dataDiv.innerHTML = '';
             notesDiv.innerHTML = '';
 
@@ -2976,7 +2960,7 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    headerDiv.innerHTML = `<div style="color:#f87171;">${data.detail}</div>`;
+                    headerDiv.innerHTML = `<div style="color:red;">${data.detail}</div>`;
                     return;
                 }
 
@@ -2985,68 +2969,81 @@
                 const alarms = data.alarms || [];
                 const wos = data.work_orders || [];
                 const notes = data.expert_notes || [];
-                const sevColors = { critical: '#dc2626', high: '#f59e0b', medium: '#3b82f6', low: '#16a34a' };
+                const sevBg = { critical:'#fee2e2', high:'#fef3c7', medium:'#dbeafe', low:'#dcfce7' };
+                const sevTxt = { critical:'#991b1b', high:'#92400e', medium:'#1e40af', low:'#166534' };
                 const sev = (f.severity || 'medium').toLowerCase();
-                const sevColor = sevColors[sev] || '#6b7280';
 
-                // Header cards
+                // Header — plain white card like the rest of dashboard
                 headerDiv.innerHTML = `
-                    <div style="background: linear-gradient(135deg, #1e1b4b, #2d1b69); border: 1px solid #7c3aed; border-radius: 10px; padding: 18px; margin-bottom: 16px;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                    <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
                             <div>
-                                <div style="font-size: 18px; font-weight: 800; color: white; margin-bottom: 4px;">${a.equipment_tag || f.uat || 'Unknown Asset'}</div>
-                                <div style="color: #c4b5fd; font-size: 13px;">${a.equipment_type || ''} · Manufacturer: ${a.manufacturer || 'N/A'}</div>
-                                <div style="color: #c4b5fd; font-size: 12px; margin-top: 4px;">UAT: <strong>${f.uat || uat}</strong></div>
+                                <div style="font-size:17px; font-weight:700; color:#0f172a;">${a.equipment_tag || f.uat || 'Unknown Asset'}</div>
+                                <div style="color:#475569; font-size:13px; margin-top:2px;">${a.equipment_type || ''} · ${a.manufacturer || ''}</div>
+                                <div style="color:#94a3b8; font-size:12px; margin-top:2px;">UAT: ${f.uat || uat}</div>
                             </div>
-                            <div style="text-align: right;">
-                                <div style="background: ${sevColor}22; color: ${sevColor}; border: 1px solid ${sevColor}; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; text-transform: uppercase;">${sev} severity</div>
-                                <div style="color: #6b7280; font-size: 11px; margin-top: 8px;">${(f.occurrence_date || '').slice(0,10)}</div>
-                            </div>
+                            <span style="background:${sevBg[sev]||'#f1f5f9'}; color:${sevTxt[sev]||'#475569'}; padding:4px 14px; border-radius:4px; font-weight:700; font-size:12px; text-transform:uppercase; height:fit-content;">${sev}</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;">
-                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;">
-                                <div style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Failure Mode</div>
-                                <div style="color: white; font-size: 13px; font-weight: 600;">${f.failure_mode || 'N/A'}</div>
-                            </div>
-                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;">
-                                <div style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Category</div>
-                                <div style="color: white; font-size: 13px; font-weight: 600;">${f.failure_category || 'N/A'}</div>
-                            </div>
-                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; grid-column: 1/-1;">
-                                <div style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Root Cause</div>
-                                <div style="color: #fbbf24; font-size: 12px; font-weight: 600;">${f.root_cause || 'Under Investigation'}</div>
-                            </div>
-                        </div>
+                        <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                            <tr style="background:#f8fafc;">
+                                <th style="padding:7px 10px; text-align:left; border:1px solid #e2e8f0; color:#475569; font-weight:600;">Failure Mode</th>
+                                <th style="padding:7px 10px; text-align:left; border:1px solid #e2e8f0; color:#475569; font-weight:600;">Category</th>
+                                <th style="padding:7px 10px; text-align:left; border:1px solid #e2e8f0; color:#475569; font-weight:600;">Occurrence Date</th>
+                                <th style="padding:7px 10px; text-align:left; border:1px solid #e2e8f0; color:#475569; font-weight:600;">Status</th>
+                            </tr>
+                            <tr>
+                                <td style="padding:7px 10px; border:1px solid #e2e8f0; color:#0f172a;">${f.failure_mode || 'N/A'}</td>
+                                <td style="padding:7px 10px; border:1px solid #e2e8f0; color:#0f172a;">${f.failure_category || 'N/A'}</td>
+                                <td style="padding:7px 10px; border:1px solid #e2e8f0; color:#0f172a;">${(f.occurrence_date || '').slice(0,10)}</td>
+                                <td style="padding:7px 10px; border:1px solid #e2e8f0; color:#0f172a;">${f.resolution_date ? 'Resolved' : 'Open'}</td>
+                            </tr>
+                        </table>
+                        ${f.root_cause ? `<div style="margin-top:10px; padding:8px 12px; background:#fffbeb; border:1px solid #fde68a; border-radius:4px; font-size:12px;"><strong>Root Cause:</strong> ${f.root_cause}</div>` : ''}
                     </div>`;
 
-                // Alarms and Work Orders side by side
+                // Alarms and Work Orders — plain white boxes
                 dataDiv.innerHTML = `
-                    <div style="background: #1a1625; border: 1px solid #374151; border-radius: 8px; padding: 14px;">
-                        <h4 style="color: #f59e0b; margin: 0 0 10px 0; font-size: 13px;">⚠️ Recent Alarms (${alarms.length})</h4>
-                        ${alarms.length === 0 ? '<div style="color:#6b7280;font-size:12px;">No alarms found</div>' :
-                        alarms.map(al => `<div style="border-bottom: 1px solid #374151; padding: 6px 0; font-size: 12px;">
-                            <div style="color: white; font-weight: 600;">${al.tag_name || 'Unknown'}</div>
-                            <div style="color: #6b7280;">${al.alarm_type} · Priority: ${al.alarm_priority} · ${(al.triggered_at || '').slice(0,16).replace('T',' ')}</div>
-                        </div>`).join('')}
+                    <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+                        <h4 style="margin:0 0 10px 0; font-size:13px; color:#0f172a;">Recent Alarms (${alarms.length})</h4>
+                        ${alarms.length === 0 ? '<div style="color:#64748b; font-size:12px;">No alarms found.</div>' :
+                        `<table style="width:100%; border-collapse:collapse; font-size:11px;">
+                            <thead><tr style="background:#f8fafc;">
+                                <th style="padding:5px 8px; border:1px solid #e2e8f0; text-align:left;">Tag</th>
+                                <th style="padding:5px 8px; border:1px solid #e2e8f0; text-align:left;">Type</th>
+                                <th style="padding:5px 8px; border:1px solid #e2e8f0; text-align:left;">Priority</th>
+                            </tr></thead>
+                            <tbody>${alarms.map(al => `<tr>
+                                <td style="padding:5px 8px; border:1px solid #e2e8f0;">${al.tag_name || '-'}</td>
+                                <td style="padding:5px 8px; border:1px solid #e2e8f0;">${al.alarm_type || '-'}</td>
+                                <td style="padding:5px 8px; border:1px solid #e2e8f0;">${al.alarm_priority || '-'}</td>
+                            </tr>`).join('')}</tbody>
+                        </table>`}
                     </div>
-                    <div style="background: #1a1625; border: 1px solid #374151; border-radius: 8px; padding: 14px;">
-                        <h4 style="color: #3b82f6; margin: 0 0 10px 0; font-size: 13px;">🔧 Work Orders (${wos.length})</h4>
-                        ${wos.length === 0 ? '<div style="color:#6b7280;font-size:12px;">No work orders found</div>' :
-                        wos.map(wo => `<div style="border-bottom: 1px solid #374151; padding: 6px 0; font-size: 12px;">
-                            <div style="color: white; font-weight: 600;">${wo.wo_type} <span style="color:#f59e0b;">[${wo.priority}]</span></div>
-                            <div style="color: #6b7280; font-size: 11px;">${(wo.description || '').slice(0, 80)}...</div>
-                            <div style="color: #6b7280; font-size: 10px; margin-top: 2px;">Status: ${wo.status} · ${(wo.created_at || '').slice(0,10)}</div>
-                        </div>`).join('')}
+                    <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+                        <h4 style="margin:0 0 10px 0; font-size:13px; color:#0f172a;">Work Orders (${wos.length})</h4>
+                        ${wos.length === 0 ? '<div style="color:#64748b; font-size:12px;">No work orders found.</div>' :
+                        `<table style="width:100%; border-collapse:collapse; font-size:11px;">
+                            <thead><tr style="background:#f8fafc;">
+                                <th style="padding:5px 8px; border:1px solid #e2e8f0; text-align:left;">Type</th>
+                                <th style="padding:5px 8px; border:1px solid #e2e8f0; text-align:left;">Priority</th>
+                                <th style="padding:5px 8px; border:1px solid #e2e8f0; text-align:left;">Status</th>
+                            </tr></thead>
+                            <tbody>${wos.map(wo => `<tr>
+                                <td style="padding:5px 8px; border:1px solid #e2e8f0;">${wo.wo_type || '-'}</td>
+                                <td style="padding:5px 8px; border:1px solid #e2e8f0;">${wo.priority || '-'}</td>
+                                <td style="padding:5px 8px; border:1px solid #e2e8f0;">${wo.status || '-'}</td>
+                            </tr>`).join('')}</tbody>
+                        </table>`}
                     </div>`;
 
                 // Existing wisdom notes
                 if (notes.length > 0) {
                     notesDiv.innerHTML = `
-                        <div style="background: rgba(124,58,237,0.1); border: 1px solid #7c3aed; border-radius: 8px; padding: 14px;">
-                            <h4 style="color: #c4b5fd; margin: 0 0 10px 0; font-size: 13px;">🧠 Existing Expert Wisdom Notes (${notes.length})</h4>
-                            ${notes.map(n => `<div style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px; margin-bottom: 8px;">
-                                <div style="color: #a78bfa; font-size: 12px; font-weight: 600;">${(n.title || '').replace('[EXPERT WISDOM] ', '')}</div>
-                                <div style="color: #6b7280; font-size: 10px; margin-top: 3px;">By: ${n.compliance_scope || 'Expert'} · ${(n.created_at || '').slice(0,10)}</div>
+                        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+                            <h4 style="margin:0 0 10px 0; font-size:13px; color:#0f172a;">Expert Wisdom Notes (${notes.length})</h4>
+                            ${notes.map(n => `<div style="border:1px solid #e2e8f0; border-radius:4px; padding:8px 12px; margin-bottom:6px; background:#f8fafc;">
+                                <div style="font-size:12px; font-weight:600; color:#0f172a;">${(n.title || '').replace('[EXPERT WISDOM] ', '')}</div>
+                                <div style="color:#64748b; font-size:10px; margin-top:2px;">${(n.created_at || '').slice(0,10)}</div>
                             </div>`).join('')}
                         </div>`;
                 } else {
@@ -3054,7 +3051,7 @@
                 }
 
             } catch (err) {
-                headerDiv.innerHTML = `<div style="color:#f87171;">Error: ${err.message}</div>`;
+                headerDiv.innerHTML = `<div style="color:red; font-size:12px;">Error: ${err.message}</div>`;
             }
         }
 
@@ -3158,11 +3155,11 @@
                 const data = await res.json();
 
                 btn.disabled = false;
-                btn.innerText = '💥 Simulate Trip';
+                btn.innerText = 'Simulate Trip';
 
                 if (!res.ok) {
                     resultsDiv.style.display = 'block';
-                    resultsDiv.innerHTML = `<div style="color:#f87171; font-size: 13px; padding: 10px;">❌ ${data.detail || 'Simulation failed'}</div>`;
+                    resultsDiv.innerHTML = `<div style="color:red; font-size:13px; padding:10px;">${data.detail || 'Simulation failed'}</div>`;
                     return;
                 }
 
@@ -3171,65 +3168,59 @@
                 const fin = data.financial_exposure || {};
                 const actions = data.immediate_actions || [];
 
-                const blastRows = blast.map(b => `
-                    <tr>
-                        <td style="padding: 7px 10px; color: white; font-weight: 600;">${b.equipment_tag}</td>
-                        <td style="padding: 7px 10px; color: #c4b5fd;">${b.equipment_type}</td>
-                        <td style="padding: 7px 10px; color: #fbbf24;">${b.via_flow_type}</td>
-                        <td style="padding: 7px 10px; color: #f87171; font-weight: 700;">~${b.estimated_minutes_to_trip} min</td>
-                        <td style="padding: 7px 10px; color: #6b7280;">${b.depth}</td>
-                    </tr>`).join('');
+                const blastRows = blast.map(b =>
+                    `<tr>
+                        <td style="padding:6px 10px; border:1px solid #e2e8f0; font-weight:600;">${b.equipment_tag}</td>
+                        <td style="padding:6px 10px; border:1px solid #e2e8f0;">${b.equipment_type}</td>
+                        <td style="padding:6px 10px; border:1px solid #e2e8f0;">${b.via_flow_type}</td>
+                        <td style="padding:6px 10px; border:1px solid #e2e8f0;">~${b.estimated_minutes_to_trip} min</td>
+                        <td style="padding:6px 10px; border:1px solid #e2e8f0; color:#64748b;">${b.depth}</td>
+                    </tr>`
+                ).join('');
 
                 resultsDiv.style.display = 'block';
                 resultsDiv.innerHTML = `
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
-                        <!-- Severity Card -->
-                        <div style="background: rgba(0,0,0,0.4); border: 2px solid ${sim.severity_color}; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 28px; font-weight: 900; color: ${sim.severity_color};">${sim.severity_level}</div>
-                            <div style="color: #c4b5fd; font-size: 12px; margin-top: 4px;">Cascade Severity</div>
-                            <div style="color: white; font-size: 13px; margin-top: 8px;">${sim.total_affected_assets} assets in blast radius</div>
-                            <div style="color: #6b7280; font-size: 11px;">First impact in ${sim.first_cascade_impact_minutes} min</div>
+                    <!-- Summary row -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                        <div style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:12px;">
+                            <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Cascade Severity</div>
+                            <div style="font-size:20px; font-weight:800; color:${sim.severity_color||'#dc2626'};">${sim.severity_level}</div>
+                            <div style="font-size:12px; color:#475569; margin-top:4px;">${sim.total_affected_assets} assets affected · First impact in ${sim.first_cascade_impact_minutes} min</div>
                         </div>
-                        <!-- Financial Card -->
-                        <div style="background: rgba(220,38,38,0.15); border: 2px solid #dc2626; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 26px; font-weight: 900; color: #f87171;">$${(fin.hourly_cost_usd || 0).toLocaleString()}/hr</div>
-                            <div style="color: #fca5a5; font-size: 12px; margin-top: 4px;">Estimated Downtime Cost</div>
-                            <div style="color: #f87171; font-size: 12px; margin-top: 6px;">$${(fin.daily_cost_usd || 0).toLocaleString()} / day</div>
-                            <div style="color: #6b7280; font-size: 10px; margin-top: 4px;">${fin.basis || ''}</div>
+                        <div style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:12px;">
+                            <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Financial Exposure</div>
+                            <div style="font-size:18px; font-weight:800; color:#dc2626;">$${(fin.hourly_cost_usd||0).toLocaleString()}/hr</div>
+                            <div style="font-size:12px; color:#475569; margin-top:4px;">$${(fin.daily_cost_usd||0).toLocaleString()} / day</div>
                         </div>
                     </div>
 
-                    <!-- Blast Radius Table -->
+                    <!-- Blast radius table -->
                     ${blast.length > 0 ? `
-                    <div style="background: rgba(0,0,0,0.4); border: 1px solid #374151; border-radius: 10px; margin-bottom: 14px; overflow: hidden;">
-                        <div style="background: rgba(220,38,38,0.2); padding: 10px 14px; border-bottom: 1px solid #374151;">
-                            <span style="color: #f87171; font-weight: 700; font-size: 13px;">🔴 Cascade Blast Radius (${blast.length} affected assets)</span>
-                        </div>
-                        <div style="overflow-x: auto;">
-                            <table style="width:100%; border-collapse: collapse; font-size: 12px;">
-                                <thead><tr style="background: rgba(255,255,255,0.05);">
-                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Asset Tag</th>
-                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Type</th>
-                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Flow Link</th>
-                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Trip Time</th>
-                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Depth</th>
-                                </tr></thead>
-                                <tbody>${blastRows}</tbody>
-                            </table>
-                        </div>
-                    </div>` : '<div style="color:#4ade80; font-size: 13px; padding: 10px;">✅ No downstream cascade dependencies found for this asset.</div>'}
+                    <div style="margin-bottom:14px;">
+                        <h4 style="margin:0 0 8px 0; font-size:13px; color:#0f172a;">Cascade Blast Radius (${blast.length} affected assets)</h4>
+                        <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                            <thead><tr style="background:#f8fafc;">
+                                <th style="padding:7px 10px; border:1px solid #e2e8f0; text-align:left; color:#475569;">Asset Tag</th>
+                                <th style="padding:7px 10px; border:1px solid #e2e8f0; text-align:left; color:#475569;">Type</th>
+                                <th style="padding:7px 10px; border:1px solid #e2e8f0; text-align:left; color:#475569;">Dependency</th>
+                                <th style="padding:7px 10px; border:1px solid #e2e8f0; text-align:left; color:#475569;">Trip Time</th>
+                                <th style="padding:7px 10px; border:1px solid #e2e8f0; text-align:left; color:#475569;">Depth</th>
+                            </tr></thead>
+                            <tbody>${blastRows}</tbody>
+                        </table>
+                    </div>` : `<div style="color:#16a34a; font-size:13px; padding:8px 0; margin-bottom:14px;">No downstream cascade dependencies found for this asset.</div>`}
 
-                    <!-- Immediate Actions -->
-                    <div style="background: rgba(245,158,11,0.1); border: 1px solid #f59e0b; border-radius: 10px; padding: 14px;">
-                        <div style="color: #fbbf24; font-weight: 700; font-size: 13px; margin-bottom: 10px;">⚡ Immediate Containment Actions</div>
-                        ${actions.map((a, i) => `<div style="color: #fde68a; font-size: 12px; padding: 4px 0; display: flex; gap: 8px;"><span style="color: #f59e0b; font-weight: 700;">${i+1}.</span> ${a}</div>`).join('')}
+                    <!-- Immediate actions -->
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px;">
+                        <div style="font-weight:600; font-size:13px; color:#0f172a; margin-bottom:8px;">Immediate Containment Actions</div>
+                        ${actions.map((a, i) => `<div style="font-size:12px; color:#475569; padding:3px 0;">${i+1}. ${a}</div>`).join('')}
                     </div>`;
 
             } catch (err) {
                 btn.disabled = false;
-                btn.innerText = '💥 Simulate Trip';
+                btn.innerText = 'Simulate Trip';
                 resultsDiv.style.display = 'block';
-                resultsDiv.innerHTML = `<div style="color:#f87171;">Error: ${err.message}</div>`;
+                resultsDiv.innerHTML = `<div style="color:red; font-size:12px;">Error: ${err.message}</div>`;
             }
         }
 

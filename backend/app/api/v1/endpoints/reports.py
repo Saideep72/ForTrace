@@ -411,8 +411,8 @@ async def generate_compliance_certificate(
 
         # 4. Fetch latest Merkle hash
         ecr_res = db.table("engineering_change_record") \
-            .select("commit_hash, parent_hash, created_at") \
-            .order("created_at", desc=True) \
+            .select("commit_hash, parent_hash, timestamp") \
+            .order("timestamp", desc=True) \
             .limit(1) \
             .execute()
         latest_merkle = ecr_res.data[0] if ecr_res.data else {"commit_hash": "N/A", "parent_hash": "N/A"}

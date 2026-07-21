@@ -81,11 +81,12 @@ async def simulate_cascade_trip(
             src = d.get("source_uat")
             if src not in adjacency:
                 adjacency[src] = []
+            # Use dependency_type as flow label when flow_type is NULL
+            flow_label = d.get("flow_type") or d.get("dependency_type") or "process_fluid"
             adjacency[src].append({
                 "target_uat": d.get("target_uat"),
-                "flow_type": d.get("flow_type") or "default",
+                "flow_type": flow_label,
                 "relationship_type": d.get("relationship_type") or "DEPENDS_ON",
-                "criticality": d.get("criticality") or 3
             })
 
         # 3. BFS traversal from source_uat to find cascade blast radius
@@ -134,7 +135,14 @@ async def simulate_cascade_trip(
 
         # 4. Fetch asset details for each blast radius UAT
         blast_radius_details = []
-        total_criticality = source_asset.get("criticality_rating") or 3
+        # criticality_rating is numeric; safely coerce
+        def safe_crit(val):
+            try:
+                return int(float(str(val))) if val is not None else 3
+            except Exception:
+                return 3
+
+        total_criticality = safe_crit(source_asset.get("criticality_rating"))
 
         for node in blast_radius_uats:
             ar = db.table("assets") \
@@ -143,7 +151,7 @@ async def simulate_cascade_trip(
                 .execute()
 
             asset_detail = ar.data[0] if ar.data else {}
-            crit = asset_detail.get("criticality_rating") or 2
+            crit = safe_crit(asset_detail.get("criticality_rating"))
             total_criticality += crit
 
             blast_radius_details.append({
