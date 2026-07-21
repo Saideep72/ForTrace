@@ -598,6 +598,8 @@
                                 <option value="WORK_ORDER">Work Order Record</option>
                                 <option value="INSPECTION_REPORT">Inspection Report</option>
                                 <option value="INCIDENT_REPORT">Incident Report</option>
+                                <option value="REGULATORY_FILING">Regulatory Filing</option>
+                                <option value="LESSONS_LEARNED">Lessons Learned / Wisdom</option>
                             </select>
                         </div>
                         <button type="submit" style="padding: 8px 16px; background-color: #64748b;">Fetch Registry</button>
@@ -2194,7 +2196,7 @@
             let queryParams = [];
             if (uat) queryParams.push(`uat=${uat}`);
             if (docType) queryParams.push(`doc_type=${docType}`);
-            queryParams.push(`limit=100`);
+            queryParams.push(`limit=300`);
             const queryStr = `?${queryParams.join('&')}`;
 
             try {

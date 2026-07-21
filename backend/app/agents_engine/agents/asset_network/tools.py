@@ -4,6 +4,7 @@ Fetches live information from Supabase database (assets, asset_dependencies, ala
 Implements robust fallbacks to mock data if the database is unreachable.
 """
 import os
+import re
 import logging
 from dotenv import load_dotenv
 from supabase import create_client
@@ -235,4 +236,3 @@ def get_recent_alerts(asset_id: str):
         return [
             {"severity": "High", "message": "Abnormal vibration detected (Mock Fallback)"}
         ]
-import re

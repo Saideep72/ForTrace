@@ -199,6 +199,8 @@ async def list_documents(
     if doc_type:
         query = query.eq("doc_type", doc_type)
 
+    query = query.order("uploaded_at", desc=True)
+
     # Apply pagination offset
     offset = (page - 1) * limit
     try:
