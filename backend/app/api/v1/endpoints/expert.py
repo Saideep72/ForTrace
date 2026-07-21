@@ -157,10 +157,10 @@ async def get_failure_case_detail(
         expert_notes = []
         if uat:
             notes_res = db.table("documents") \
-                .select("doc_id, title, revision, created_at, compliance_scope") \
+                .select("doc_id, title, revision, updated_at, compliance_scope") \
                 .eq("uat", uat) \
                 .eq("doc_type", "LESSONS_LEARNED") \
-                .order("created_at", desc=True) \
+                .order("updated_at", desc=True) \
                 .execute()
             expert_notes = notes_res.data or []
 
