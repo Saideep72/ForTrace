@@ -14,12 +14,12 @@ router = APIRouter()
 
 
 def _require_expert(current_user: dict):
-    """Enforce that only Expert_Engineer and above can access Expert Portal."""
-    allowed = ["Expert_Engineer", "Plant_Manager", "Admin"]
+    """Enforce that only Expert_Engineer can access Expert Portal."""
+    allowed = ["Expert_Engineer"]
     if current_user.get("role") not in allowed:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied: Expert Portal is restricted to Expert Engineers, Plant Managers, and Admins."
+            detail="Access denied: Expert Portal is restricted to Expert Engineers."
         )
 
 

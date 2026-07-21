@@ -494,7 +494,7 @@
             <button class="nav-tab" id="nav-btn-reports" onclick="switchTab(event, 'tab-reports')">Reports & Audit</button>
             <button class="nav-tab" id="nav-btn-system" onclick="switchTab(event, 'tab-system')">System Console</button>
             <button class="nav-tab" id="nav-btn-expert" onclick="switchTab(event, 'tab-expert')" style="display:none; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none;">&#x1F9E0; Expert Portal</button>
-            <button class="nav-tab" id="nav-btn-registry" onclick="switchTab(event, 'tab-registry')" style="display:none;">&#x1F4CB; Expert Reviews</button>
+            <button class="nav-tab" id="nav-btn-registry" onclick="switchTab(event, 'tab-registry')" style="display:none;">&#x1F4CB; Expert Advice</button>
         </div>
 
         <!-- HOME VIEW TAB -->
@@ -1178,45 +1178,53 @@
             </div>
         </div>
 
-        <!-- EXPERT REGISTRY TAB — visible only to Plant_Manager / Admin -->
+        <!-- EXPERT ADVICE REGISTRY TAB — visible only to Plant_Manager / Admin -->
         <div id="tab-registry" class="tab-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <div>
-                    <h2 style="margin:0;">Retired Experts — Case Analysis Registry</h2>
-                    <p style="color:var(--text-muted); font-size:13px; margin:4px 0 0 0;">Inspect plant diagnostics wisdom, feedback, and dossiers submitted by senior/retiring engineers.</p>
+                    <h2 style="margin:0;">&#x1F4A1; Retired Experts — Case Analysis Registry</h2>
+                    <p style="color:var(--text-muted); font-size:13px; margin:4px 0 0 0;">
+                        Inspect plant diagnostics wisdom, feedback, and dossiers submitted by senior / retiring engineers.
+                    </p>
                 </div>
-                <button onclick="loadExpertRegistry()" class="btn-primary" style="padding:6px 14px; font-size:13px; background:#64748b;">Refresh Registry</button>
+                <button onclick="loadExpertRegistry()" class="btn-primary" style="padding:6px 14px; font-size:13px; background:#64748b;">&#x21BB; Refresh Registry</button>
             </div>
 
             <!-- Two-column grid layout -->
-            <div style="display:grid; grid-template-columns:300px 1fr; gap:20px; min-height:550px;">
+            <div style="display:grid; grid-template-columns:260px 1fr; gap:0; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; overflow:hidden; min-height:560px;">
                 
-                <!-- Left Sidebar: Active Experts List -->
-                <div style="background:#f8fafc; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; padding:16px; display:flex; flex-direction:column; gap:12px; height:fit-content;">
-                    <h3 style="margin:0; font-size:13px; text-transform:uppercase; color:#475569; letter-spacing:0.5px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">Active Experts</h3>
-                    <div id="registry-experts-list" style="display:flex; flex-direction:column; gap:8px; max-height:480px; overflow-y:auto;">
-                        <div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">Loading experts...</div>
+                <!-- LEFT SIDEBAR: Active Expert Persons List -->
+                <div style="background:#f8fafc; border-right:1px solid #e2e8f0; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:8px;">
+                    <p style="margin:0 0 8px 0; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:#475569; font-weight:700; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                        &#x1F4CB; Active Experts / Engineers
+                    </p>
+                    <div id="registry-experts-list" style="display:flex; flex-direction:column; gap:6px;">
+                        <div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">Loading...</div>
                     </div>
                 </div>
 
-                <!-- Right Content Panel: Dossier Reviews -->
-                <div style="background:white; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; padding:20px; display:flex; flex-direction:column; gap:16px;">
-                    <div id="registry-dossier-header" style="border-bottom:1px solid #e2e8f0; padding-bottom:12px;">
+                <!-- RIGHT PANEL: Dossier list for selected expert -->
+                <div style="overflow-y:auto; padding:20px; background:white; display:flex; flex-direction:column; gap:0;">
+                    <!-- Expert name header — updated dynamically by JS -->
+                    <div id="registry-dossier-header" style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid #e2e8f0;">
                         <h3 style="margin:0; font-size:16px; color:#0f172a;" id="registry-selected-expert-name">Select an expert</h3>
-                        <p style="margin:4px 0 0 0; color:#64748b; font-size:12px;" id="registry-selected-expert-meta">Click an expert on the left to inspect their dossier feedback and failure reviews.</p>
+                        <p style="margin:4px 0 0 0; color:#64748b; font-size:12px;" id="registry-selected-expert-meta">
+                            Click an expert from the left panel to view their case analysis dossiers.
+                        </p>
                     </div>
 
+                    <!-- Dossier cards — filled by JS -->
                     <div id="registry-dossiers-container" style="display:flex; flex-direction:column; gap:12px;">
-                        <!-- Filled dynamically by JS -->
-                        <div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">
-                            <div style="font-size:32px; margin-bottom:8px;">🕵️</div>
-                            No expert selected.
+                        <div style="color:#64748b; font-size:13px; text-align:center; padding:60px 0;">
+                            <div style="font-size:36px; margin-bottom:10px;">&#x1F9D1;&#x200D;&#x1F527;</div>
+                            No expert selected. Click a name on the left.
                         </div>
                     </div>
                 </div>
 
             </div>
         </div>
+
 
     </div> <!-- end dashboard-container -->
 
@@ -1380,7 +1388,7 @@
                 document.getElementById('nav-btn-docs').style.display = 'none';
             }
 
-            // 6. Expert Registry is ONLY visible to Plant_Manager and Admin
+            // 6. Expert Reviews Registry visible to Plant_Manager and Admin ONLY (not to Expert_Engineer)
             const registryRoles = ['Plant_Manager', 'Admin'];
             const registryNavBtn = document.getElementById('nav-btn-registry');
             if (registryNavBtn) {
@@ -1396,6 +1404,8 @@
                 if (tabId === 'tab-docs' && ['Field_Technician', 'Auditor', 'Safety_Officer'].includes(loggedUserRole)) isAllowed = false;
                 if (tabId === 'tab-ai' && loggedUserRole === 'Auditor') isAllowed = false;
                 if (tabId === 'tab-reports' && ['Field_Technician', 'Maintenance_Engineer'].includes(loggedUserRole)) isAllowed = false;
+                if (tabId === 'tab-expert' && loggedUserRole !== 'Expert_Engineer') isAllowed = false;
+                if (tabId === 'tab-registry' && !registryRoles.includes(loggedUserRole)) isAllowed = false;
                 
                 if (!isAllowed) {
                     // Force switch to tab-home
@@ -1434,11 +1444,10 @@
                 const roleLabel = roleLabels[loggedUserRole] || loggedUserRole || 'User';
                 document.getElementById('logged-user-badge').innerText = `Role Profile: ${roleLabel} (${loggedUserEmail})`;
                 
-                // Show Expert Portal nav button for eligible roles
-                const expertRoles = ['Expert_Engineer', 'Plant_Manager', 'Admin'];
+                // Show Expert Portal nav button ONLY for Expert_Engineers
                 const expertNavBtn = document.getElementById('nav-btn-expert');
                 if (expertNavBtn) {
-                    expertNavBtn.style.display = expertRoles.includes(loggedUserRole) ? 'inline-flex' : 'none';
+                    expertNavBtn.style.display = loggedUserRole === 'Expert_Engineer' ? 'inline-flex' : 'none';
                 }
 
                 // Auto-open Expert Portal if role is Expert_Engineer
@@ -3166,7 +3175,7 @@
 
         async function loadExpertRegistry() {
             const listDiv = document.getElementById('registry-experts-list');
-            listDiv.innerHTML = '<div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">Loading experts...</div>';
+            listDiv.innerHTML = '<div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">Loading...</div>';
 
             try {
                 const res = await fetchWithAuth(`${BASE_URL}/expert/registry`);
@@ -3180,34 +3189,30 @@
                 expertRegistryData = data.experts || [];
 
                 if (expertRegistryData.length === 0) {
-                    listDiv.innerHTML = '<div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">No active experts found.</div>';
-                    // Clear dossiers right panel
+                    listDiv.innerHTML = '<div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">No expert submissions found.</div>';
                     document.getElementById('registry-selected-expert-name').innerText = 'No experts available';
                     document.getElementById('registry-selected-expert-meta').innerText = '';
-                    document.getElementById('registry-dossiers-container').innerHTML = `
-                        <div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">
-                            No expert wisdom notes found in system.
-                        </div>`;
+                    document.getElementById('registry-dossiers-container').innerHTML =
+                        '<div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">No expert wisdom notes found in system.</div>';
                     return;
                 }
 
-                // Render list
+                // Render expert person cards on left sidebar
                 listDiv.innerHTML = expertRegistryData.map(exp => {
-                    const label = exp.role === 'System' ? 'Seeded' : 'Expert';
+                    const initials = (exp.full_name || 'EX').split(' ').map(w => w[0]).slice(0,2).join('');
                     return `
-                        <div class="expert-list-item" id="exp-item-${exp.expert_id}" onclick="showExpertDossiers('${exp.expert_id}')"
-                             style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:10px 12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:all 0.15s;">
-                            <div>
-                                <div style="font-weight:700; color:#0f172a; font-size:12px;">${exp.full_name}</div>
-                                <div style="font-size:10px; color:#64748b; margin-top:2px;">${exp.email}</div>
-                            </div>
-                            <span style="background:#f1f5f9; color:#475569; padding:2px 7px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid #e2e8f0;">
+                        <div class="expert-list-item" id="exp-item-${exp.expert_id}"
+                             onclick="showExpertDossiers('${exp.expert_id}')"
+                             style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:10px 12px; cursor:pointer; transition:all 0.15s;">
+                            <div style="font-weight:700; color:#0f172a; font-size:12px; margin-bottom:2px;">${exp.full_name}</div>
+                            <div style="font-size:10px; color:#64748b;">Badge: ${exp.email.split('@')[0].toUpperCase()}</div>
+                            <div style="margin-top:5px; font-size:10px; color:#475569; font-weight:600;">
                                 ${exp.reviews_count} case${exp.reviews_count !== 1 ? 's' : ''}
-                            </span>
+                            </div>
                         </div>`;
                 }).join('');
 
-                // Auto-select first expert if available
+                // Auto-select first expert
                 if (expertRegistryData.length > 0) {
                     showExpertDossiers(expertRegistryData[0].expert_id);
                 }
@@ -3218,62 +3223,74 @@
         }
 
         function showExpertDossiers(expertId) {
-            // Remove active/highlight from all expert list items
-            const items = document.querySelectorAll('.expert-list-item');
-            items.forEach(i => {
+            // Deselect all
+            document.querySelectorAll('.expert-list-item').forEach(i => {
                 i.style.borderColor = '#e2e8f0';
                 i.style.background = 'white';
             });
 
-            // Highlight selected
+            // Highlight selected expert
             const activeItem = document.getElementById(`exp-item-${expertId}`);
             if (activeItem) {
-                activeItem.style.borderColor = 'var(--primary)';
-                activeItem.style.background = '#f8fafc';
+                activeItem.style.borderColor = 'var(--primary, #3b82f6)';
+                activeItem.style.background = '#eff6ff';
             }
 
             const exp = expertRegistryData.find(e => e.expert_id === expertId);
             if (!exp) return;
 
-            document.getElementById('registry-selected-expert-name').innerText = `Dossier Reviews by ${exp.full_name}`;
-            document.getElementById('registry-selected-expert-meta').innerText = `${exp.role} · ${exp.email} · ${exp.reviews_count} cases analyzed`;
+            // Right panel header: "Dossier Reviews by Dr. Rajesh Kumar" style
+            document.getElementById('registry-selected-expert-name').innerHTML =
+                `Dossier Reviews by <span style="color:var(--primary, #3b82f6);">${exp.full_name}</span>`;
+            document.getElementById('registry-selected-expert-meta').innerText =
+                `${exp.role} · ${exp.email} · ${exp.reviews_count} case${exp.reviews_count !== 1 ? 's' : ''} analyzed`;
 
             const dossiersContainer = document.getElementById('registry-dossiers-container');
             const reviews = exp.reviews || [];
 
             if (reviews.length === 0) {
-                dossiersContainer.innerHTML = `
-                    <div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">
-                        No case reviews found for this expert.
-                    </div>`;
+                dossiersContainer.innerHTML =
+                    '<div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">No case reviews found for this expert.</div>';
                 return;
             }
 
             dossiersContainer.innerHTML = reviews.map((r, index) => {
-                const lines = r.insight.split('\n');
-                let formattedInsight = lines.map(line => {
-                    if (line.startsWith('INSIGHT:') || line.startsWith('VERDICT / RECOMMENDATION:')) {
-                        return `<strong style="display:block; margin-top:8px; color:#1e293b;">${line}</strong>`;
+                // Parse and format insight text — bold section headers
+                const lines = (r.insight || '').split('\n');
+                const formattedInsight = lines.map(line => {
+                    const trimmed = line.trim();
+                    if (trimmed.startsWith('Expert Wisdom Note') || trimmed.startsWith('INSIGHT:') ||
+                        trimmed.startsWith('VERDICT') || trimmed.startsWith('Submitted by:') ||
+                        trimmed.startsWith('Date:') || trimmed.startsWith('Asset:')) {
+                        return `<strong style="color:#1e293b;">${trimmed}</strong>`;
                     }
-                    return line;
-                }).join('<br/>');
+                    return trimmed;
+                }).filter(l => l).join('<br/>');
+
+                // The UAT is the "Case ID" equivalent
+                const caseId = r.uat || 'N/A';
+                const submittedDate = (r.updated_at || '').slice(0, 16).replace('T', ' ');
+                const blockId = `reg-insight-${exp.expert_id.slice(0,8)}-${index}`;
 
                 return `
-                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:16px; background:#ffffff;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:11px; color:#64748b; border-bottom:1px dashed #f1f5f9; padding-bottom:6px;">
-                            <span>Asset UAT: <strong>${r.uat || 'N/A'}</strong></span>
-                            <span>Submitted: ${(r.updated_at || '').slice(0,10)}</span>
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:14px 16px; background:#fff;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:10px; color:#475569; font-weight:700; letter-spacing:0.5px;">
+                                CASE / ASSET: ${caseId}
+                            </span>
+                            <span style="font-size:10px; color:#94a3b8;">Submitted: ${submittedDate}</span>
                         </div>
-                        <h4 style="margin:0 0 8px 0; font-size:13px; color:#0f172a; display:flex; align-items:center; gap:6px;">
-                            <span>💡</span> ${r.title}
+                        <h4 style="margin:0 0 6px 0; font-size:13px; color:#0f172a; display:flex; align-items:flex-start; gap:5px;">
+                            <span style="margin-top:1px;">&#x1F7E1;</span>
+                            <span>${r.title}</span>
                         </h4>
-                        <div class="insight-text-block" id="insight-block-${index}" style="font-size:12px; color:#334155; line-height:1.5; max-height: 80px; overflow:hidden; transition: max-height 0.25s ease;">
+                        <div id="${blockId}" style="font-size:12px; color:#334155; line-height:1.55; max-height:72px; overflow:hidden; transition:max-height 0.3s ease;">
                             ${formattedInsight}
                         </div>
-                        <div style="margin-top:8px;">
-                            <button onclick="toggleDossierExpand(this, 'insight-block-${index}')" 
-                                    style="background:none; border:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer; padding:0; display:flex; align-items:center; gap:2px;">
-                                <span>▼</span> Read Full Analysis...
+                        <div style="margin-top:6px;">
+                            <button onclick="toggleDossierExpand(this, '${blockId}')"
+                                    style="background:none; border:none; color:#2563eb; font-size:11px; font-weight:700; cursor:pointer; padding:0; display:inline-flex; align-items:center; gap:3px;">
+                                &#x25BC; Read Full Analysis...
                             </button>
                         </div>
                     </div>`;
@@ -3283,14 +3300,15 @@
         function toggleDossierExpand(btn, blockId) {
             const block = document.getElementById(blockId);
             if (!block) return;
-            if (block.style.maxHeight === '80px' || block.style.maxHeight === '') {
-                block.style.maxHeight = '1000px';
-                btn.innerHTML = '<span>▲</span> Show Less';
+            if (block.style.maxHeight === '' || parseInt(block.style.maxHeight) < 200) {
+                block.style.maxHeight = '2000px';
+                btn.innerHTML = '&#x25B2; Show Less';
             } else {
-                block.style.maxHeight = '80px';
-                btn.innerHTML = '<span>▼</span> Read Full Analysis...';
+                block.style.maxHeight = '72px';
+                btn.innerHTML = '&#x25BC; Read Full Analysis...';
             }
         }
+
 
 
         // =========================================================
