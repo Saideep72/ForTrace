@@ -27,7 +27,7 @@ from app.models.schemas import (
 )
 
 # Configure logger for authentication auditing
-logger = logging.getLogger("forttrace.auth")
+logger = logging.getLogger("fortrace.auth")
 
 router = APIRouter()
 
@@ -493,3 +493,223 @@ async def get_me(
     """
     logger.debug(f"Retrieved profile query for user_id: {current_user.get('user_id')}")
     return current_user
+
+
+# ===========================================================================
+# PASSWORDLESS OTP SIGN-IN PIPELINE
+# ===========================================================================
+from pydantic import BaseModel
+from typing import Optional
+
+class OTPSendPayload(BaseModel):
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+class OTPVerifyPayload(BaseModel):
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    token: str
+    role: Optional[str] = "Field_Technician"
+
+@router.post("/otp/send", status_code=status.HTTP_200_OK, tags=["Authentication"])
+async def send_otp(
+    payload: OTPSendPayload,
+    db: Client = Depends(get_db)
+):
+    """
+    Sends a one-time passcode (OTP) to either email (magiclink/code) or phone (SMS) via Supabase Auth.
+    """
+    if not payload.email and not payload.phone:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either email or phone number must be provided."
+        )
+
+    try:
+        if payload.email:
+            logger.info(f"Sending OTP/Magic Link to email: {payload.email}")
+            db.auth.sign_in_with_otp({"email": payload.email})
+        elif payload.phone:
+            logger.info(f"Sending OTP SMS to phone: {payload.phone}")
+            db.auth.sign_in_with_otp({"phone": payload.phone})
+        
+        return {"detail": "OTP sent successfully."}
+    except Exception as e:
+        logger.error(f"Failed to send OTP: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send OTP: {str(e)}"
+        )
+
+@router.post("/otp/verify", response_model=Token, tags=["Authentication"])
+async def verify_otp(
+    payload: OTPVerifyPayload,
+    db: Client = Depends(get_db)
+):
+    """
+    Verifies a one-time passcode (OTP) sent to email or phone and registers profile/returns access token.
+    """
+    if not payload.email and not payload.phone:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either email or phone number must be provided."
+        )
+
+    try:
+        # Determine verification credentials
+        verify_params = {"token": payload.token}
+        if payload.email:
+            verify_params.update({"email": payload.email, "type": "email"})
+            identifier = payload.email
+        else:
+            verify_params.update({"phone": payload.phone, "type": "sms"})
+            identifier = payload.phone
+
+        logger.info(f"Verifying OTP for identifier: {identifier}")
+        auth_res = db.auth.verify_otp(verify_params)
+        
+        if not auth_res.user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="OTP verification failed."
+            )
+
+        user_id = auth_res.user.id
+        email = auth_res.user.email or f"{user_id}@fortrace.com"
+
+        # Check/Initialize public.users profile
+        user_check = db.table("users").select("*").eq("user_id", user_id).execute()
+        if not user_check.data or len(user_check.data) == 0:
+            user_record = {
+                "user_id": user_id,
+                "email": email,
+                "full_name": email.split("@")[0],
+                "role": payload.role,  # Pre-registered role or default to Field_Technician
+                "plant_access": [],
+                "area_access": [],
+                "is_active": True,
+            }
+            db.table("users").insert(user_record).execute()
+            user = user_record
+        else:
+            user = user_check.data[0]
+
+        # Generate JWT access token
+        token_data = {
+            "user_id": user["user_id"],
+            "email": user["email"],
+            "role": user["role"]
+        }
+        access_token = create_access_token(data=token_data)
+        
+        # Generate new refresh token and persist in the database
+        refresh_token = str(uuid.uuid4())
+        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        db.table("refresh_tokens").insert({
+            "user_id": user["user_id"],
+            "token": refresh_token,
+            "expires_at": expires_at.isoformat()
+        }).execute()
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        }
+    except Exception as e:
+        logger.error(f"Failed to verify OTP: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Verification failed: {str(e)}"
+        )
+
+
+class SupabaseLoginPayload(BaseModel):
+    supabase_token: str
+    role: Optional[str] = "Field_Technician"
+
+
+@router.post("/supabase-login", response_model=Token, tags=["Authentication"])
+async def supabase_login(
+    payload: SupabaseLoginPayload,
+    db: Client = Depends(get_db)
+):
+    """
+    Exchanges a Supabase access token (e.g. from magic link redirect) for a backend custom JWT.
+    Automatically registers a public profile if the user doesn't exist yet.
+    """
+    logger.info("Supabase token login/exchange initiated.")
+    try:
+        # Verify Supabase token
+        user_resp = db.auth.get_user(payload.supabase_token)
+        if not user_resp or not user_resp.user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired Supabase token."
+            )
+        
+        auth_user = user_resp.user
+        user_id = auth_user.id
+        email = auth_user.email or f"{user_id}@fortrace.com"
+        
+        # Check/Initialize public.users profile
+        user_check = db.table("users").select("*").eq("user_id", user_id).execute()
+        if not user_check.data or len(user_check.data) == 0:
+            user_metadata = getattr(auth_user, "user_metadata", {}) or {}
+            full_name = user_metadata.get("full_name") or email.split("@")[0]
+            
+            user_record = {
+                "user_id": user_id,
+                "email": email,
+                "full_name": full_name,
+                "role": payload.role,  # default or chosen role
+                "plant_access": [],
+                "area_access": [],
+                "is_active": True,
+            }
+            db.table("users").insert(user_record).execute()
+            user = user_record
+            logger.info(f"Auto-created user profile for Magic Link user: {email}")
+        else:
+            user = user_check.data[0]
+            
+        # Check active status
+        if not user.get("is_active", True):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your account is deactivated."
+            )
+            
+        # Generate JWT access token
+        token_data = {
+            "user_id": user["user_id"],
+            "email": user["email"],
+            "role": user["role"]
+        }
+        access_token = create_access_token(data=token_data)
+        
+        # Generate new refresh token and persist in the database
+        refresh_token = str(uuid.uuid4())
+        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        db.table("refresh_tokens").insert({
+            "user_id": user["user_id"],
+            "token": refresh_token,
+            "expires_at": expires_at.isoformat()
+        }).execute()
+        
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            "user_role": user["role"]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to authenticate via Supabase token: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Authentication failed: {str(e)}"
+        )

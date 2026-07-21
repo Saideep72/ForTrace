@@ -14,7 +14,7 @@ from typing import List, Dict, Any
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-logger = logging.getLogger("forttrace.agent_tools")
+logger = logging.getLogger("fortrace.agent_tools")
 
 # ---------------------------------------------------------------------------
 # Bootstrap: load env vars and create a Supabase client

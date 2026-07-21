@@ -6,7 +6,7 @@ from supabase import create_client
 from app.core.config import settings
 from app.services.embedding_service import get_embedding
 
-logger = logging.getLogger("forttrace.search")
+logger = logging.getLogger("fortrace.search")
 router = APIRouter()
 
 # Initialize Supabase client

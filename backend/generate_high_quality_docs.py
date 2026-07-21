@@ -16,7 +16,7 @@ from groq import Groq
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("forttrace.doc_generator")
+logger = logging.getLogger("fortrace.doc_generator")
 
 # Initialize clients
 logger.info("Initializing Supabase and Groq clients...")

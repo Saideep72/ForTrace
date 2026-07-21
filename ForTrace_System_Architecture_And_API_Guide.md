@@ -1,4 +1,4 @@
-# FortTrace System Architecture & API Specifications Guide
+# ForTrace System Architecture & API Specifications Guide
 **Comprehensive Technical Documentation for Presentation (PPT) Creators & Frontend Developers**
 
 This document provides a highly detailed guide covering system architecture, backend data schemas, API specifications, and mathematical formulas utilized in the system.
@@ -112,10 +112,10 @@ Provides a view for **Plant Managers** and **Admins** to inspect plant reviews s
 | Active Experts                           | Dossier Reviews by Dr. Rajesh Kumar                         |
 +------------------------------------------+-------------------------------------------------------------+
 | Dr. Rajesh Kumar       [ 6 reviews ]     |  UAT: REF-HTX-R101-001             Submitted: 2026-07-21   |
-| email: rajesh@forttrace.com              |  Title: Pump Bearing Seal Degradation                       |
+| email: rajesh@fortrace.com              |  Title: Pump Bearing Seal Degradation                       |
 |                                          |  [INSIGHT: Inspect casing seal loop flow regular...]        |
 | Dr. Shivrao Patil      [ 2 reviews ]     |  [Read Full Analysis...]                                    |
-| email: shivrao@forttrace.com             |                                                             |
+| email: shivrao@fortrace.com             |                                                             |
 +------------------------------------------+-------------------------------------------------------------+
 ```
 
@@ -129,7 +129,7 @@ Provides a view for **Plant Managers** and **Admins** to inspect plant reviews s
         {
           "expert_id": "uuid-string-or-system-default",
           "full_name": "Dr. Rajesh Kumar",
-          "email": "rajesh@forttrace.com",
+          "email": "rajesh@fortrace.com",
           "role": "Expert_Engineer",
           "reviews_count": 6,
           "reviews": [
@@ -249,11 +249,11 @@ When the "TEE Shield" is enabled, prompt data is processed in a simulated secure
 ---
 
 ## 7. Slide Deck Outline (PPT)
-Developers or business analysts presenting FortTrace can structure their slides as follows:
+Developers or business analysts presenting ForTrace can structure their slides as follows:
 
 | Slide # | Slide Title | Key Content / Bullet Points |
 |---|---|---|
-| **1** | Title Slide | **FortTrace Operations Dashboard**<br>Digital Twin, RAG, & Compliance Portal |
+| **1** | Title Slide | **ForTrace Operations Dashboard**<br>Digital Twin, RAG, & Compliance Portal |
 | **2** | The Problem | Unstructured tribal knowledge loss from retiring senior engineers.<br>Untracked cascade failures.<br>Audit trail vulnerabilities. |
 | **3** | RAG Expert Portal | **Feature 1 & 2**<br>Real-time knowledge capture and indexing.<br>1024-dimensional BGE vector embeddings.<br>Retired Expert Registry dossier tracker. |
 | **4** | What-If Simulator | **Feature 3**<br>BFS dependency blast-radius evaluation (up to 4 hops).<br>Downtime cost models ($2,500/hr/criticality point). |

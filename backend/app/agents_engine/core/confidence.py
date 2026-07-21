@@ -1,5 +1,5 @@
 """
-Confidence scoring utility for FortTrace agents.
+Confidence scoring utility for ForTrace agents.
 
 Each agent calls ``compute_confidence()`` with the signals available to it
 and gets back a float in [0.0, 1.0] that reflects how well-grounded the

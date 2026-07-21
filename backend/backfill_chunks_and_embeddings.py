@@ -21,7 +21,7 @@ from app.services.extraction_service import (
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("forttrace.backfill_all")
+logger = logging.getLogger("fortrace.backfill_all")
 
 # Initialize Supabase client
 db = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)

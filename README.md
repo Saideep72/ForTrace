@@ -1,8 +1,8 @@
-# FortTrace — Industrial Knowledge Intelligence Platform
+# ForTrace — Industrial Knowledge Intelligence Platform
 
 **Built by Team Arise**
 
-FortTrace is a production-grade, offline-friendly industrial intelligence platform designed for plant managers, maintenance engineers, safety officers, and field technicians. It parses unstructured engineering manuals, maps plant topology dependencies, monitors alarm histories, structures audit-compliant engineering change records, and processes bi-lingual voice queries with dynamic spoken summaries.
+ForTrace is a production-grade, offline-friendly industrial intelligence platform designed for plant managers, maintenance engineers, safety officers, and field technicians. It parses unstructured engineering manuals, maps plant topology dependencies, monitors alarm histories, structures audit-compliant engineering change records, and processes bi-lingual voice queries with dynamic spoken summaries.
 
 ---
 
@@ -11,7 +11,7 @@ FortTrace is a production-grade, offline-friendly industrial intelligence platfo
 The repository is structured into two main components:
 
 ```bash
-FortTrace/
+ForTrace/
 ├── backend/                  # FastAPI web server & services
 │   ├── app/
 │   │   ├── agents_engine/    # LangGraph Agent Orchestrator (Anushka's engine)

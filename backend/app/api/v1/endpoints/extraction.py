@@ -16,7 +16,7 @@ from app.services.extraction_service import (
 )
 from app.services import ner_service
 
-logger = logging.getLogger("forttrace.extraction")
+logger = logging.getLogger("fortrace.extraction")
 router = APIRouter()
 
 

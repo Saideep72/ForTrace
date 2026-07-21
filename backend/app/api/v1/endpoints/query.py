@@ -18,7 +18,7 @@ AGENTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../
 if AGENTS_PATH not in sys.path:
     sys.path.append(AGENTS_PATH)
 
-logger = logging.getLogger("forttrace.query")
+logger = logging.getLogger("fortrace.query")
 router = APIRouter()
 
 # Thread-safe in-memory session memory storage
@@ -230,7 +230,7 @@ async def ask_query(
                 "agent_used": current_agent,
                 "response_json": {"answer": answer, "expert_advice": expert_advice},
                 "sources_cited": [s.get("title", "source") for s in sources[:3]],
-                "model_used": "FortTrace-Llama3-TEE" if tee else "FortTrace-Llama3",
+                "model_used": "ForTrace-Llama3-TEE" if tee else "ForTrace-Llama3",
                 "model_version": "v1.2",
                 "tokens_input": 0,
                 "tokens_output": 0,
@@ -398,7 +398,7 @@ async def ask_voice_query(
                 "agent_used": current_agent,
                 "response_json": {"answer": answer, "expert_advice": expert_advice},
                 "sources_cited": [s.get("title", "source") for s in sources[:3]],
-                "model_used": "FortTrace-Llama3-Whisper",
+                "model_used": "ForTrace-Llama3-Whisper",
                 "model_version": "v1.2",
                 "tokens_input": 0,
                 "tokens_output": 0,

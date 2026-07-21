@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-# Define allowed roles in the FortTrace application for strict validation
+# Define allowed roles in the ForTrace application for strict validation
 UserRole = Literal[
     "Plant_Manager",
     "Maintenance_Engineer",

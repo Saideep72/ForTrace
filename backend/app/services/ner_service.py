@@ -1,5 +1,5 @@
 """
-FortTrace NER Service - Phase 5: Named Entity Recognition
+ForTrace NER Service - Phase 5: Named Entity Recognition
 Architecture: 2-Tier Hybrid
   Tier 1: Groq LLM API (high accuracy, cloud-based)
   Tier 2: Regex Engine (zero API calls, offline, unlimited, fallback)
@@ -13,7 +13,7 @@ import logging
 from typing import List, Dict, Any
 from supabase import Client
 
-logger = logging.getLogger("forttrace.ner")
+logger = logging.getLogger("fortrace.ner")
 
 
 # ===========================================================================

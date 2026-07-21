@@ -8,7 +8,7 @@ import logging
 from dotenv import load_dotenv
 from supabase import create_client
 
-logger = logging.getLogger("forttrace.agent_tools")
+logger = logging.getLogger("fortrace.agent_tools")
 
 # Load environment keys
 load_dotenv()

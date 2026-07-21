@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.schemas import DocumentResponse, DocumentListResponse, DocType
 
-logger = logging.getLogger("forttrace.documents")
+logger = logging.getLogger("fortrace.documents")
 router = APIRouter()
 
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB

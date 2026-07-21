@@ -118,7 +118,7 @@ def upload_all_test_files():
     ]
 
     print("==================================================")
-    print("Starting Bulk Test Cases Upload to FortTrace API")
+    print("Starting Bulk Test Cases Upload to ForTrace API")
     print("==================================================")
 
     for item in files_metadata:

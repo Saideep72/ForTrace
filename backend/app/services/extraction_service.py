@@ -5,7 +5,7 @@ import hashlib
 import logging
 from typing import List
 
-logger = logging.getLogger("forttrace.extraction")
+logger = logging.getLogger("fortrace.extraction")
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:

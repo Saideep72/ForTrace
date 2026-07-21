@@ -3,7 +3,7 @@ import logging
 from typing import List
 from sentence_transformers import SentenceTransformer
 
-logger = logging.getLogger("forttrace.embedding")
+logger = logging.getLogger("fortrace.embedding")
 
 # Model configurations - resolves to the locally downloaded model directory
 MODEL_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "model_bge_large")

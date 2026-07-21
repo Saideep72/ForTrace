@@ -5,14 +5,14 @@ This agent handles queries that are outside the domain of plant operations,
 industrial equipment diagnostics, and facility management.
 
 Instead of crashing or returning an unhelpful error, it returns a polite,
-informative message explaining what FortTrace can and cannot answer.
+informative message explaining what ForTrace can and cannot answer.
 """
 
 from graph.state import GraphState
 
 
 # Capability list shown to the user when their question is out of scope
-SCOPE_DESCRIPTION = """FortTrace is an industrial plant intelligence assistant. I can help you with:
+SCOPE_DESCRIPTION = """ForTrace is an industrial plant intelligence assistant. I can help you with:
 
   • Asset & equipment status — e.g. "What is the current status of Pump P-101?"
   • Network & dependency mapping — e.g. "What assets are connected to Reactor R-101?"
@@ -30,7 +30,7 @@ def out_of_scope_node(state: GraphState) -> dict:
     """
     Graceful fallback node for queries that do not relate to plant operations.
 
-    Returns a polite, scoped explanation of what FortTrace can answer
+    Returns a polite, scoped explanation of what ForTrace can answer
     instead of crashing or returning a generic LLM error.
     """
     query = state.get("query", "")

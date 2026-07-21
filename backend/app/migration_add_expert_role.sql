@@ -1,5 +1,5 @@
 -- =====================================================================
--- FortTrace Migration: Add Expert_Engineer to users_role_check constraint
+-- ForTrace Migration: Add Expert_Engineer to users_role_check constraint
 -- Run this in: Supabase Dashboard > SQL Editor
 -- =====================================================================
 
@@ -27,15 +27,15 @@ ADD CONSTRAINT users_role_check CHECK (
 INSERT INTO public.users (user_id, email, full_name, role, plant_access, area_access, is_active)
 SELECT 
     id,
-    'expert@forttrace.com',
+    'expert@fortrace.com',
     'Senior Expert Engineer',
     'Expert_Engineer',
     '{}',
     '{}',
     true
 FROM auth.users
-WHERE email = 'expert@forttrace.com'
+WHERE email = 'expert@fortrace.com'
 ON CONFLICT (user_id) DO UPDATE SET role = 'Expert_Engineer';
 
 -- Verify
-SELECT user_id, email, full_name, role FROM public.users WHERE email = 'expert@forttrace.com';
+SELECT user_id, email, full_name, role FROM public.users WHERE email = 'expert@fortrace.com';

@@ -1,4 +1,4 @@
-# Frontend Development Guide for **FortTrace – Plant Operations Intelligence**
+# Frontend Development Guide for **ForTrace – Plant Operations Intelligence**
 
 > This document is meant for the UI/UX engineer or frontend developer who will build a **premium‑looking, responsive** web application. It contains:
 > * All public API endpoints (FastAPI)
@@ -11,7 +11,7 @@
 ---
 
 ## 1. Project Overview
-- **Backend**: FastAPI (`c:/AIML/FortTrace/backend/app/api/v1/endpoints/…`).
+- **Backend**: FastAPI (`c:/AIML/ForTrace/backend/app/api/v1/endpoints/…`).
 - **Frontend**: Pure HTML/JS/CSS (no framework required) – you can optionally start a lightweight Vite dev server if you prefer.
 - **Auth**: Supabase JWT stored in `localStorage` under key `access_token`.
 - **RBAC roles**: `Plant_Manager`, `Maintenance_Engineer`, `Admin`, `Field_Technician`, `Auditor`.

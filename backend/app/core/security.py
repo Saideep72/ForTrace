@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.database import get_db
 
 # Logging
-logger = logging.getLogger("forttrace.security")
+logger = logging.getLogger("fortrace.security")
 
 # Cryptography context for password hashing using bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FortTrace - Plant Operations Intelligence</title>
+    <title>ForTrace - Plant Operations Intelligence</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Vis.js Network CDN -->
@@ -421,11 +421,13 @@
 <body>
     <!-- 1. AUTHENTICATION PAGES VIEW (LOGIN & REGISTER) -->
     <div id="auth-container">
-        <h1>FortTrace Intelligence</h1>
+        <h1>ForTrace Intelligence</h1>
         
         <!-- LOGIN SECTION -->
         <div class="auth-section">
-            <h2>Sign In</h2>
+            <h2 id="login-title">Sign In</h2>
+            
+            <!-- 1. Password login form -->
             <form id="login-form">
                 <div class="form-group">
                     <label>Email Address</label>
@@ -437,6 +439,7 @@
                 </div>
                 <button type="submit" style="width: 100%;">Sign In</button>
             </form>
+
             <div id="login-status" style="margin-top: 10px; font-weight: 600; font-size: 13px;"></div>
         </div>
 
@@ -465,7 +468,6 @@
                         <option value="Field_Technician">Field Technician</option>
                         <option value="Quality_Engineer">Quality Engineer</option>
                         <option value="Auditor">Auditor</option>
-                        <option value="Admin">System Administrator</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; background-color: #64748b;">Register Account</button>
@@ -478,7 +480,7 @@
     <div id="dashboard-container" style="display: none;">
         <!-- Top Title Navigation Banner -->
         <div id="header-bar">
-            <h1>FortTrace Operations Dashboard</h1>
+            <h1>ForTrace Operations Dashboard</h1>
             <div style="display: flex; align-items: center;">
                 <span class="user-badge" id="logged-user-badge">User Logged In</span>
                 <button id="logout-btn" class="btn-danger" style="padding: 6px 12px; font-size: 13px;">Logout</button>
@@ -523,7 +525,7 @@
             </div>
 
             <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 20px; border-radius: 8px;">
-                <h3 style="margin-top:0; color: #0369a1;">Welcome to FortTrace Intelligence</h3>
+                <h3 style="margin-top:0; color: #0369a1;">Welcome to ForTrace Intelligence</h3>
                 <p style="margin-bottom:0; font-size: 14px; line-height: 1.5;">
                     Use the tabs navigation above to manage document assets, run similarity vectors searches, trigger NER entity maps, or consult AI agents orchestrator for causal diagnosis. You can analyze live physical linkages using the <strong>Network Analysis</strong> visualizer.
                 </p>
@@ -1187,7 +1189,59 @@
                         Inspect plant diagnostics wisdom, feedback, and dossiers submitted by senior / retiring engineers.
                     </p>
                 </div>
-                <button onclick="loadExpertRegistry()" class="btn-primary" style="padding:6px 14px; font-size:13px; background:#64748b;">&#x21BB; Refresh Registry</button>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="openProvisionExpertModal()" class="btn-primary" style="padding:6px 14px; font-size:13px; background: linear-gradient(135deg, #7c3aed, #5b21b6);">
+                        &#x1F464; Provision Expert
+                    </button>
+                    <button onclick="loadExpertRegistry()" class="btn-primary" style="padding:6px 14px; font-size:13px; background:#64748b;">&#x21BB; Refresh Registry</button>
+                </div>
+            </div>
+
+            <!-- PROVISION EXPERT MODAL -->
+            <div id="provision-expert-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center;">
+                <div style="background:white; border-radius:14px; padding:32px; max-width:440px; width:90%; box-shadow:0 25px 50px rgba(0,0,0,0.25); position:relative;">
+                    <!-- Header -->
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                        <div style="width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#5b21b6); display:flex; align-items:center; justify-content:center; font-size:20px;">&#x1F9E0;</div>
+                        <div>
+                            <h3 style="margin:0; font-size:17px; color:#0f172a;">Provision Expert Engineer</h3>
+                            <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">Creates a secure Expert_Engineer account</p>
+                        </div>
+                        <button onclick="closeProvisionExpertModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:20px; cursor:pointer; color:#94a3b8; line-height:1;">&#x2715;</button>
+                    </div>
+
+                    <!-- Form fields -->
+                    <div class="form-group">
+                        <label>Expert Full Name *</label>
+                        <input type="text" id="provision-name" placeholder="e.g. Ramesh Kumar" />
+                    </div>
+                    <div class="form-group">
+                        <label>Expert Email Address *</label>
+                        <input type="email" id="provision-email" placeholder="ramesh.kumar@plant.com" />
+                    </div>
+                    <div class="form-group">
+                        <label>Temporary Password</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="provision-password" style="flex:1; font-family:monospace; letter-spacing:1px;" />
+                            <button type="button" onclick="generateExpertPassword()" style="background:#e2e8f0; border:none; border-radius:6px; padding:0 12px; cursor:pointer; font-size:12px; font-weight:600; color:#475569;">&#x21BB; Generate</button>
+                        </div>
+                        <p style="font-size:11px; color:#94a3b8; margin:4px 0 0 0;">Share this password securely with the expert. They can change it after first login.</p>
+                    </div>
+
+                    <!-- Info note -->
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; margin-bottom:18px; font-size:12px; color:#166534;">
+                        &#x2705; The account will be created with <strong>Expert_Engineer</strong> role and immediate database access. Email confirmation is pre-approved.
+                    </div>
+
+                    <!-- Status -->
+                    <div id="provision-status" style="font-size:13px; font-weight:600; margin-bottom:12px; min-height:18px;"></div>
+
+                    <!-- Actions -->
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="closeProvisionExpertModal()" style="flex:1; padding:10px; background:#f1f5f9; border:none; border-radius:8px; cursor:pointer; font-weight:600; color:#475569;">Cancel</button>
+                        <button onclick="submitProvisionExpert()" id="provision-submit-btn" style="flex:2; padding:10px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px;">&#x1F464; Create Expert Account</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Two-column grid layout -->
@@ -1638,10 +1692,12 @@
                     statusDiv.innerText = `Error: ${getErrorMessage(data)}`;
                 }
             } catch (err) {
-                statusDiv.style.color = "red";
+                showToast(err.message, 'error');
+                statusDiv.style.color = 'red';
                 statusDiv.innerText = `Error: ${err.message}`;
             }
         });
+
 
         // 3. SEND AGENT QUERY (TEXT & VOICE SPEECH RECORDING - PHASE 9)
         let mediaRecorder = null;
@@ -2965,7 +3021,7 @@
                     const downloadUrl = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = downloadUrl;
-                    link.download = `FortTrace_Compliance_Certificate_${new Date().toISOString().slice(0,10)}.pdf`;
+                    link.download = `ForTrace_Compliance_Certificate_${new Date().toISOString().slice(0,10)}.pdf`;
                     document.body.appendChild(link);
                     link.click();
                     link.remove();
@@ -3368,7 +3424,91 @@
             }
         }
 
+        // =========================================================
+        // PROVISION EXPERT MODAL HANDLERS
+        // =========================================================
+        function generateExpertPassword() {
+            const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!';
+            let pwd = '';
+            for (let i = 0; i < 12; i++) {
+                pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('provision-password').value = pwd;
+        }
 
+        function openProvisionExpertModal() {
+            const modal = document.getElementById('provision-expert-modal');
+            modal.style.display = 'flex';
+            // Clear fields
+            document.getElementById('provision-name').value = '';
+            document.getElementById('provision-email').value = '';
+            document.getElementById('provision-status').innerText = '';
+            // Auto-generate a password
+            generateExpertPassword();
+            // Reset button
+            const btn = document.getElementById('provision-submit-btn');
+            btn.disabled = false;
+            btn.innerText = '👤 Create Expert Account';
+        }
+
+        function closeProvisionExpertModal() {
+            document.getElementById('provision-expert-modal').style.display = 'none';
+        }
+
+        async function submitProvisionExpert() {
+            const statusDiv = document.getElementById('provision-status');
+            const submitBtn = document.getElementById('provision-submit-btn');
+
+            const fullName = document.getElementById('provision-name').value.trim();
+            const email    = document.getElementById('provision-email').value.trim();
+            const password = document.getElementById('provision-password').value.trim();
+
+            if (!fullName || !email || !password) {
+                statusDiv.style.color = 'red';
+                statusDiv.innerText = 'Please fill in all fields.';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = '⏳ Creating account...';
+            statusDiv.style.color = '#2563eb';
+            statusDiv.innerText = 'Provisioning expert account...';
+
+            try {
+                const res = await fetchWithAuth(`${BASE_URL}/expert/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name: fullName, email, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    statusDiv.style.color = '#16a34a';
+                    statusDiv.innerText = `✅ Expert account created! ${fullName} (${email}) can now log in.`;
+                    submitBtn.innerText = '✅ Done!';
+                    // Refresh the registry after 1.5s, then close modal
+                    setTimeout(() => {
+                        closeProvisionExpertModal();
+                        loadExpertRegistry();
+                    }, 2000);
+                } else {
+                    statusDiv.style.color = 'red';
+                    statusDiv.innerText = `Error: ${data.detail || 'Failed to create account.'}`;
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = '👤 Create Expert Account';
+                }
+            } catch (err) {
+                statusDiv.style.color = 'red';
+                statusDiv.innerText = `Error: ${err.message}`;
+                submitBtn.disabled = false;
+                submitBtn.innerText = '👤 Create Expert Account';
+            }
+        }
+
+        window.openProvisionExpertModal = openProvisionExpertModal;
+        window.closeProvisionExpertModal = closeProvisionExpertModal;
+        window.generateExpertPassword = generateExpertPassword;
+        window.submitProvisionExpert = submitProvisionExpert;
 
         // =========================================================
         // FEATURE 2: What-If Cascade Stress Tester

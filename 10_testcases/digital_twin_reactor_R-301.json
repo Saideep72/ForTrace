@@ -2,11 +2,11 @@
   "AssetMetadata": {
     "AssetTag": "12-R-301",
     "Description": "Stage-1 Hydrocracking Hydrotreating Reactor - Digital Twin Configuration",
-    "PlantLocation": "FortTrace Plant Operations - Unit 12 (HCU)",
+    "PlantLocation": "ForTrace Plant Operations - Unit 12 (HCU)",
     "ConfigurationID": "FTPO-DT-R301-REV05",
     "CalibrationReference": "Q2-2024-PERFORMANCE-DATA-FIT",
     "CalibrationDate": "2024-07-18T08:30:00Z",
-    "LastModifiedBy": "process_engineering_team@forttrace.com",
+    "LastModifiedBy": "process_engineering_team@fortrace.com",
     "TwinVersion": "5.4.2",
     "SolverEngine": "FT-HydroSim-Kinetic-v4.1"
   },

@@ -6,11 +6,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """
-    Application settings for FortTrace Backend.
+    Application settings for ForTrace Backend.
     Loads variables from the environment or a .env file.
     """
     # API Configurations
-    PROJECT_NAME: str = "FortTrace Backend"
+    PROJECT_NAME: str = "ForTrace Backend"
     API_V1_STR: str = "/api/v1"
     VERSION: str = "1.0.0"
 

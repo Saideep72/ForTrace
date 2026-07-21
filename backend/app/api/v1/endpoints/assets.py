@@ -14,7 +14,7 @@ from app.models.schemas import (
 )
 
 # Configure logger for asset audits
-logger = logging.getLogger("forttrace.assets")
+logger = logging.getLogger("fortrace.assets")
 
 router = APIRouter()
 

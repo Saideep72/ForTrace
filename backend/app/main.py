@@ -20,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
-logger = logging.getLogger("forttrace.main")
+logger = logging.getLogger("fortrace.main")
 
 
 @asynccontextmanager
@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     Lifespan context manager that handles startup and shutdown tasks.
     Logs lifecycle transition events.
     """
-    logger.info("Initializing FortTrace Backend application services...")
+    logger.info("Initializing ForTrace Backend application services...")
     # Verify DB initialization status at startup
     if supabase_client is not None:
         logger.info("Supabase DB client connection verified at startup.")
@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    logger.info("Shutting down FortTrace Backend application services...")
+    logger.info("Shutting down ForTrace Backend application services...")
 
 
 # Initialize FastAPI app
@@ -107,5 +107,5 @@ async def root():
         "docs_url": "/docs",
         "redoc_url": "/redoc",
         "status": "online",
-        "description": "AI-powered Industrial Knowledge Intelligence Platform. Welcome to the FortTrace API Gateway."
+        "description": "AI-powered Industrial Knowledge Intelligence Platform. Welcome to the ForTrace API Gateway."
     }

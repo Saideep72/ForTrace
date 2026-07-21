@@ -1,12 +1,12 @@
-# 🏭 FortTrace – Ultimate Engineering & Integration Handbook
+# 🏭 ForTrace – Ultimate Engineering & Integration Handbook
 
-This handbook is a comprehensive, production-grade guide for both backend and frontend development teams working on the **FortTrace – Plant Operations Intelligence platform**. It contains exact schemas, API payloads, functional logic, and step-by-step frontend wiring instructions to solve common integration issues (such as `Failed to fetch` errors on network graphs).
+This handbook is a comprehensive, production-grade guide for both backend and frontend development teams working on the **ForTrace – Plant Operations Intelligence platform**. It contains exact schemas, API payloads, functional logic, and step-by-step frontend wiring instructions to solve common integration issues (such as `Failed to fetch` errors on network graphs).
 
 ---
 
 ## 1. System Architecture Overview
 
-FortTrace uses a **Multi-Agent Orchestrator Model** powered by **LangGraph** on the backend, integrated with FastAPI, Supabase PostgreSQL, and Groq inference servers.
+ForTrace uses a **Multi-Agent Orchestrator Model** powered by **LangGraph** on the backend, integrated with FastAPI, Supabase PostgreSQL, and Groq inference servers.
 
 ### 🧭 LangGraph Agent Topology
 User queries are routed through a central graph workflow that distributes tasks based on detected query intents:

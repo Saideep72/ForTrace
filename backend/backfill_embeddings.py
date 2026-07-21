@@ -14,7 +14,7 @@ from app.services.embedding_service import get_embeddings_batch
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("forttrace.backfill")
+logger = logging.getLogger("fortrace.backfill")
 
 # Initialize Supabase client
 db = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)

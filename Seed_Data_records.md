@@ -1,7 +1,7 @@
 Inserting users:
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 01_users.sql
 -- Table: users
 -- Total Records: 18
@@ -23,7 +23,7 @@ values
   -- ============================================================
   (
     'ADM001',
-    'admin@forttrace.com',
+    'admin@fortrace.com',
     'System Administrator',
     'Admin',
     array['REF', 'PET', 'STEEL'],
@@ -33,7 +33,7 @@ values
   ),
   (
     'PM001',
-    'vikram.sharma@forttrace.com',
+    'vikram.sharma@fortrace.com',
     'Vikram Sharma',
     'Plant_Manager',
     array['REF'],
@@ -43,7 +43,7 @@ values
   ),
   (
     'PM002',
-    'meera.nair@forttrace.com',
+    'meera.nair@fortrace.com',
     'Meera Nair',
     'Plant_Manager',
     array['PET'],
@@ -53,7 +53,7 @@ values
   ),
   (
     'PM003',
-    'arvind.reddy@forttrace.com',
+    'arvind.reddy@fortrace.com',
     'Arvind Reddy',
     'Plant_Manager',
     array['STEEL'],
@@ -66,7 +66,7 @@ values
   -- ============================================================
   (
     'ME001',
-    'rajesh.kumar@forttrace.com',
+    'rajesh.kumar@fortrace.com',
     'Rajesh Kumar',
     'Maintenance_Engineer',
     array['REF'],
@@ -76,7 +76,7 @@ values
   ),
   (
     'ME002',
-    'priya.iyer@forttrace.com',
+    'priya.iyer@fortrace.com',
     'Priya Iyer',
     'Maintenance_Engineer',
     array['REF'],
@@ -86,7 +86,7 @@ values
   ),
   (
     'ME003',
-    'rahul.singh@forttrace.com',
+    'rahul.singh@fortrace.com',
     'Rahul Singh',
     'Maintenance_Engineer',
     array['PET'],
@@ -96,7 +96,7 @@ values
   ),
   (
     'ME004',
-    'sneha.joshi@forttrace.com',
+    'sneha.joshi@fortrace.com',
     'Sneha Joshi',
     'Maintenance_Engineer',
     array['PET'],
@@ -106,7 +106,7 @@ values
   ),
   (
     'ME005',
-    'manoj.patil@forttrace.com',
+    'manoj.patil@fortrace.com',
     'Manoj Patil',
     'Maintenance_Engineer',
     array['STEEL'],
@@ -116,7 +116,7 @@ values
   ),
   (
     'ME006',
-    'karthik.raman@forttrace.com',
+    'karthik.raman@fortrace.com',
     'Karthik Raman',
     'Maintenance_Engineer',
     array['STEEL'],
@@ -129,7 +129,7 @@ values
   -- ============================================================
   (
     'SO001',
-    'anita.deshmukh@forttrace.com',
+    'anita.deshmukh@fortrace.com',
     'Anita Deshmukh',
     'Safety_Officer',
     array['REF', 'PET'],
@@ -139,7 +139,7 @@ values
   ),
   (
     'SO002',
-    'mohammed.khan@forttrace.com',
+    'mohammed.khan@fortrace.com',
     'Mohammed Khan',
     'Safety_Officer',
     array['STEEL'],
@@ -152,7 +152,7 @@ values
   -- ============================================================
   (
     'QE001',
-    'neha.verma@forttrace.com',
+    'neha.verma@fortrace.com',
     'Neha Verma',
     'Quality_Engineer',
     array['REF'],
@@ -162,7 +162,7 @@ values
   ),
   (
     'QE002',
-    'sachin.gupta@forttrace.com',
+    'sachin.gupta@fortrace.com',
     'Sachin Gupta',
     'Quality_Engineer',
     array['PET', 'STEEL'],
@@ -175,7 +175,7 @@ values
   -- ============================================================
   (
     'FT001',
-    'ramesh.pawar@forttrace.com',
+    'ramesh.pawar@fortrace.com',
     'Ramesh Pawar',
     'Field_Technician',
     array['REF'],
@@ -185,7 +185,7 @@ values
   ),
   (
     'FT002',
-    'deepak.yadav@forttrace.com',
+    'deepak.yadav@fortrace.com',
     'Deepak Yadav',
     'Field_Technician',
     array['PET'],
@@ -195,7 +195,7 @@ values
   ),
   (
     'FT003',
-    'vikas.more@forttrace.com',
+    'vikas.more@fortrace.com',
     'Vikas More',
     'Field_Technician',
     array['STEEL'],
@@ -221,7 +221,7 @@ values
 Inserting Assets
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 02_assets.sql
 -- Part 1 : REF Plant
 -- ============================================================
@@ -381,7 +381,7 @@ VALUES
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 02_assets.sql
 -- Part 2 : PET Plant & STEEL Plant
 -- ============================================================
@@ -619,7 +619,7 @@ VALUES
 Inserting Asset_Dependencies
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 03_asset_dependencies.sql
 -- ============================================================
 
@@ -914,7 +914,7 @@ NULL
 Inserting Asset Expertise
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 04_asset_expertise.sql
 -- ============================================================
 
@@ -1014,7 +1014,7 @@ VALUES
 Inserting Work Orders
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 06_work_orders_part1.sql
 -- REF Plant Work Orders (15)
 -- ============================================================
@@ -1422,7 +1422,7 @@ NULL
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 06_work_orders_part2A.sql
 -- PET Plant Work Orders (1-5)
 -- ============================================================
@@ -1605,7 +1605,7 @@ TRUE,
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 06_work_orders_part2B.sql
 -- PET Plant Work Orders (6-9)
 -- ============================================================
@@ -1758,7 +1758,7 @@ NULL
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 06_work_orders_part3.sql
 -- STEEL Plant Work Orders (6)
 -- ============================================================
@@ -1973,7 +1973,7 @@ NULL
 Inserting Failure Records
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 07_failure_events_part1.sql
 -- REF Plant Failure Events (1-5)
 -- ============================================================
@@ -2138,7 +2138,7 @@ NULL,
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 07_failure_events_part2.sql
 -- PET Plant Failure Events (6-8)
 -- ============================================================
@@ -2249,7 +2249,7 @@ NULL,
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 07_failure_events_part3.sql
 -- STEEL Plant Failure Events (9-11)
 -- ============================================================
@@ -2362,7 +2362,7 @@ NULL,
 Inserting Alarm_records
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 08_alarm_history_part1A.sql
 -- REF Plant Alarm History (R-101 + P-201)
 -- Total Alarms : 10
@@ -2601,7 +2601,7 @@ FALSE
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 08_alarm_history_part1B.sql
 -- REF Plant Alarm History
 -- E-201 Fouling + V-301 PSV Leak + T-401 Agitator Vibration
@@ -2826,7 +2826,7 @@ FALSE
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 08_alarm_history_part2.sql
 -- PET Plant Alarm History
 -- Total Alarms : 8
@@ -3030,7 +3030,7 @@ FALSE
 );
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 08_alarm_history_part3.sql
 -- STEEL Plant Alarm History
 -- Total Alarms : 3
@@ -3136,7 +3136,7 @@ TRUE
 Inserting Expert Feedback
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 10_expert_feedback.sql
 -- Expert Feedback Dataset (10 Records)
 -- ============================================================
@@ -3344,7 +3344,7 @@ TRUE,
 Inserting Audit logs
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 11_query_audit_log.sql
 -- 15 Sample User Queries
 -- ============================================================
@@ -3384,7 +3384,7 @@ VALUES
 'RCAAgent',
 '{"summary":"Cooling loop degradation detected"}',
 '["failure_events","alarm_history","work_orders"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 486,
 215,
@@ -3406,7 +3406,7 @@ FALSE,
 'AlarmAgent',
 '{"alarms_found":6}',
 '["alarm_history"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 412,
 184,
@@ -3428,7 +3428,7 @@ TRUE,
 'PredictiveAgent',
 '{"risk":"High","confidence":0.91}',
 '["sensor_data","work_orders"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 523,
 248,
@@ -3450,7 +3450,7 @@ FALSE,
 'QueryAgent',
 '{"gas_alarm":true}',
 '["alarm_history","failure_events"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 388,
 154,
@@ -3472,7 +3472,7 @@ FALSE,
 'RCAAgent',
 '{"cause":"Seal failure"}',
 '["failure_events","alarm_history"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 471,
 196,
@@ -3494,7 +3494,7 @@ FALSE,
 'PredictiveAgent',
 '{"trend":"Increasing"}',
 '["sensor_data"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 364,
 142,
@@ -3516,7 +3516,7 @@ TRUE,
 'ComplianceAgent',
 '{"inspection_due":true}',
 '["inspections"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 319,
 125,
@@ -3538,7 +3538,7 @@ FALSE,
 'RCAAgent',
 '{"root_cause":"Lubrication failure"}',
 '["failure_events","alarm_history"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 505,
 206,
@@ -3560,7 +3560,7 @@ FALSE,
 'PredictiveAgent',
 '{"reason":"Tube fouling"}',
 '["failure_events"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 401,
 163,
@@ -3582,7 +3582,7 @@ TRUE,
 'MaintenanceAgent',
 '{"recommendation":"Chemical cleaning"}',
 '["work_orders"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 382,
 151,
@@ -3604,7 +3604,7 @@ FALSE,
 'AlarmAgent',
 '{"alarms":1}',
 '["alarm_history"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 275,
 108,
@@ -3626,7 +3626,7 @@ TRUE,
 'RCAAgent',
 '{"cause":"Pressure spike"}',
 '["failure_events","alarm_history"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 361,
 147,
@@ -3648,7 +3648,7 @@ FALSE,
 'QueryAgent',
 '{"count":5}',
 '["work_orders"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 418,
 161,
@@ -3670,7 +3670,7 @@ FALSE,
 'SystemAgent',
 '{"status":"Healthy"}',
 '["system"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 198,
 82,
@@ -3692,7 +3692,7 @@ TRUE,
 'MaintenanceAgent',
 '{"pending":7}',
 '["work_orders"]',
-'FortTrace-Llama3',
+'ForTrace-Llama3',
 'v1.2',
 344,
 137,
@@ -3711,7 +3711,7 @@ ALTER TABLE engineering_change_record
 ALTER COLUMN commit_hash TYPE VARCHAR(128);
 
 -- ============================================================
--- FortTrace Seed Data
+-- ForTrace Seed Data
 -- File: 12_engineering_change_record.sql
 -- Engineering Change Record (15 Commits)
 -- ============================================================

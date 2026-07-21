@@ -10,7 +10,7 @@ class TEESimulator:
         self._mask_registry = {}
         self._reverse_registry = {}
         self.enclave_id = str(uuid.uuid4())
-        self.measurement_hash = hashlib.sha256(f"forttrace-enclave-{self.enclave_id}".encode()).hexdigest()
+        self.measurement_hash = hashlib.sha256(f"fortrace-enclave-{self.enclave_id}".encode()).hexdigest()
 
     def get_attestation_report(self) -> dict:
         """

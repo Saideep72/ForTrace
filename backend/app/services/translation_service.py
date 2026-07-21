@@ -2,7 +2,7 @@ import os
 import logging
 from groq import Groq
 
-logger = logging.getLogger("forttrace.translation")
+logger = logging.getLogger("fortrace.translation")
 
 def get_groq_client() -> Groq:
     api_key = os.getenv("GROQ_API_KEY")

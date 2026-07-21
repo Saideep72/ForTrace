@@ -1,11 +1,11 @@
-# FortTrace – High-Level System Architecture & Component Specifications
+# ForTrace – High-Level System Architecture & Component Specifications
 
-This document defines the production-grade system architecture, data flow pipelines, and technical component layout for **FortTrace – Industrial Knowledge Intelligence Platform**.
+This document defines the production-grade system architecture, data flow pipelines, and technical component layout for **ForTrace – Industrial Knowledge Intelligence Platform**.
 
 ---
 
 ## 1. Architecture Philosophy & Design Strategy
-The design of **FortTrace** is centered around the **"Preservation of Tacit Knowledge & Air-Gapped Operational Safety"** directive. Unlike generic AI wrappers or consumer chatbots, FortTrace operates as a secure, industrial-grade RAG and Multi-Agent operating system built for highly regulated process plants.
+The design of **ForTrace** is centered around the **"Preservation of Tacit Knowledge & Air-Gapped Operational Safety"** directive. Unlike generic AI wrappers or consumer chatbots, ForTrace operates as a secure, industrial-grade RAG and Multi-Agent operating system built for highly regulated process plants.
 
 *   **OT-to-IT Knowledge Synchronization**: Seamlessly unifies physical asset UAT tags with unstructured PDFs (manuals, P&IDs), structured SQL data (work orders, alarm history), and veteran engineer field tips.
 *   **Security-First Enclave Shielding**: Sensitive IP, proprietary engineering procedures, technician names, and plant locations are redacted at the local gateway level via a Trusted Execution Environment (TEE) simulation before invoking external cloud API endpoints.

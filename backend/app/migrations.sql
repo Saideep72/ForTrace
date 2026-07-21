@@ -1,5 +1,5 @@
 -- =====================================================================
--- FortTrace Database Migrations: Auth Completion & Asset/Document Metadata
+-- ForTrace Database Migrations: Auth Completion & Asset/Document Metadata
 -- Execute this script in your Supabase SQL Editor
 -- =====================================================================
 

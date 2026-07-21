@@ -9,7 +9,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.services.embedding_service import get_embedding
 
-logger = logging.getLogger("forttrace.expert")
+logger = logging.getLogger("fortrace.expert")
 router = APIRouter()
 
 
@@ -358,17 +358,17 @@ async def get_expert_registry(
             if not uid:
                 uid = "system_default"
                 author_name = "Seeded Operational Wisdom"
-                author_email = "system@forttrace.com"
+                author_email = "system@fortrace.com"
                 author_role = "System"
             else:
                 user_info = users_map.get(uid)
                 if user_info:
                     author_name = user_info.get("full_name") or "Unknown Expert"
-                    author_email = user_info.get("email") or "unknown@forttrace.com"
+                    author_email = user_info.get("email") or "unknown@fortrace.com"
                     author_role = user_info.get("role") or "Expert_Engineer"
                 else:
                     author_name = "Retired Expert"
-                    author_email = "retired@forttrace.com"
+                    author_email = "retired@fortrace.com"
                     author_role = "Expert_Engineer"
 
             if uid not in experts_dict:
@@ -400,4 +400,94 @@ async def get_expert_registry(
     except Exception as e:
         logger.error(f"Error fetching expert registry: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+from pydantic import BaseModel
+
+class CreateExpertPayload(BaseModel):
+    email: str
+    password: str
+    full_name: str
+
+
+@router.post("/create", status_code=status.HTTP_201_CREATED)
+async def create_expert(
+    payload: CreateExpertPayload,
+    current_user: dict = Depends(get_current_user),
+    db: Client = Depends(get_db)
+):
+    """
+    Registers a new Expert user.
+    RBAC: Plant_Manager and Admin only.
+    """
+    allowed = ["Plant_Manager", "Admin"]
+    if current_user.get("role") not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: Only Plant Managers and Admins can create experts."
+        )
+
+    logger.info(f"Expert creation initiated by: {current_user.get('email')} for: {payload.email}")
+
+    try:
+        # Check if email already exists in users table
+        existing_check = db.table("users").select("email").eq("email", payload.email).execute()
+        if existing_check.data and len(existing_check.data) > 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A user with this email address is already registered."
+            )
+
+        # Create user in Supabase Auth via Admin client
+        try:
+            auth_response = db.auth.admin.create_user({
+                "email": payload.email,
+                "password": payload.password,
+                "email_confirm": True,
+                "user_metadata": {
+                    "full_name": payload.full_name,
+                    "role": "Expert_Engineer"
+                }
+            })
+        except Exception as auth_err:
+            logger.error(f"Supabase Auth expert user creation failed for {payload.email}: {auth_err}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Registration failed on authorization server: {str(auth_err)}"
+            )
+
+        new_user_id = auth_response.user.id
+
+        user_record = {
+            "user_id": new_user_id,
+            "email": payload.email,
+            "full_name": payload.full_name,
+            "role": "Expert_Engineer",
+            "plant_access": [],
+            "area_access": [],
+            "is_active": True,
+        }
+
+        # Insert user profile into public.users
+        response = db.table("users").insert(user_record).execute()
+        
+        if not response.data or len(response.data) == 0:
+            logger.error(f"Database insertion returned empty dataset for email: {payload.email}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="User creation failed due to database sync issue."
+            )
+
+        created_user = response.data[0]
+        logger.info(f"Expert engineer registered successfully: {payload.email} with user_id: {new_user_id}")
+        return created_user
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception(f"Unexpected error encountered during expert creation: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An internal server error occurred during expert creation."
+        )
 

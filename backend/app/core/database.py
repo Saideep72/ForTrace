@@ -4,7 +4,7 @@ from supabase import create_client, Client
 from app.core.config import settings
 
 # Configure logging for database activities
-logger = logging.getLogger("forttrace.database")
+logger = logging.getLogger("fortrace.database")
 
 # Thread-safe global client cache
 supabase_client: Client | None = None

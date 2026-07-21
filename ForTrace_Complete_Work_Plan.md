@@ -1,4 +1,4 @@
-# FortTrace — Industrial Knowledge Intelligence Platform
+# ForTrace — Industrial Knowledge Intelligence Platform
 ## Complete Step-by-Step Work Plan (Production-Grade)
 
 > **Status:** Startup-grade implementation (not hackathon shortcuts)  
@@ -54,7 +54,7 @@ Get the repository cloned, virtual environment ready, dependencies installed, an
 ### Folder Structure to Create
 
 ```bash
-cd C:\AIML\FortTrace
+cd C:\AIML\ForTrace
 mkdir backend\app\api\v1\endpoints
 mkdir backend\app\core
 mkdir backend\app\models
@@ -794,7 +794,7 @@ curl -X POST http://localhost:8000/api/v1/query/voice \
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  FORTTRACE  |  Plant: REF  |  Shift: Night  |  Live     │
+│  FORTRACE  |  Plant: REF  |  Shift: Night  |  Live     │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
 │  │ R-101    │  │ P-201    │  │ E-201    │  │ C-301    │  │
@@ -862,7 +862,7 @@ curl -X POST http://localhost:8000/api/v1/query/voice \
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Ask FortTrace                                              │
+│  Ask ForTrace                                              │
 │  ┌─────────────────────────────────────────────────────┐   │
 │  │  [Hold to Speak]  or  Type your question...  Search │   │
 │  └─────────────────────────────────────────────────────┘   │
@@ -1288,7 +1288,7 @@ See Phase 7 for complete node types, relationship types, and Cypher queries.
 
 ```bash
 # 1. Folder structure
-cd C:\AIML\FortTrace
+cd C:\AIML\ForTrace
 mkdir backend\app\api\v1\endpoints
 mkdir backend\app\core
 mkdir backend\app\models

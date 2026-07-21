@@ -7,7 +7,7 @@ from supabase import Client
 from app.core.database import get_db
 from app.core.security import get_current_user
 
-logger = logging.getLogger("forttrace.simulation")
+logger = logging.getLogger("fortrace.simulation")
 router = APIRouter()
 
 # Base downtime cost per criticality point per hour (USD)
