@@ -494,6 +494,7 @@
             <button class="nav-tab" id="nav-btn-reports" onclick="switchTab(event, 'tab-reports')">Reports & Audit</button>
             <button class="nav-tab" id="nav-btn-system" onclick="switchTab(event, 'tab-system')">System Console</button>
             <button class="nav-tab" id="nav-btn-expert" onclick="switchTab(event, 'tab-expert')" style="display:none; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none;">&#x1F9E0; Expert Portal</button>
+            <button class="nav-tab" id="nav-btn-registry" onclick="switchTab(event, 'tab-registry')" style="display:none;">&#x1F4CB; Expert Reviews</button>
         </div>
 
         <!-- HOME VIEW TAB -->
@@ -1177,6 +1178,46 @@
             </div>
         </div>
 
+        <!-- EXPERT REGISTRY TAB — visible only to Plant_Manager / Admin -->
+        <div id="tab-registry" class="tab-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <div>
+                    <h2 style="margin:0;">Retired Experts — Case Analysis Registry</h2>
+                    <p style="color:var(--text-muted); font-size:13px; margin:4px 0 0 0;">Inspect plant diagnostics wisdom, feedback, and dossiers submitted by senior/retiring engineers.</p>
+                </div>
+                <button onclick="loadExpertRegistry()" class="btn-primary" style="padding:6px 14px; font-size:13px; background:#64748b;">Refresh Registry</button>
+            </div>
+
+            <!-- Two-column grid layout -->
+            <div style="display:grid; grid-template-columns:300px 1fr; gap:20px; min-height:550px;">
+                
+                <!-- Left Sidebar: Active Experts List -->
+                <div style="background:#f8fafc; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; padding:16px; display:flex; flex-direction:column; gap:12px; height:fit-content;">
+                    <h3 style="margin:0; font-size:13px; text-transform:uppercase; color:#475569; letter-spacing:0.5px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">Active Experts</h3>
+                    <div id="registry-experts-list" style="display:flex; flex-direction:column; gap:8px; max-height:480px; overflow-y:auto;">
+                        <div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">Loading experts...</div>
+                    </div>
+                </div>
+
+                <!-- Right Content Panel: Dossier Reviews -->
+                <div style="background:white; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; padding:20px; display:flex; flex-direction:column; gap:16px;">
+                    <div id="registry-dossier-header" style="border-bottom:1px solid #e2e8f0; padding-bottom:12px;">
+                        <h3 style="margin:0; font-size:16px; color:#0f172a;" id="registry-selected-expert-name">Select an expert</h3>
+                        <p style="margin:4px 0 0 0; color:#64748b; font-size:12px;" id="registry-selected-expert-meta">Click an expert on the left to inspect their dossier feedback and failure reviews.</p>
+                    </div>
+
+                    <div id="registry-dossiers-container" style="display:flex; flex-direction:column; gap:12px;">
+                        <!-- Filled dynamically by JS -->
+                        <div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">
+                            <div style="font-size:32px; margin-bottom:8px;">🕵️</div>
+                            No expert selected.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div> <!-- end dashboard-container -->
 
     <script>
@@ -1275,6 +1316,9 @@
             if (tabId === 'tab-reports') {
                 fetchECR();
             }
+            if (tabId === 'tab-registry') {
+                loadExpertRegistry();
+            }
         }
 
         function parseJwt(token) {
@@ -1334,6 +1378,13 @@
             // 5. Safety Officer permissions (no docs management view)
             if (loggedUserRole === 'Safety_Officer') {
                 document.getElementById('nav-btn-docs').style.display = 'none';
+            }
+
+            // 6. Expert Registry is ONLY visible to Plant_Manager and Admin
+            const registryRoles = ['Plant_Manager', 'Admin'];
+            const registryNavBtn = document.getElementById('nav-btn-registry');
+            if (registryNavBtn) {
+                registryNavBtn.style.display = registryRoles.includes(loggedUserRole) ? 'inline-block' : 'none';
             }
             
             // Auto switch active tab if current tab becomes unauthorized/hidden
@@ -3107,6 +3158,140 @@
                 btn.innerText = '🧠 Submit & Embed into Knowledge Base';
             }
         }
+
+        // =========================================================
+        // FEATURE 4: Expert Reviews Registry
+        // =========================================================
+        let expertRegistryData = [];
+
+        async function loadExpertRegistry() {
+            const listDiv = document.getElementById('registry-experts-list');
+            listDiv.innerHTML = '<div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">Loading experts...</div>';
+
+            try {
+                const res = await fetchWithAuth(`${BASE_URL}/expert/registry`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    listDiv.innerHTML = `<div style="color:red; font-size:12px; padding:10px;">${data.detail || 'Error loading registry'}</div>`;
+                    return;
+                }
+
+                expertRegistryData = data.experts || [];
+
+                if (expertRegistryData.length === 0) {
+                    listDiv.innerHTML = '<div style="color:#64748b; font-size:12px; text-align:center; padding:20px 0;">No active experts found.</div>';
+                    // Clear dossiers right panel
+                    document.getElementById('registry-selected-expert-name').innerText = 'No experts available';
+                    document.getElementById('registry-selected-expert-meta').innerText = '';
+                    document.getElementById('registry-dossiers-container').innerHTML = `
+                        <div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">
+                            No expert wisdom notes found in system.
+                        </div>`;
+                    return;
+                }
+
+                // Render list
+                listDiv.innerHTML = expertRegistryData.map(exp => {
+                    const label = exp.role === 'System' ? 'Seeded' : 'Expert';
+                    return `
+                        <div class="expert-list-item" id="exp-item-${exp.expert_id}" onclick="showExpertDossiers('${exp.expert_id}')"
+                             style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:10px 12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:all 0.15s;">
+                            <div>
+                                <div style="font-weight:700; color:#0f172a; font-size:12px;">${exp.full_name}</div>
+                                <div style="font-size:10px; color:#64748b; margin-top:2px;">${exp.email}</div>
+                            </div>
+                            <span style="background:#f1f5f9; color:#475569; padding:2px 7px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid #e2e8f0;">
+                                ${exp.reviews_count} case${exp.reviews_count !== 1 ? 's' : ''}
+                            </span>
+                        </div>`;
+                }).join('');
+
+                // Auto-select first expert if available
+                if (expertRegistryData.length > 0) {
+                    showExpertDossiers(expertRegistryData[0].expert_id);
+                }
+
+            } catch (err) {
+                listDiv.innerHTML = `<div style="color:red; font-size:12px; padding:10px;">Error: ${err.message}</div>`;
+            }
+        }
+
+        function showExpertDossiers(expertId) {
+            // Remove active/highlight from all expert list items
+            const items = document.querySelectorAll('.expert-list-item');
+            items.forEach(i => {
+                i.style.borderColor = '#e2e8f0';
+                i.style.background = 'white';
+            });
+
+            // Highlight selected
+            const activeItem = document.getElementById(`exp-item-${expertId}`);
+            if (activeItem) {
+                activeItem.style.borderColor = 'var(--primary)';
+                activeItem.style.background = '#f8fafc';
+            }
+
+            const exp = expertRegistryData.find(e => e.expert_id === expertId);
+            if (!exp) return;
+
+            document.getElementById('registry-selected-expert-name').innerText = `Dossier Reviews by ${exp.full_name}`;
+            document.getElementById('registry-selected-expert-meta').innerText = `${exp.role} · ${exp.email} · ${exp.reviews_count} cases analyzed`;
+
+            const dossiersContainer = document.getElementById('registry-dossiers-container');
+            const reviews = exp.reviews || [];
+
+            if (reviews.length === 0) {
+                dossiersContainer.innerHTML = `
+                    <div style="color:#64748b; font-size:13px; text-align:center; padding:40px 0;">
+                        No case reviews found for this expert.
+                    </div>`;
+                return;
+            }
+
+            dossiersContainer.innerHTML = reviews.map((r, index) => {
+                const lines = r.insight.split('\n');
+                let formattedInsight = lines.map(line => {
+                    if (line.startsWith('INSIGHT:') || line.startsWith('VERDICT / RECOMMENDATION:')) {
+                        return `<strong style="display:block; margin-top:8px; color:#1e293b;">${line}</strong>`;
+                    }
+                    return line;
+                }).join('<br/>');
+
+                return `
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:16px; background:#ffffff;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:11px; color:#64748b; border-bottom:1px dashed #f1f5f9; padding-bottom:6px;">
+                            <span>Asset UAT: <strong>${r.uat || 'N/A'}</strong></span>
+                            <span>Submitted: ${(r.updated_at || '').slice(0,10)}</span>
+                        </div>
+                        <h4 style="margin:0 0 8px 0; font-size:13px; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                            <span>💡</span> ${r.title}
+                        </h4>
+                        <div class="insight-text-block" id="insight-block-${index}" style="font-size:12px; color:#334155; line-height:1.5; max-height: 80px; overflow:hidden; transition: max-height 0.25s ease;">
+                            ${formattedInsight}
+                        </div>
+                        <div style="margin-top:8px;">
+                            <button onclick="toggleDossierExpand(this, 'insight-block-${index}')" 
+                                    style="background:none; border:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer; padding:0; display:flex; align-items:center; gap:2px;">
+                                <span>▼</span> Read Full Analysis...
+                            </button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function toggleDossierExpand(btn, blockId) {
+            const block = document.getElementById(blockId);
+            if (!block) return;
+            if (block.style.maxHeight === '80px' || block.style.maxHeight === '') {
+                block.style.maxHeight = '1000px';
+                btn.innerHTML = '<span>▲</span> Show Less';
+            } else {
+                block.style.maxHeight = '80px';
+                btn.innerHTML = '<span>▼</span> Read Full Analysis...';
+            }
+        }
+
 
         // =========================================================
         // FEATURE 2: What-If Cascade Stress Tester

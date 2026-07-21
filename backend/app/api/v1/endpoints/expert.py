@@ -281,3 +281,107 @@ Date: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}
     except Exception as e:
         logger.error(f"Expert wisdom capture error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to capture wisdom: {str(e)}")
+
+
+@router.get("/registry", status_code=status.HTTP_200_OK)
+async def get_expert_registry(
+    current_user: dict = Depends(get_current_user),
+    db: Client = Depends(get_db)
+):
+    """
+    Returns list of all experts and their submitted case reviews (dossiers).
+    RBAC: Plant_Manager and Admin only.
+    """
+    allowed = ["Plant_Manager", "Admin"]
+    if current_user.get("role") not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: Expert Registry is restricted to Plant Managers and Admins."
+        )
+
+    try:
+        # Fetch all expert documents
+        docs_res = db.table("documents") \
+            .select("doc_id, uat, title, updated_at, uploaded_by") \
+            .eq("doc_type", "LESSONS_LEARNED") \
+            .execute()
+        
+        docs = docs_res.data or []
+        if not docs:
+            return {"experts": []}
+
+        # Gather user ids and doc ids
+        user_ids = list(set([d["uploaded_by"] for d in docs if d.get("uploaded_by")]))
+        doc_ids = [d["doc_id"] for d in docs]
+
+        # Fetch user profiles
+        users_map = {}
+        if user_ids:
+            users_res = db.table("users") \
+                .select("user_id, email, full_name, role") \
+                .in_("user_id", user_ids) \
+                .execute()
+            for u in (users_res.data or []):
+                users_map[u["user_id"]] = u
+
+        # Fetch chunk texts from document_embeddings
+        embeddings_map = {}
+        if doc_ids:
+            emb_res = db.table("document_embeddings") \
+                .select("doc_id, chunk_text") \
+                .in_("doc_id", doc_ids) \
+                .execute()
+            for e in (emb_res.data or []):
+                embeddings_map[e["doc_id"]] = e.get("chunk_text", "")
+
+        # Group reviews by expert
+        experts_dict = {}
+        for d in docs:
+            uid = d.get("uploaded_by")
+            # Fallback for seeded or unknown author
+            if not uid:
+                uid = "system_default"
+                author_name = "Seeded Operational Wisdom"
+                author_email = "system@forttrace.com"
+                author_role = "System"
+            else:
+                user_info = users_map.get(uid)
+                if user_info:
+                    author_name = user_info.get("full_name") or "Unknown Expert"
+                    author_email = user_info.get("email") or "unknown@forttrace.com"
+                    author_role = user_info.get("role") or "Expert_Engineer"
+                else:
+                    author_name = "Retired Expert"
+                    author_email = "retired@forttrace.com"
+                    author_role = "Expert_Engineer"
+
+            if uid not in experts_dict:
+                experts_dict[uid] = {
+                    "expert_id": uid,
+                    "full_name": author_name,
+                    "email": author_email,
+                    "role": author_role,
+                    "reviews_count": 0,
+                    "reviews": []
+                }
+
+            doc_id = d["doc_id"]
+            experts_dict[uid]["reviews"].append({
+                "doc_id": doc_id,
+                "uat": d.get("uat"),
+                "title": d.get("title", "").replace("[EXPERT WISDOM] ", ""),
+                "updated_at": d.get("updated_at"),
+                "insight": embeddings_map.get(doc_id, "No detailed content found.")
+            })
+            experts_dict[uid]["reviews_count"] += 1
+
+        # Sort experts by reviews_count desc
+        experts_list = list(experts_dict.values())
+        experts_list.sort(key=lambda x: x["reviews_count"], reverse=True)
+
+        return {"experts": experts_list}
+
+    except Exception as e:
+        logger.error(f"Error fetching expert registry: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
