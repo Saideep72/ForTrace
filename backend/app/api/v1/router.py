@@ -8,6 +8,8 @@ from app.api.v1.endpoints.search import router as search_router
 from app.api.v1.endpoints.entities import router as entities_router
 from app.api.v1.endpoints.graph import router as graph_router
 from app.api.v1.endpoints.reports import router as reports_router
+from app.api.v1.endpoints.expert import router as expert_router
+from app.api.v1.endpoints.simulation import router as simulation_router
 
 # Core version 1 router
 api_router = APIRouter()
@@ -75,5 +77,16 @@ api_router.include_router(
     tags=["Reports & Audit Trail"]
 )
 
+# Include the Expert Engineer portal router under /expert prefix
+api_router.include_router(
+    expert_router,
+    prefix="/expert",
+    tags=["Expert Engineer Portal"]
+)
 
-
+# Include the Digital Twin cascade simulation router under /simulation prefix
+api_router.include_router(
+    simulation_router,
+    prefix="/simulation",
+    tags=["Digital Twin Simulation"]
+)

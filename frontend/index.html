@@ -493,6 +493,7 @@
             <button class="nav-tab" id="nav-btn-network" onclick="switchTab(event, 'tab-network')">Network Analysis</button>
             <button class="nav-tab" id="nav-btn-reports" onclick="switchTab(event, 'tab-reports')">Reports & Audit</button>
             <button class="nav-tab" id="nav-btn-system" onclick="switchTab(event, 'tab-system')">System Console</button>
+            <button class="nav-tab" id="nav-btn-expert" onclick="switchTab(event, 'tab-expert')" style="display:none; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none;">&#x1F9E0; Expert Portal</button>
         </div>
 
         <!-- HOME VIEW TAB -->
@@ -970,6 +971,33 @@
                     </div>
                 </div>
             </div>
+
+            <!-- CASCADE STRESS TESTER PANEL -->
+            <div style="margin-top: 25px; background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%); border-radius: 12px; padding: 22px; border: 1px solid #7c3aed;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <span style="font-size: 22px;">&#x1F4A5;</span>
+                    <div>
+                        <h3 style="margin:0; color: white; font-size: 16px;">What-If Emergency Cascade Stress Tester</h3>
+                        <p style="margin:0; color: #c4b5fd; font-size: 12px;">Digital Twin Blast-Radius Simulator — What happens if this asset trips?</p>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; margin-bottom: 16px;">
+                    <div>
+                        <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Select Asset to Trip</label>
+                        <select id="sim-asset-select" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #7c3aed; background: #1e1b4b; color: white; font-size: 13px;">
+                            <option value="">— Loading assets... —</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Trip Scenario</label>
+                        <input type="text" id="sim-scenario" placeholder="e.g. fouling_shutdown" value="fouling_shutdown" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #7c3aed; background: #1e1b4b; color: white; font-size: 13px; width: 180px;" />
+                    </div>
+                    <button onclick="runCascadeSimulation()" id="sim-btn" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 9px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; white-space: nowrap;">&#x1F4A5; Simulate Trip</button>
+                </div>
+                <div id="sim-results" style="display:none;">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
         </div>
 
         <!-- REPORTS & AUDIT TRAIL TAB -->
@@ -980,15 +1008,28 @@
             <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 20px;">
                 <!-- Left: Reports Panel -->
                 <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
-                    <h3 style="margin-top:0;">Root Cause Analysis PDF</h3>
+                    <h3 style="margin-top:0;">Root Cause Analysis PDF Generator</h3>
                     <div class="form-group">
-                        <label>Enter Failure Event ID</label>
-                        <input type="number" id="report-fail-id" value="1" min="1" placeholder="e.g. 1" />
+                        <label style="font-weight:600;">Failure Event Index / ID</label>
+                        <input type="number" id="report-fail-id" value="1" min="1" placeholder="e.g. 1, 2, 3..." />
+                        <small style="color: #64748b; font-size: 11px; display: block; margin-top: 4px; line-height: 1.3;">
+                            💡 Type <strong>1</strong> for the most recent failure incident report, <strong>2</strong> for the 2nd incident, etc.
+                        </small>
                     </div>
                     <button onclick="downloadRCAReport()" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
                         <span>📥 Download PDF Report</span>
                     </button>
                     <div id="report-status" style="margin-top: 10px; font-size:12px; font-weight: 600;"></div>
+
+                    <!-- Compliance Audit Certificate -->
+                    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                        <h3 style="margin-top:0; color: #1e3a5f;">&#x1F4DC; Compliance Audit Readiness Certificate</h3>
+                        <p style="font-size: 12px; color: #64748b; margin-bottom: 12px;">Generates a cryptographically signed multi-page PDF with full asset compliance status, Merkle chain verification, and a digital signature hash.</p>
+                        <button onclick="downloadComplianceCertificate()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #1e3a5f, #2563eb); color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px;">
+                            <span>&#x1F4DC; Generate Compliance Certificate</span>
+                        </button>
+                        <div id="cert-status" style="margin-top: 10px; font-size:12px; font-weight: 600;"></div>
+                    </div>
                 </div>
 
                 <!-- Right: Tabs for ECR & Audit Logs -->
@@ -1076,6 +1117,89 @@
             </div>
         </div>
     </div> <!-- end dashboard-container -->
+
+    <!-- EXPERT ENGINEER PORTAL — standalone full-screen overlay -->
+    <div id="expert-portal" style="display:none; position:fixed; inset:0; background:#0f0a1e; z-index:1000; overflow-y:auto; font-family: 'Inter', sans-serif;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%); padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #7c3aed; position: sticky; top:0; z-index:10;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">&#x1F9E0;</div>
+                <div>
+                    <div style="font-size: 18px; font-weight: 800; color: white;">Expert Engineer Portal</div>
+                    <div style="font-size: 12px; color: #c4b5fd;">Tacit Wisdom Capture &amp; Incident Review Console</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="expert-user-badge" style="background: rgba(124,58,237,0.3); color: #c4b5fd; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #7c3aed;"></span>
+                <button onclick="closeExpertPortal()" style="background: rgba(220,38,38,0.2); color: #fca5a5; border: 1px solid #dc2626; padding: 7px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px;">&#x2190; Back to Dashboard</button>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 340px 1fr; height: calc(100vh - 75px);">
+
+            <!-- LEFT: Incident Cases Sidebar -->
+            <div style="border-right: 1px solid #2d1b69; background: #0f0a1e; overflow-y: auto; padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <h3 style="color: #c4b5fd; margin:0; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">&#x1F4CB; Failure Incidents</h3>
+                    <button onclick="loadExpertCases()" style="background: rgba(124,58,237,0.3); color: #c4b5fd; border: 1px solid #7c3aed; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;">Refresh</button>
+                </div>
+                <div id="expert-cases-list" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="color: #6b7280; font-size: 13px; text-align: center; padding: 30px 0;">Loading incidents...</div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Detail Panel + Wisdom Form -->
+            <div style="overflow-y: auto; padding: 24px; background: #13111d;">
+                <!-- Placeholder before case selected -->
+                <div id="expert-detail-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: #4b5563;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">&#x1F4E1;</div>
+                    <div style="font-size: 16px; font-weight: 600;">Select an incident from the sidebar</div>
+                    <div style="font-size: 13px; margin-top: 6px;">to view full details and capture expert wisdom</div>
+                </div>
+
+                <!-- Filled dynamically when a case is selected -->
+                <div id="expert-detail-panel" style="display: none;">
+
+                    <!-- Incident Summary Cards -->
+                    <div id="expert-incident-header" style="margin-bottom: 20px;"></div>
+
+                    <!-- Data Grid: Alarms + Work Orders -->
+                    <div id="expert-incident-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;"></div>
+
+                    <!-- Existing Wisdom Notes -->
+                    <div id="expert-existing-notes" style="margin-bottom: 20px;"></div>
+
+                    <!-- Tacit Wisdom Capture Form -->
+                    <div style="background: linear-gradient(135deg, #1e1b4b 0%, #2d1b69 100%); border: 1px solid #7c3aed; border-radius: 12px; padding: 22px;">
+                        <h3 style="color: #c4b5fd; margin-top: 0; font-size: 15px; display: flex; align-items: center; gap: 8px;">&#x270D;&#xFE0F; Capture Tacit Wisdom</h3>
+                        <p style="color: #6b7280; font-size: 12px; margin-bottom: 16px;">Your knowledge will be instantly embedded into the RAG knowledge base and retrievable via Expert Shield queries.</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                            <div>
+                                <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Note Title *</label>
+                                <input type="text" id="wisdom-title" placeholder="e.g. Pump Seal Degradation Pattern" style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #0f0a1e; color: white; font-size: 13px; box-sizing: border-box;" />
+                            </div>
+                            <div>
+                                <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Asset UAT *</label>
+                                <input type="text" id="wisdom-uat" readonly placeholder="Auto-filled from selected incident" style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #1e1b4b; color: #c4b5fd; font-size: 13px; box-sizing: border-box;" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Detailed Insight / Tacit Knowledge *</label>
+                            <textarea id="wisdom-insight" rows="5" placeholder="Describe what you've learned from working with this equipment for decades. Include patterns, symptoms, informal heuristics, and hard-won observations that aren't in any manual..." style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #0f0a1e; color: white; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="color: #c4b5fd; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Verdict / Key Recommendation</label>
+                            <input type="text" id="wisdom-verdict" placeholder="e.g. Always inspect bearing housing every 6 months during turnaround" style="width: 100%; padding: 9px 12px; border-radius: 6px; border: 1px solid #4c1d95; background: #0f0a1e; color: white; font-size: 13px; box-sizing: border-box;" />
+                        </div>
+                        <button onclick="submitExpertWisdom()" id="wisdom-submit-btn" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none; padding: 11px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; width: 100%;">
+                            &#x1F9E0; Submit &amp; Embed into Knowledge Base
+                        </button>
+                        <div id="wisdom-status" style="margin-top: 12px; font-size: 13px; font-weight: 600;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- end expert-portal -->
 
     <script>
         const BASE_URL = 'http://localhost:8000/api/v1';
@@ -1281,6 +1405,18 @@
                 const roleLabel = roleLabels[loggedUserRole] || loggedUserRole || 'User';
                 document.getElementById('logged-user-badge').innerText = `Role Profile: ${roleLabel} (${loggedUserEmail})`;
                 
+                // Show Expert Portal nav button for eligible roles
+                const expertRoles = ['Expert_Engineer', 'Plant_Manager', 'Admin'];
+                const expertNavBtn = document.getElementById('nav-btn-expert');
+                if (expertNavBtn) {
+                    expertNavBtn.style.display = expertRoles.includes(loggedUserRole) ? 'inline-flex' : 'none';
+                }
+
+                // Auto-open Expert Portal if role is Expert_Engineer
+                if (loggedUserRole === 'Expert_Engineer') {
+                    setTimeout(() => openExpertPortal(), 300);
+                }
+
                 // Enforce RBAC UI Visibility rules
                 applyRbacUI();
                 
@@ -2710,6 +2846,404 @@
                 });
             }
         }
+
+
+        // =========================================================
+        // FEATURE 3: Compliance Audit Readiness Certificate
+        // =========================================================
+        async function downloadComplianceCertificate() {
+            const statusDiv = document.getElementById('cert-status');
+            statusDiv.style.color = '#2563eb';
+            statusDiv.innerText = '📜 Generating compliance certificate...';
+
+            try {
+                const response = await fetchWithAuth(`${BASE_URL}/reports/compliance-certificate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const sig = response.headers.get('X-Digital-Signature') || '';
+                    const score = response.headers.get('X-Compliance-Score') || '';
+                    const grade = response.headers.get('X-Certificate-Grade') || '';
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = `FortTrace_Compliance_Certificate_${new Date().toISOString().slice(0,10)}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    window.URL.revokeObjectURL(downloadUrl);
+                    statusDiv.style.color = '#16a34a';
+                    statusDiv.innerText = `✅ Certificate downloaded! Score: ${score}% | Grade: ${grade} | SHA-256: ${sig}...`;
+                } else {
+                    const errData = await response.json().catch(() => ({}));
+                    statusDiv.style.color = '#dc2626';
+                    statusDiv.innerText = `❌ Error: ${errData.detail || 'Failed to generate certificate'}`;
+                }
+            } catch (err) {
+                statusDiv.style.color = '#dc2626';
+                statusDiv.innerText = `❌ Error: ${err.message}`;
+            }
+        }
+
+        // =========================================================
+        // FEATURE 1: Expert Engineer Portal
+        // =========================================================
+        let expertCurrentFailureId = null;
+        let expertCurrentUat = null;
+
+        function openExpertPortal() {
+            document.getElementById('expert-portal').style.display = 'block';
+            document.getElementById('expert-user-badge').innerText = `${loggedUserRole} · ${loggedUserEmail}`;
+            loadExpertCases();
+        }
+
+        function closeExpertPortal() {
+            document.getElementById('expert-portal').style.display = 'none';
+        }
+
+        async function loadExpertCases() {
+            const listDiv = document.getElementById('expert-cases-list');
+            listDiv.innerHTML = '<div style="color: #6b7280; text-align: center; padding: 20px;">Loading...</div>';
+
+            try {
+                const res = await fetchWithAuth(`${BASE_URL}/expert/failure-cases`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    listDiv.innerHTML = `<div style="color: #f87171; font-size: 12px;">${data.detail || 'Error loading cases'}</div>`;
+                    return;
+                }
+
+                const cases = data.cases || [];
+                if (cases.length === 0) {
+                    listDiv.innerHTML = '<div style="color: #6b7280; text-align: center; padding: 20px;">No failure incidents found.</div>';
+                    return;
+                }
+
+                const severityColors = { critical: '#dc2626', high: '#f59e0b', medium: '#3b82f6', low: '#16a34a' };
+
+                listDiv.innerHTML = cases.map(c => {
+                    const sev = (c.severity || 'medium').toLowerCase();
+                    const sevColor = severityColors[sev] || '#6b7280';
+                    const noteBadge = c.expert_notes_count > 0 ? `<span style="background: rgba(124,58,237,0.3); color: #c4b5fd; border: 1px solid #7c3aed; padding: 2px 7px; border-radius: 10px; font-size: 10px;">✍️ ${c.expert_notes_count} note${c.expert_notes_count > 1 ? 's' : ''}</span>` : '';
+                    return `
+                        <div onclick="loadExpertCaseDetail('${c.failure_id}', '${c.uat || ''}')"
+                             style="background: #1e1b4b; border: 1px solid #4c1d95; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s;"
+                             onmouseover="this.style.borderColor='#7c3aed'; this.style.background='#2d1b69';"
+                             onmouseout="this.style.borderColor='#4c1d95'; this.style.background='#1e1b4b';">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                                <span style="font-weight: 700; color: white; font-size: 13px;">${c.asset_tag || c.uat}</span>
+                                <span style="background: ${sevColor}22; color: ${sevColor}; border: 1px solid ${sevColor}; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase;">${sev}</span>
+                            </div>
+                            <div style="color: #c4b5fd; font-size: 11px; margin-bottom: 4px;">${c.failure_mode || 'Unknown Failure'}</div>
+                            <div style="color: #6b7280; font-size: 10px; margin-bottom: 6px;">${(c.occurrence_date || '').slice(0,10)} · ${c.asset_type}</div>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">${noteBadge}</div>
+                        </div>`;
+                }).join('');
+
+            } catch (err) {
+                listDiv.innerHTML = `<div style="color: #f87171; font-size: 12px;">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function loadExpertCaseDetail(failureId, uat) {
+            expertCurrentFailureId = failureId;
+            expertCurrentUat = uat;
+
+            // Pre-fill wisdom form fields
+            document.getElementById('wisdom-uat').value = uat;
+            document.getElementById('wisdom-title').value = '';
+            document.getElementById('wisdom-insight').value = '';
+            document.getElementById('wisdom-verdict').value = '';
+            document.getElementById('wisdom-status').innerText = '';
+
+            document.getElementById('expert-detail-placeholder').style.display = 'none';
+            document.getElementById('expert-detail-panel').style.display = 'block';
+
+            const headerDiv = document.getElementById('expert-incident-header');
+            const dataDiv = document.getElementById('expert-incident-data');
+            const notesDiv = document.getElementById('expert-existing-notes');
+
+            headerDiv.innerHTML = '<div style="color: #c4b5fd; text-align: center; padding: 10px;">Loading incident details...</div>';
+            dataDiv.innerHTML = '';
+            notesDiv.innerHTML = '';
+
+            try {
+                const res = await fetchWithAuth(`${BASE_URL}/expert/failure-cases/${failureId}`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    headerDiv.innerHTML = `<div style="color:#f87171;">${data.detail}</div>`;
+                    return;
+                }
+
+                const f = data.failure || {};
+                const a = data.asset || {};
+                const alarms = data.alarms || [];
+                const wos = data.work_orders || [];
+                const notes = data.expert_notes || [];
+                const sevColors = { critical: '#dc2626', high: '#f59e0b', medium: '#3b82f6', low: '#16a34a' };
+                const sev = (f.severity || 'medium').toLowerCase();
+                const sevColor = sevColors[sev] || '#6b7280';
+
+                // Header cards
+                headerDiv.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #1e1b4b, #2d1b69); border: 1px solid #7c3aed; border-radius: 10px; padding: 18px; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <div style="font-size: 18px; font-weight: 800; color: white; margin-bottom: 4px;">${a.equipment_tag || f.uat || 'Unknown Asset'}</div>
+                                <div style="color: #c4b5fd; font-size: 13px;">${a.equipment_type || ''} · Manufacturer: ${a.manufacturer || 'N/A'}</div>
+                                <div style="color: #c4b5fd; font-size: 12px; margin-top: 4px;">UAT: <strong>${f.uat || uat}</strong></div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="background: ${sevColor}22; color: ${sevColor}; border: 1px solid ${sevColor}; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; text-transform: uppercase;">${sev} severity</div>
+                                <div style="color: #6b7280; font-size: 11px; margin-top: 8px;">${(f.occurrence_date || '').slice(0,10)}</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;">
+                                <div style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Failure Mode</div>
+                                <div style="color: white; font-size: 13px; font-weight: 600;">${f.failure_mode || 'N/A'}</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;">
+                                <div style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Category</div>
+                                <div style="color: white; font-size: 13px; font-weight: 600;">${f.failure_category || 'N/A'}</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; grid-column: 1/-1;">
+                                <div style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Root Cause</div>
+                                <div style="color: #fbbf24; font-size: 12px; font-weight: 600;">${f.root_cause || 'Under Investigation'}</div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                // Alarms and Work Orders side by side
+                dataDiv.innerHTML = `
+                    <div style="background: #1a1625; border: 1px solid #374151; border-radius: 8px; padding: 14px;">
+                        <h4 style="color: #f59e0b; margin: 0 0 10px 0; font-size: 13px;">⚠️ Recent Alarms (${alarms.length})</h4>
+                        ${alarms.length === 0 ? '<div style="color:#6b7280;font-size:12px;">No alarms found</div>' :
+                        alarms.map(al => `<div style="border-bottom: 1px solid #374151; padding: 6px 0; font-size: 12px;">
+                            <div style="color: white; font-weight: 600;">${al.tag_name || 'Unknown'}</div>
+                            <div style="color: #6b7280;">${al.alarm_type} · Priority: ${al.alarm_priority} · ${(al.triggered_at || '').slice(0,16).replace('T',' ')}</div>
+                        </div>`).join('')}
+                    </div>
+                    <div style="background: #1a1625; border: 1px solid #374151; border-radius: 8px; padding: 14px;">
+                        <h4 style="color: #3b82f6; margin: 0 0 10px 0; font-size: 13px;">🔧 Work Orders (${wos.length})</h4>
+                        ${wos.length === 0 ? '<div style="color:#6b7280;font-size:12px;">No work orders found</div>' :
+                        wos.map(wo => `<div style="border-bottom: 1px solid #374151; padding: 6px 0; font-size: 12px;">
+                            <div style="color: white; font-weight: 600;">${wo.wo_type} <span style="color:#f59e0b;">[${wo.priority}]</span></div>
+                            <div style="color: #6b7280; font-size: 11px;">${(wo.description || '').slice(0, 80)}...</div>
+                            <div style="color: #6b7280; font-size: 10px; margin-top: 2px;">Status: ${wo.status} · ${(wo.created_at || '').slice(0,10)}</div>
+                        </div>`).join('')}
+                    </div>`;
+
+                // Existing wisdom notes
+                if (notes.length > 0) {
+                    notesDiv.innerHTML = `
+                        <div style="background: rgba(124,58,237,0.1); border: 1px solid #7c3aed; border-radius: 8px; padding: 14px;">
+                            <h4 style="color: #c4b5fd; margin: 0 0 10px 0; font-size: 13px;">🧠 Existing Expert Wisdom Notes (${notes.length})</h4>
+                            ${notes.map(n => `<div style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px; margin-bottom: 8px;">
+                                <div style="color: #a78bfa; font-size: 12px; font-weight: 600;">${(n.title || '').replace('[EXPERT WISDOM] ', '')}</div>
+                                <div style="color: #6b7280; font-size: 10px; margin-top: 3px;">By: ${n.compliance_scope || 'Expert'} · ${(n.created_at || '').slice(0,10)}</div>
+                            </div>`).join('')}
+                        </div>`;
+                } else {
+                    notesDiv.innerHTML = '';
+                }
+
+            } catch (err) {
+                headerDiv.innerHTML = `<div style="color:#f87171;">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function submitExpertWisdom() {
+            const title = document.getElementById('wisdom-title').value.trim();
+            const uat = document.getElementById('wisdom-uat').value.trim();
+            const insight = document.getElementById('wisdom-insight').value.trim();
+            const verdict = document.getElementById('wisdom-verdict').value.trim();
+            const statusDiv = document.getElementById('wisdom-status');
+            const btn = document.getElementById('wisdom-submit-btn');
+
+            if (!title || !uat || !insight) {
+                statusDiv.style.color = '#f87171';
+                statusDiv.innerText = '❌ Title, Asset UAT, and Insight are required.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = '⏳ Embedding into knowledge base...';
+            statusDiv.style.color = '#c4b5fd';
+            statusDiv.innerText = 'Generating BGE embedding and saving to vector store...';
+
+            try {
+                const res = await fetchWithAuth(`${BASE_URL}/expert/wisdom`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        uat,
+                        insight_text: insight,
+                        verdict,
+                        failure_id: expertCurrentFailureId
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    statusDiv.style.color = '#4ade80';
+                    statusDiv.innerText = `✅ ${data.message} (${data.embedding_dimensions}D vector embedded)`;
+                    btn.disabled = false;
+                    btn.innerText = '🧠 Submit & Embed into Knowledge Base';
+                    // Clear form
+                    document.getElementById('wisdom-title').value = '';
+                    document.getElementById('wisdom-insight').value = '';
+                    document.getElementById('wisdom-verdict').value = '';
+                    // Reload existing notes
+                    if (expertCurrentFailureId) loadExpertCaseDetail(expertCurrentFailureId, expertCurrentUat);
+                } else {
+                    statusDiv.style.color = '#f87171';
+                    statusDiv.innerText = `❌ ${data.detail || 'Failed to capture wisdom'}`;
+                    btn.disabled = false;
+                    btn.innerText = '🧠 Submit & Embed into Knowledge Base';
+                }
+            } catch (err) {
+                statusDiv.style.color = '#f87171';
+                statusDiv.innerText = `❌ Error: ${err.message}`;
+                btn.disabled = false;
+                btn.innerText = '🧠 Submit & Embed into Knowledge Base';
+            }
+        }
+
+        // =========================================================
+        // FEATURE 2: What-If Cascade Stress Tester
+        // =========================================================
+        async function loadSimulationAssets() {
+            try {
+                const res = await fetchWithAuth(`${BASE_URL}/simulation/assets-list`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const select = document.getElementById('sim-asset-select');
+                if (!select) return;
+                select.innerHTML = data.assets.map(a =>
+                    `<option value="${a.uat}">${a.equipment_tag} (${a.uat}) · Crit: ${a.criticality_rating} · ${a.status}</option>`
+                ).join('');
+            } catch (e) {
+                console.warn('Simulation assets load failed:', e.message);
+            }
+        }
+
+        async function runCascadeSimulation() {
+            const sourceUat = document.getElementById('sim-asset-select').value;
+            const scenario = document.getElementById('sim-scenario').value.trim() || 'fouling_shutdown';
+            const resultsDiv = document.getElementById('sim-results');
+            const btn = document.getElementById('sim-btn');
+
+            if (!sourceUat) {
+                alert('Please select an asset to simulate.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = '⏳ Running simulation...';
+            resultsDiv.style.display = 'none';
+
+            try {
+                const res = await fetchWithAuth(`${BASE_URL}/simulation/cascade-trip`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source_uat: sourceUat, trip_scenario: scenario })
+                });
+                const data = await res.json();
+
+                btn.disabled = false;
+                btn.innerText = '💥 Simulate Trip';
+
+                if (!res.ok) {
+                    resultsDiv.style.display = 'block';
+                    resultsDiv.innerHTML = `<div style="color:#f87171; font-size: 13px; padding: 10px;">❌ ${data.detail || 'Simulation failed'}</div>`;
+                    return;
+                }
+
+                const sim = data.simulation_summary;
+                const blast = data.blast_radius || [];
+                const fin = data.financial_exposure || {};
+                const actions = data.immediate_actions || [];
+
+                const blastRows = blast.map(b => `
+                    <tr>
+                        <td style="padding: 7px 10px; color: white; font-weight: 600;">${b.equipment_tag}</td>
+                        <td style="padding: 7px 10px; color: #c4b5fd;">${b.equipment_type}</td>
+                        <td style="padding: 7px 10px; color: #fbbf24;">${b.via_flow_type}</td>
+                        <td style="padding: 7px 10px; color: #f87171; font-weight: 700;">~${b.estimated_minutes_to_trip} min</td>
+                        <td style="padding: 7px 10px; color: #6b7280;">${b.depth}</td>
+                    </tr>`).join('');
+
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                        <!-- Severity Card -->
+                        <div style="background: rgba(0,0,0,0.4); border: 2px solid ${sim.severity_color}; border-radius: 10px; padding: 14px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 900; color: ${sim.severity_color};">${sim.severity_level}</div>
+                            <div style="color: #c4b5fd; font-size: 12px; margin-top: 4px;">Cascade Severity</div>
+                            <div style="color: white; font-size: 13px; margin-top: 8px;">${sim.total_affected_assets} assets in blast radius</div>
+                            <div style="color: #6b7280; font-size: 11px;">First impact in ${sim.first_cascade_impact_minutes} min</div>
+                        </div>
+                        <!-- Financial Card -->
+                        <div style="background: rgba(220,38,38,0.15); border: 2px solid #dc2626; border-radius: 10px; padding: 14px; text-align: center;">
+                            <div style="font-size: 26px; font-weight: 900; color: #f87171;">$${(fin.hourly_cost_usd || 0).toLocaleString()}/hr</div>
+                            <div style="color: #fca5a5; font-size: 12px; margin-top: 4px;">Estimated Downtime Cost</div>
+                            <div style="color: #f87171; font-size: 12px; margin-top: 6px;">$${(fin.daily_cost_usd || 0).toLocaleString()} / day</div>
+                            <div style="color: #6b7280; font-size: 10px; margin-top: 4px;">${fin.basis || ''}</div>
+                        </div>
+                    </div>
+
+                    <!-- Blast Radius Table -->
+                    ${blast.length > 0 ? `
+                    <div style="background: rgba(0,0,0,0.4); border: 1px solid #374151; border-radius: 10px; margin-bottom: 14px; overflow: hidden;">
+                        <div style="background: rgba(220,38,38,0.2); padding: 10px 14px; border-bottom: 1px solid #374151;">
+                            <span style="color: #f87171; font-weight: 700; font-size: 13px;">🔴 Cascade Blast Radius (${blast.length} affected assets)</span>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; font-size: 12px;">
+                                <thead><tr style="background: rgba(255,255,255,0.05);">
+                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Asset Tag</th>
+                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Type</th>
+                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Flow Link</th>
+                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Trip Time</th>
+                                    <th style="padding: 8px 10px; text-align: left; color: #9ca3af;">Depth</th>
+                                </tr></thead>
+                                <tbody>${blastRows}</tbody>
+                            </table>
+                        </div>
+                    </div>` : '<div style="color:#4ade80; font-size: 13px; padding: 10px;">✅ No downstream cascade dependencies found for this asset.</div>'}
+
+                    <!-- Immediate Actions -->
+                    <div style="background: rgba(245,158,11,0.1); border: 1px solid #f59e0b; border-radius: 10px; padding: 14px;">
+                        <div style="color: #fbbf24; font-weight: 700; font-size: 13px; margin-bottom: 10px;">⚡ Immediate Containment Actions</div>
+                        ${actions.map((a, i) => `<div style="color: #fde68a; font-size: 12px; padding: 4px 0; display: flex; gap: 8px;"><span style="color: #f59e0b; font-weight: 700;">${i+1}.</span> ${a}</div>`).join('')}
+                    </div>`;
+
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerText = '💥 Simulate Trip';
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = `<div style="color:#f87171;">Error: ${err.message}</div>`;
+            }
+        }
+
+        // Load simulation assets when Network tab is opened
+        const origSwitchTab = switchTab;
+        switchTab = function(event, tabName) {
+            origSwitchTab(event, tabName);
+            if (tabName === 'tab-network') {
+                loadSimulationAssets();
+            }
+            if (tabName === 'tab-expert') {
+                openExpertPortal();
+            }
+        };
 
         // Logout
         document.getElementById('logout-btn').addEventListener('click', () => {
