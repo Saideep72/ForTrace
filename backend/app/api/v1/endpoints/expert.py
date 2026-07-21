@@ -240,7 +240,7 @@ Date: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}
             "file_path": f"expert_wisdom/{uat}/{doc_id}.txt",
             "file_hash": file_hash,
             "revision": "1.0",
-            "compliance_scope": f"Expert-{current_user.get('email', 'unknown')}",
+            "compliance_scope": [f"Expert-{current_user.get('email', 'unknown')}"],
             "is_active": True,
             "uploaded_by": current_user.get("user_id")
         }).execute()
