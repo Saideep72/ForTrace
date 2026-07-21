@@ -2,36 +2,36 @@
 
 **Built by Team Arise**
 
-ForTrace is a production-grade, offline-friendly industrial intelligence platform designed for plant managers, maintenance engineers, safety officers, and field technicians. It parses unstructured engineering manuals, maps plant topology dependencies, monitors alarm histories, structures audit-compliant engineering change records, and processes bi-lingual voice queries with dynamic spoken summaries.
+ForTrace is a production-grade, offline-friendly industrial intelligence platform designed for plant managers, maintenance engineers, safety officers, field technicians, and domain experts. It parses unstructured engineering manuals, maps plant topology dependencies, monitors alarm histories, structures audit-compliant engineering change records, tracks peer-reviewed expert tribal wisdom, simulates cascade trip scenarios, and processes bilingual voice queries with dynamic spoken summaries.
 
 ---
 
 ## 🏗️ Repository Layout
 
-The repository is structured into two main components:
+The repository is structured into backend and frontend components:
 
 ```bash
 ForTrace/
-├── backend/                  # FastAPI web server & services
+├── backend/                  # FastAPI web server & microservices
 │   ├── app/
-│   │   ├── agents_engine/    # LangGraph Agent Orchestrator (Anushka's engine)
-│   │   │   ├── agents/       # Supervisor, RCA, Query, Predictive modules
-│   │   │   ├── core/         # LLM configuration & confidence scoring
+│   │   ├── agents_engine/    # LangGraph Agent Orchestrator
+│   │   │   ├── agents/       # Supervisor, RCA, Query, Predictive & Network modules
+│   │   │   ├── core/         # LLM configuration & confidence scoring engine
 │   │   │   ├── graph/        # LangGraph State & compilation builders
 │   │   │   └── tools/        # Live database connectors for agent logic
-│   │   ├── api/              # API routers and endpoints (auth, query, graph, reports)
+│   │   ├── api/              # API routers (auth, query, graph, reports, simulation, expert, documents)
 │   │   ├── core/             # Security, Database connection pools, Configs
-│   │   ├── models/           # Pydantic schemas & database models
+│   │   ├── models/           # Pydantic schemas & database schemas
 │   │   └── services/         # Extraction, translation, and vector search services
 │   ├── requirements.txt      # Python package dependencies
 │   └── test_agent_network.py # Verification script for multi-agent execution
 │
 ├── frontend/                 # Plant Operations Web Interface
-│   ├── index.html            # Core HTML, layout, forms, and canvas modules
+│   ├── index.html            # Core HTML structure, modals, and dynamic views
 │   └── index.css             # Vibrant, responsive CSS theme (vanilla style)
 │
-├── .gitignore                # Root-level ignore rules (ignores virtual envs, local models, .env)
 ├── Seed_Data_records.md      # Seed datasets for assets, alarms, and work orders
+├── upload_testcases_11to30.py# Bulk document data migration runner
 └── README.md                 # Project documentation
 ```
 
@@ -40,26 +40,57 @@ ForTrace/
 ## ⚡ Core Features
 
 ### 1. Unified Multi-Agent AI (LangGraph)
-* Uses a compiled graph network orchestrated by a **Supervisor Agent** to route requests dynamically.
-* Connects the agent network to live PostgreSQL tables (`assets`, `alarm_history`, `work_orders`, `documents`) using custom database query tools, enabling context-aware plant diagnostics.
+* Uses a compiled graph network orchestrated by a **Supervisor Agent** to route user queries dynamically to specialized sub-agents:
+  * **QueryAgent**: Standard Operations & SOP Search (Groq Llama 3.3 + Supabase Vector RAG).
+  * **RCAAgent**: Root Cause Failure Diagnostics & Incident History Analysis.
+  * **NetworkAgent**: Live Asset Topology, Upstream/Downstream Dependency Tracing.
+  * **PredictiveAgent**: Predictive Maintenance Alerts & Sensor Drift Monitoring.
+* Connects directly to live PostgreSQL tables (`assets`, `alarm_history`, `work_orders`, `documents`, `expert_wisdom`).
 
-### 2. Relational Topology Graph (Vis.js)
-* Renders an interactive canvas of the plant layout including assets, manuals, failure incidents, alarms, and maintenance work orders.
-* Custom styling separates equipment type and document severity.
-* **Causal Path Tracing**: Clicking a node highlights its immediate dependencies (upstream and downstream) and dims the rest of the canvas.
-* Includes a built-in search depth filter, node tags toggle, and a **🔍 Fit View** button.
+### 2. Relational Topology Graph (Vis.js Network)
+* Renders an interactive plant layout canvas of physical assets, engineering manuals, failure incidents, alarms, and work orders.
+* **Causal Path Tracing**: Clicking a node highlights immediate upstream and downstream dependencies while dimming unrelated plant nodes.
+* Includes search depth selector (1 to 3 hops), node tags toggle, live legend filters, and fit-view controls.
 
-### 3. Bi-lingual Voice Command Pipeline
-* Supports voice command queries in both **English** and **Hindi/Hinglish**.
-* **STT (Speech-to-Text)**: Backend uses Groq Whisper Large for WAV audio transcription.
-* **Translation**: Uses Groq Llama 3.3 to auto-translate Hindi queries into English, feeds them to the agent, and optionally translates responses back to Devanagari Hindi.
-* **Conversational Memory**: Remembers thread history, allowing technicians to ask follow-up questions during inspections.
-* **TTS (Text-to-Speech)**: Automatically speaks a 1-2 sentence spoken summary out loud using the native browser Web Speech API.
+### 3. What-If Cascade Stress Tester (Digital Twin Simulator)
+* Real-time blast-radius simulation engine (`/api/v1/simulation/simulate`).
+* Allows plant engineers to trigger simulated trips (e.g., `fouling_shutdown`, `thermal_runaway`, `vibration_trip`, `power_failure`) on target equipment.
+* Computes multi-tier downstream impact chains, total affected units, and **hourly financial loss estimates** based on asset criticality ratings.
 
-### 4. Merkle-Verified Change Ledger & Reports
-* Features an **Engineering Change Record (ECR)** ledger where updates are tracked.
-* Log audits store every AI agent request, confidence score, and query latency.
-* **RCA PDF Compilation**: Generates ReportLab-backed PDF root-cause packages for failures, supporting smart index-to-UUID resolving (e.g. searching index `1` maps to the actual database UUID).
+### 4. Expert Advice & Tribal Wisdom Dossiers
+* Dedicated **Expert Advice** dashboard for certified domain experts and senior engineers.
+* Enables submission of peer-reviewed failure root-cause verdicts, maintenance checklists, and operational tribal wisdom notes mapped directly to physical asset UATs.
+* Includes an **Admin / Plant Manager Provisioning Modal** (`openProvisionExpertModal()`) to create and manage certified expert accounts.
+
+### 5. Multi-Modal Document Knowledge Base (RAG)
+* Supports ingestion of PDFs, Word (`.docx`), DCS Alarm JSON configs, Images (`.jpg`/`.png`), and Audio (`.mp3`) acoustic leak logs.
+* Auto-extracts content, embeds text via PgVector, and maps documents directly to plant asset UAT identifiers.
+* Sorted **newest-first** with pagination and file-type filtering (`REGULATORY_FILING`, `LESSONS_LEARNED`, `SOP`, etc.).
+
+### 6. Bilingual Voice Command Pipeline
+* Supports voice queries in **English** and **Hindi / Hinglish**.
+* **STT**: Uses Groq Whisper Large for WAV/WebM audio transcription.
+* **Translation**: Automatically translates Hindi prompts into English for agent processing, then returns bilingual explanations.
+* **TTS**: Browser Web Speech API delivers dynamic 1-2 sentence spoken summaries out loud.
+
+### 7. Audit Ledger & Report Generation
+* **Merkle-Verified Change Ledger**: Tracks Engineering Change Records (ECRs) with cryptographic hashes.
+* **ReportLab RCA Generator**: Compiles downloadable PDF root-cause analysis packages for incident reviews.
+
+---
+
+## 🛡️ Role-Based Access Control (RBAC)
+
+The UI automatically customizes navigation tabs, action buttons, and feature panels based on the user's authenticated JWT role:
+
+| Role | Authorized Tabs / Dashboards | System Capabilities |
+|---|---|---|
+| **Plant Manager** | Home, Docs, AI Chat, Network, Reports & Audit, Expert Advice | Full administrative access, ECR approvals, Expert provisioning |
+| **Maintenance Engineer** | Home, Docs Dashboard, AI Chat, Network Analysis | Asset management, SOP uploads, Work order tracking |
+| **Expert / SME** | Home, AI Agent Chat, Network Analysis, Expert Advice | Submit expert wisdom dossiers, review failure cases, add verdicts |
+| **Field Technician** | Home, AI Agent Chat, Network Analysis | Read-only topology view, voice queries, SOP search |
+| **Auditor** | Home, Network Analysis, Reports & Audit | View compliance records, change ledgers, and audit logs |
+| **System Admin** | All Dashboards + System Console | Full administrative controls, user management, system metrics |
 
 ---
 
@@ -67,64 +98,50 @@ ForTrace/
 
 ### 1. Prerequisites
 * Python 3.10+
-* modern web browser (Chrome, Edge, Firefox)
+* Modern Web Browser (Chrome, Edge, Firefox)
 
-### 2. Backend Installation & Start
-1. Navigate to the backend directory:
+### 2. Backend Setup
+1. Navigate to `backend`:
    ```bash
    cd backend
    ```
 2. Create and activate a Python virtual environment:
    ```bash
    python -m venv venv
-   # On Windows:
+   # Windows:
    venv\Scripts\activate
-   # On Linux/macOS:
+   # Linux/macOS:
    source venv/bin/activate
    ```
-3. Install the dependencies:
+3. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Create a `.env` file inside the `backend` folder containing the following environment variables:
+4. Create a `.env` file in `backend/` with your environment keys:
    ```ini
    SUPABASE_URL=https://<your-project>.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+   SUPABASE_SERVICE_KEY=<service-role-key>
    SUPABASE_ANON_KEY=<anon-key>
    GROQ_API_KEY=<groq-key>
+   SECRET_KEY=<jwt-secret-key>
    ```
-5. Launch the FastAPI server:
+5. Start the FastAPI server:
    ```bash
    python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
    ```
-   Verify that Swagger UI is accessible at `http://127.0.0.1:8000/docs`.
+   *Swagger Docs: `http://127.0.0.1:8000/docs`*
 
-### 3. Frontend Start
-Simply open the `frontend/index.html` file directly in any modern web browser:
+### 3. Frontend Setup
+Start a lightweight HTTP server in `frontend`:
 ```bash
-# Double-click frontend/index.html or run:
-start frontend/index.html
+cd frontend
+python -m http.server 8080
 ```
-
----
-
-## 🛡️ Role-Based Access Control (RBAC)
-
-The interface adapts dynamically depending on the user's logged-in role (extracted and decoded directly from the JWT access token):
-
-| Role | Authorized Tabs / Pages | Extra Capabilities / Restrictions |
-|---|---|---|
-| **Plant Manager** | Home, Docs Dashboard, AI Chat, Network, Reports & Audit | Full access (create, update, delete, ECR approvals) |
-| **Field Technician** | Home, AI Agent Chat, Network Analysis | Read-only view (Cannot upload/delete files or view system console) |
-| **Auditor** | Home, Network Analysis, Reports & Audit | View compliance records and change trails (No upload/chat access) |
-| **Maintenance Engineer** | Home, Docs Dashboard, AI Agent Chat, Network | Manage assets and upload SOP manuals (No reports panel access) |
-| **System Admin** | Home, Docs Dashboard, AI Chat, Network, Reports, System Console | Config logs, full token visualization, user management |
+Open `http://127.0.0.1:8080/` in your browser.
 
 ---
 
 ## 🧪 Verification & Testing
-* Run `python test_agent_network.py` in the `backend` folder to verify that Anushka's agent network compiles, registers tools, and correctly queries the plant database.
-* To test the user role filters:
-  * Register a new user on the authentication page with the **Field Technician** role.
-  * Sign in using those credentials.
-  * Verify that the navbar automatically hides the **Documents Dashboard** and **System Console** tabs.
+* Run `python test_agent_network.py` in `backend/` to verify multi-agent routing and database connectors.
+* Test the **What-If Simulator** on the Network Analysis tab by selecting an asset (e.g. `REF-HTX-E201-001`) and simulating a trip scenario.
+* Log in as an **Expert** user to submit tribal wisdom dossiers under the Expert Advice dashboard.
