@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForTrace - Plant Operations Intelligence</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    (function () {
+      const theme = localStorage.getItem('ForTrace-theme') || 'system';
+      const root = document.documentElement;
+      if (theme === 'system') {
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
+      } else {
+        root.setAttribute('data-theme', theme);
+      }
+    })();
+  </script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bgMain: 'var(--c-page-start)',
+            surface: 'var(--c-surface)',
+            borderMain: 'var(--c-border)',
+            primary: 'var(--c-primary)',
+            secondary: 'var(--c-secondary)',
+            success: 'var(--c-success)',
+            warning: 'var(--c-warning)',
+            danger: 'var(--c-danger)',
+            textMain: 'var(--c-text)',
+            textSecondary: 'var(--c-text-secondary)',
+            textMuted: 'var(--c-text-muted)'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <script type="module" crossorigin src="/assets/index-B41MvbEa.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DfluVLPa.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>
