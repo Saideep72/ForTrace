@@ -27,9 +27,8 @@ export default function AIChat() {
   const [includeExpertAdvice, setIncludeExpertAdvice] = useState(false);
 
   // MCP Integration States
-  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
   const [mcpStatus, setMcpStatus] = useState('disconnected'); // 'disconnected' | 'connecting' | 'connected'
-  const [mcpEndpoint, setMcpEndpoint] = useState(`${apiBase}/mcp`);
+  const [mcpEndpoint, setMcpEndpoint] = useState('http://localhost:8000/mcp');
   const [mcpPreset, setMcpPreset] = useState('scada');
   const [activeMcpTools, setActiveMcpTools] = useState([
     { id: 't1', name: 'scada_live_telemetry', type: 'resource' },
@@ -45,7 +44,7 @@ export default function AIChat() {
     {
       id: 's1',
       name: 'SCADA TELEMETRY',
-      url: `${apiBase}/mcp`,
+      url: 'http://localhost:8000/mcp',
       icon: '⚡',
       status: 'connected',
       toolsCount: 3
@@ -60,7 +59,7 @@ export default function AIChat() {
     }
   ]);
   const [newMcpName, setNewMcpName] = useState('');
-  const [newMcpUrl, setNewMcpUrl] = useState(apiBase.startsWith('http') ? apiBase.replace(/^http/, 'mcp') : 'mcp://localhost:8000');
+  const [newMcpUrl, setNewMcpUrl] = useState('mcp://localhost:8000');
   const [newMcpIcon, setNewMcpIcon] = useState('⚡');
   const [newMcpToken, setNewMcpToken] = useState('');
 

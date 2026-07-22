@@ -19,8 +19,7 @@ export function addApiLog(title, data) {
 
 export async function apiFetch(path, { method = 'GET', body = null, params = {}, headers = {} } = {}) {
   const token = localStorage.getItem('access_token');
-  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-  const url = new URL(`${apiBase}/api/v1/${path}`);
+  const url = new URL(`http://localhost:8000/api/v1/${path}`);
   
   Object.entries(params).forEach(([k, v]) => {
     if (v !== undefined && v !== null && v !== '') {

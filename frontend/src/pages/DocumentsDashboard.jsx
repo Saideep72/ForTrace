@@ -763,6 +763,194 @@ export default function DocumentsDashboard() {
           </div>
         )}
       </motion.div>
+
+      {/* Render the Upload Document Modal */}
+      <AnimatePresence>
+        {isUploadModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setIsUploadModalOpen(false);
+                setUploadStatus({ text: '', type: '' });
+              }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="bg-white text-slate-800 w-full max-w-lg rounded-[28px] border border-slate-200 p-6 md:p-8 shadow-2xl relative z-10 flex flex-col gap-5 max-h-[90vh] overflow-y-auto font-inter"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setIsUploadModalOpen(false);
+                  setUploadStatus({ text: '', type: '' });
+                }}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block font-yd-gothic">
+                  REGISTRY ACTION
+                </span>
+                <h3 className="text-2xl font-extrabold text-[#062a24] font-yd-gothic leading-none">
+                  Upload Technical Document
+                </h3>
+              </div>
+
+              <form onSubmit={handleUploadSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Title */}
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-yd-gothic">
+                      Document Title *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={uploadTitle}
+                      onChange={(e) => setUploadTitle(e.target.value)}
+                      placeholder="e.g. Boiler Safety SOP or Heat Exchanger P&ID"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 transition-all rounded-xl p-3 text-xs font-semibold text-slate-800 placeholder:text-slate-400/70 outline-none"
+                    />
+                  </div>
+
+                  {/* Asset UAT */}
+                  <div className="space-y-1.5 font-yd-gothic">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                      Linked Asset UAT *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={uploadUat}
+                      onChange={(e) => setUploadUat(e.target.value)}
+                      placeholder="REF-HTX-E201-001"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 transition-all rounded-xl p-3 text-xs font-semibold text-slate-800 placeholder:text-slate-400/70 outline-none"
+                    />
+                  </div>
+
+                  {/* Doc Type */}
+                  <div className="space-y-1.5 font-yd-gothic">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                      Category Type
+                    </label>
+                    <select
+                      value={uploadDocType}
+                      onChange={(e) => setUploadDocType(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 transition-all rounded-xl p-3 text-xs font-semibold text-slate-800 outline-none"
+                    >
+                      <option value="SOP">SOP</option>
+                      <option value="OEM_MANUAL">OEM Manual</option>
+                      <option value="PID">P&ID Diagram</option>
+                      <option value="WORK_ORDER">Work Order</option>
+                      <option value="INSPECTION_REPORT">Inspection Report</option>
+                      <option value="INCIDENT_REPORT">Incident Report</option>
+                      <option value="LESSONS_LEARNED">Lessons Learned</option>
+                    </select>
+                  </div>
+
+                  {/* Revision */}
+                  <div className="space-y-1.5 font-yd-gothic">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                      Revision Version *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={uploadRevision}
+                      onChange={(e) => setUploadRevision(e.target.value)}
+                      placeholder="1.0"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 transition-all rounded-xl p-3 text-xs font-semibold text-slate-800 outline-none"
+                    />
+                  </div>
+
+                  {/* Compliance Scope */}
+                  <div className="space-y-1.5 font-yd-gothic">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                      Compliance Scope
+                    </label>
+                    <input
+                      type="text"
+                      value={uploadCompliance}
+                      onChange={(e) => setUploadCompliance(e.target.value)}
+                      placeholder="ISO_9001 or OSHA_1910"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 transition-all rounded-xl p-3 text-xs font-semibold text-slate-800 placeholder:text-slate-400/70 outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* File Upload Area */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-yd-gothic">
+                    Document File *
+                  </label>
+                  <div className="border-2 border-dashed border-slate-200 hover:border-emerald-600/50 rounded-2xl transition-colors relative bg-slate-50 flex items-center justify-center p-6 text-center cursor-pointer">
+                    <input
+                      type="file"
+                      required
+                      onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="space-y-2 pointer-events-none">
+                      <div className="mx-auto flex justify-center text-slate-400">
+                        <UploadCloud size={32} />
+                      </div>
+                      <div className="text-xs font-bold text-slate-700">
+                        {uploadFile ? uploadFile.name : 'Select or drag file to upload'}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-semibold">
+                        PDF, DOCX, PNG, JPG, up to 10MB
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Message */}
+                {uploadStatus.text && (
+                  <div className={`p-3 rounded-xl text-xs font-semibold border ${
+                    uploadStatus.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' :
+                    uploadStatus.type === 'error' ? 'bg-red-50 border-red-200 text-red-700' :
+                    'bg-blue-50 border-blue-100 text-blue-800'
+                  }`}>
+                    {uploadStatus.text}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsUploadModalOpen(false);
+                      setUploadStatus({ text: '', type: '' });
+                    }}
+                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-center font-yd-gothic"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 bg-[#062a24] hover:bg-[#08362e] text-white rounded-xl text-xs font-extrabold transition-all shadow-md cursor-pointer text-center font-yd-gothic"
+                  >
+                    Upload Document
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
