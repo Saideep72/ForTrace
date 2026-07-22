@@ -35,6 +35,10 @@ Because the ForTrace codebase is structured as a monorepo containing both `backe
    uvicorn app.main:app --host 0.0.0.0 --port $PORT
    ```
 
+> [!NOTE]
+> **BGE Large Embedding Model (`model_bge_large`):**
+> The embedding model directory is ignored in Git (to keep the repo size small). When deployed on Railway, the backend automatically detects that the local directory is missing and will download the `BAAI/bge-large-en-v1.5` model directly from Hugging Face at runtime, caching it in the instance's file system. You do **not** need to run `download_model.py` manually.
+
 ### 3. Add Environment Variables
 Navigate to the **Variables** tab of your service and add the following variables:
 
