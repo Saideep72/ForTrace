@@ -71,18 +71,29 @@ export default function HeaderBar() {
         })}
       </div>
 
-      {/* Right Top Sign In / Login Button */}
+      {/* Right Top Sign In / Login / Logout Button */}
       <div className="flex items-center gap-2 shrink-0">
-        <button
-          onClick={() => {
-            handleLogout();
-            navigate('/login');
-          }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#0a332c] hover:bg-[#062a24] text-white rounded-xl text-xs font-extrabold transition-all shadow-md active:scale-95 cursor-pointer font-yd-gothic"
-        >
-          <LogIn size={15} />
-          <span>Sign In / Login</span>
-        </button>
+        {localStorage.getItem('access_token') ? (
+          <button
+            onClick={() => {
+              handleLogout();
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#0a332c] hover:bg-[#062a24] text-white rounded-xl text-xs font-extrabold transition-all shadow-md active:scale-95 cursor-pointer font-yd-gothic"
+          >
+            <LogOut size={15} />
+            <span>Logout</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              navigate('/login');
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#0a332c] hover:bg-[#062a24] text-white rounded-xl text-xs font-extrabold transition-all shadow-md active:scale-95 cursor-pointer font-yd-gothic"
+          >
+            <LogIn size={15} />
+            <span>Sign In / Login</span>
+          </button>
+        )}
       </div>
 
     </div>

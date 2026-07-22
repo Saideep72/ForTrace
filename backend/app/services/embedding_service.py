@@ -15,13 +15,9 @@ def get_model() -> SentenceTransformer:
     """
     global _model_instance
     if _model_instance is None:
-        # Check if local model directory exists and contains files
-        if os.path.exists(MODEL_NAME) and os.path.isdir(MODEL_NAME) and any(os.scandir(MODEL_NAME)):
-            logger.info(f"Loading SentenceTransformer model from local directory '{MODEL_NAME}'...")
-            _model_instance = SentenceTransformer(MODEL_NAME)
-        else:
-            logger.info("Local model directory not found or empty. Downloading BAAI/bge-large-en-v1.5 from Hugging Face...")
-            _model_instance = SentenceTransformer("BAAI/bge-large-en-v1.5")
+        logger.info(f"Loading SentenceTransformer model '{MODEL_NAME}' into memory...")
+        # Auto-detects device internally (uses CUDA if available, else CPU)
+        _model_instance = SentenceTransformer(MODEL_NAME)
         logger.info("SentenceTransformer model loaded successfully.")
     return _model_instance
 
