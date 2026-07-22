@@ -139,6 +139,9 @@ python -m http.server 8080
 ```
 Open `http://127.0.0.1:8080/` in your browser.
 
+### 4. Production Deployment
+For detailed production deployment instructions (deploying backend on Railway and frontend on Vercel), see [DEPLOYMENT.md](file:///d:/Projects/FortTrace/FortTrace/DEPLOYMENT.md).
+
 ---
 
 ## 🧪 Verification & Testing

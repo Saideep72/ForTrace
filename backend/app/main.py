@@ -50,18 +50,23 @@ app = FastAPI(
 )
 
 # CORS Middleware Configuration
-# Configured to allow local development frontend server
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "null"
-]
+# Configured to allow local development frontend server and production domains
+cors_origins_env = os.getenv("BACKEND_CORS_ORIGINS")
+if cors_origins_env:
+    # Supports comma-separated origins from env, e.g. "https://my-app.vercel.app,https://my-custom-domain.com"
+    origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+else:
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "null"
+    ]
 
 app.add_middleware(
     CORSMiddleware,
