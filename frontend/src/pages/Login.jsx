@@ -1,21 +1,9 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, ShieldCheck, User, Mail, Lock, UserCheck } from 'lucide-react';
-import { apiFetch } from '../utils';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 export default function Login() {
-  const [isRegister, setIsRegister] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  
-  // Registration specific states
-  const [fullName, setFullName] = useState('');
-  const [selectedRole, setSelectedRole] = useState('Plant_Manager');
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState({ text: '', type: '' });
-  const [activeRole, setActiveRole] = useState(null);
+  return <Navigate to="/home" replace />;
+}
 
   const demoAccounts = [
     { id: 'mgr', label: 'Manager', role: 'Plant_Manager', email: 'manager@plant.com', password: 'Manager@123' },
