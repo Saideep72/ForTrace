@@ -100,12 +100,12 @@ export default function Settings() {
     const handleDeleteAccount = () => {
         if (window.confirm("Are you sure you want to delete your account? This action is permanent.")) {
             localStorage.clear();
-            navigate('/login');
+            navigate('/home');
         }
     };
 
     const handleLogout = () => {
-        navigate('/login');
+        navigate('/home');
     };
 
     const renderContent = () => {

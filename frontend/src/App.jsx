@@ -1,16 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
-import Login from './pages/Login';
 import DocumentsDashboard from './pages/DocumentsDashboard';
 import AIChat from './pages/AIChat';
 import NetworkAnalysis from './pages/NetworkAnalysis';
 import ReportsAudit from './pages/ReportsAudit';
 import ExpertAdvice from './pages/ExpertAdvice';
 import HeaderBar from './components/HeaderBar';
-import { getUserRole, hasAccess } from './utils';
 
-// Shared layout component wrapping all authenticated dashboard sections
+// Shared layout component wrapping all dashboard sections
 const Layout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-[#f0f0f0]">
@@ -22,17 +20,8 @@ const Layout = ({ children }) => {
   );
 };
 
-// Route security guard enforcing JWT logins and RBAC claims
-const ProtectedRoute = ({ viewName, children }) => {
-  const role = getUserRole();
-  if (!role) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  if (!hasAccess(viewName)) {
-    return <Navigate to="/home" replace />;
-  }
-  
+// Route wrapper for layout
+const ProtectedRoute = ({ children }) => {
   return children;
 };
 
@@ -40,8 +29,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Unauthenticated authentication routes */}
-        <Route path="/login" element={<Login />} />
+        {/* Login route redirected to main dashboard */}
+        <Route path="/login" element={<Navigate to="/home" replace />} />
         
         {/* Authenticated section-wise pages */}
         <Route path="/home" element={
